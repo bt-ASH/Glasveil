@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ╔═══════════════════════════════════════════════════════╗
-# ║               Glasveil Installer v1.0                 ║
+# ║               Glasveil Installer v1.3                 ║
 # ║          niri / Material You / eww / matugen          ║
 # ╚═══════════════════════════════════════════════════════╝
 
@@ -104,7 +104,7 @@ copy_entry() {
 usage() {
     cat <<'USAGE'
 ╔═══════════════════════════════════════════════════════╗
-║                Glasveil Installer v1.0                ║
+║                Glasveil Installer v1.3                ║
 ║          niri / Material You / eww / matugen          ║
 ╚═══════════════════════════════════════════════════════╝
 
@@ -142,7 +142,7 @@ USAGE
 show_menu() {
     printf "\n${CBLD}${CYLW}"
     echo "╔═══════════════════════════════════════════════════════╗"
-    echo "║                Glasveil Installer v1.0                ║"
+    echo "║                Glasveil Installer v1.3                ║"
     echo "║          niri / Material You / eww / matugen          ║"
     echo "╚═══════════════════════════════════════════════════════╝"
     printf "${CDEF}\n"

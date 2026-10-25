@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Glasveil · Cache Cleaner v1.0 —— 独立部署版（~/.config/niri/scripts/clean-cache.py）
+"""Glasveil · Cache Cleaner v1.3 —— 独立部署版（~/.config/niri/scripts/clean-cache.py）
 
 勾选要清理的项目，回车执行。
 
