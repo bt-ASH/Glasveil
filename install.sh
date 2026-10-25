@@ -1,50 +1,81 @@
 #!/usr/bin/env bash
-# ==============================================================================
-# Glasveil 部署脚本
-#
-#   部署
-#     ./install.sh                 逐文件软链到 ~/.config（改动即时生效，适合自用）
-#     ./install.sh --copy          复制而不是链接（想脱离仓库独立维护）
-#     ./install.sh --dry-run       只打印将要做什么
-#
-#   备份 / 恢复（备份放在 ~/.config/.glasveil-backups/<时间戳>/）
-#     ./install.sh --backup        备份当前 ~/.config 里本仓库管理的那些文件
-#     ./install.sh --backup 标签   自定义备份标签
-#     ./install.sh --list-backups  列出所有备份
-#     ./install.sh --restore latest        回滚到最近一次备份
-#     ./install.sh --restore <时间戳|路径>  回滚到指定备份
-#
-# 部署时被覆盖的旧文件也会自动进同一个备份目录，可随时 --restore 回滚。
-# ==============================================================================
+# ╔═══════════════════════════════════════════════════════╗
+# ║               Glasveil Installer v1.0                 ║
+# ║          niri · Material You · eww · matugen          ║
+# ╚═══════════════════════════════════════════════════════╝
+
 set -euo pipefail
 
+# ── Colors ──────────────────────────────────────────────
+CRED='\033[1;31m'
+CGRN='\033[1;32m'
+CYLW='\033[1;33m'
+CBLU='\033[1;34m'
+CBLD='\033[1m'
+CDIM='\033[2m'
+CDEF='\033[0m'
+
+# ── Paths ───────────────────────────────────────────────
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
 BACKUP_ROOT="$DEST/.glasveil-backups"
-MODE="link"
-DRY=0
-ACTION="deploy"
-ARG=""
+VERSION="1.0"
 
-usage() { awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; }
+# ── Defaults (可由命令行覆盖) ────────────────────────────
+MODE="link"      # link | copy
+DRY=0            # 1 = 只打印，不落地
+ASSUME_YES=0     # 1 = 跳过确认
 
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --copy)          MODE="copy" ;;
-        --link)          MODE="link" ;;
-        --dry-run)       DRY=1 ;;
-        --backup)        ACTION="backup";  [ $# -ge 2 ] && [ "${2:0:2}" != "--" ] && { ARG="$2"; shift; } ;;
-        --restore)       ACTION="restore"; ARG="${2:-latest}"; [ $# -ge 2 ] && shift ;;
-        --list-backups)  ACTION="list" ;;
-        -h|--help)       usage; exit 0 ;;
-        *) echo "未知参数: $1" >&2; usage >&2; exit 1 ;;
-    esac
-    shift
-done
+# ── Package Lists ───────────────────────────────────────
+# 仓库包：桌面运行所需（niri 本身、终端、取色、输入法、截图、音频亮度等）
+REPO_PKGS=(
+    niri kitty fish
+    matugen starship yazi
+    eww wifitui
+    fcitx5 fcitx5-gtk fcitx5-configtool
+    fuzzel mako
+    hyprlock swayidle swaylock
+    wl-clipboard grim slurp satty
+    brightnessctl playerctl
+    awww wlsunset power-profiles-daemon
+    networkmanager upower
+    tmux libnotify jq
+    python-gobject python-cairo gtk3 gtk-layer-shell
+)
 
-# ---------------------------------------------------------------------------
-# 本仓库管理的目标文件（相对 $DEST 的路径）
-# ---------------------------------------------------------------------------
+# AUR 包：需要 paru / yay
+AUR_PKGS=(
+    eww
+    wifitui
+    waypaper
+    clipse
+    wshowkeys
+    mpvpaper
+)
+
+# 可选工具（仅提示，不强制安装）
+OPTIONAL_PKGS=(btop cava bat eza zoxide fastfetch)
+
+# ── Helpers ─────────────────────────────────────────────
+info()  { printf "${CBLU}::${CDEF} %s\n" "$*"; }
+ok()    { printf "  ${CGRN}✓${CDEF} %s\n" "$*"; }
+skip()  { printf "  ${CDIM}·${CDEF} %s\n" "$*"; }
+warn()  { printf "${CYLW}[!]${CDEF} %s\n" "$*" >&2; }
+die()   { printf "${CRED}[✗]${CDEF} %s\n" "$*" >&2; exit 1; }
+rule()  { printf "  ${CDIM}───────────────────────────────────────────────────${CDEF}\n"; }
+
+# 需要确认的操作（--yes 可跳过）
+confirm() {
+    [ "$ASSUME_YES" = 1 ] && return 0
+    [ "$DRY" = 1 ] && return 0
+    local reply
+    printf "%s " "$1 [y/N]"
+    read -r reply
+    case "$reply" in [yY]|[yY][eE][sS]) return 0 ;; *) return 1 ;; esac
+}
+
+# ── Managed Files ───────────────────────────────────────
+# 本仓库管理哪些目标文件（相对 $DEST）：含软链（effects.kdl / current-theme.conf）
 target_files() {
     local dir file
     for dir in "$REPO"/configs/*/; do
@@ -56,9 +87,7 @@ target_files() {
     return 0
 }
 
-
-# 把 $1 复制到 $2：指向仓库的绝对软链会存成实体文件（真正的回滚），
-# 相对软链（如 effects.kdl -> effects_normal.kdl）保持软链语义。
+# 把 $1 复制到 $2：指向仓库的绝对软链存实体内容（真回滚），相对软链保持链接
 copy_entry() {
     if [ -L "$1" ]; then
         case "$(readlink "$1")" in
@@ -70,19 +99,192 @@ copy_entry() {
     fi
 }
 
-# ---------------------------------------------------------------------------
-# 备份：把 $DEST 里本仓库管理的现有文件收进一个带时间戳的目录
-# ---------------------------------------------------------------------------
-do_backup() {
+# ── Usage ───────────────────────────────────────────────
+usage() {
+    printf "${CBLD}Glasveil Installer v%s${CDEF}\n\n" "$VERSION"
+    cat <<'USAGE'
+用法: ./install.sh <命令> [选项]
+
+命令 (只给一个):
+  deploy           只部署配置到 ~/.config（默认命令）
+  deps             只安装依赖（仓库包 + AUR 包）
+  all              先装依赖再部署
+  backup [标签]    备份当前 ~/.config 里本仓库管理的文件
+  restore <引用>   回滚（latest = 最近一次；也可给标签或路径）
+  list-backups     列出已有备份
+  help             显示本帮助
+
+选项:
+  --copy           部署时复制而不是软链
+  --link           部署时软链（默认）
+  --dry-run        只打印将要做什么，不落地
+  --yes, -y        跳过所有确认
+  --repo-only      只装仓库包，跳过 AUR
+  -h, --help       显示本帮助
+
+示例:
+  ./install.sh                    # 交互菜单
+  ./install.sh deps               # 只装依赖
+  ./install.sh deploy --copy      # 只部署配置（复制模式）
+  ./install.sh backup 调参前      # 打快照
+  ./install.sh restore latest     # 回滚
+USAGE
+}
+
+show_menu() {
+    printf "\n${CBLD}${CYLW}"
+    echo "╔═══════════════════════════════════════════════════════╗"
+    echo "║                Glasveil Installer v1.0                ║"
+    echo "║          niri | Material You | eww | matugen          ║"
+    echo "╚═══════════════════════════════════════════════════════╝"
+    printf "${CDEF}\n"
+    printf "  ${CBLD}可用操作:${CDEF}\n"
+    rule
+    printf "  ${CGRN}1)${CDEF}  只部署配置  ${CDIM}(deploy)${CDEF}\n"
+    printf "  ${CGRN}2)${CDEF}  只安装依赖  ${CDIM}(deps)${CDEF}\n"
+    printf "  ${CGRN}3)${CDEF}  依赖 + 配置 ${CDIM}(all)${CDEF}\n"
+    printf "  ${CGRN}4)${CDEF}  备份当前配置 ${CDIM}(backup)${CDEF}\n"
+    printf "  ${CGRN}5)${CDEF}  回滚最近备份 ${CDIM}(restore latest)${CDEF}\n"
+    printf "  ${CGRN}6)${CDEF}  列出备份      ${CDIM}(list-backups)${CDEF}\n"
+    rule
+    printf "  ${CRED}q)${CDEF}  退出\n\n"
+}
+
+# ── Dependencies ────────────────────────────────────────
+aur_helper() {
+    command -v paru >/dev/null 2>&1 && { echo paru; return; }
+    command -v yay  >/dev/null 2>&1 && { echo yay;  return; }
+    echo ""
+}
+
+is_installed() { pacman -Qq "$1" >/dev/null 2>&1; }
+
+cmd_deps() {
+    local repo_only="$1"
+    printf "\n${CBLD}>> 安装依赖${CDEF}\n"
+    rule
+
+    command -v pacman >/dev/null 2>&1 || die "只支持 Arch 系（未找到 pacman）"
+
+    # ── 仓库包 ──
+    local -a missing=()
+    local p
+    for p in "${REPO_PKGS[@]}"; do
+        if is_installed "$p"; then skip "$p 已安装"; else missing+=("$p"); fi
+    done
+
+    if [ ${#missing[@]} -eq 0 ]; then
+        ok "仓库包已齐"
+    else
+        printf "  将安装仓库包: ${CGRN}%s${CDEF}\n" "${missing[*]}"
+        if [ "$DRY" = 1 ]; then
+            info "(dry-run) sudo pacman -S --needed ${missing[*]}"
+        elif confirm "确认安装仓库包？"; then
+            sudo pacman -S --needed --noconfirm "${missing[@]}"
+        else
+            warn "已跳过仓库包"
+        fi
+    fi
+
+    # ── AUR 包 ──
+    [ "$repo_only" = 1 ] && { warn "已按 --repo-only 跳过 AUR 包"; return 0; }
+
+    local -a aur_missing=()
+    for p in "${AUR_PKGS[@]}"; do
+        if is_installed "$p"; then skip "$p 已安装"; else aur_missing+=("$p"); fi
+    done
+
+    if [ ${#aur_missing[@]} -eq 0 ]; then
+        ok "AUR 包已齐"
+    else
+        local helper; helper="$(aur_helper)"
+        printf "  将安装 AUR 包: ${CGRN}%s${CDEF}\n" "${aur_missing[*]}"
+        if [ -z "$helper" ]; then
+            warn "未找到 paru / yay，AUR 包需手动安装："
+            printf "      ${CDIM}%s${CDEF}\n" "${aur_missing[*]}"
+        elif [ "$DRY" = 1 ]; then
+            info "(dry-run) $helper -S --needed ${aur_missing[*]}"
+        elif confirm "用 $helper 安装 AUR 包？"; then
+            "$helper" -S --needed --noconfirm "${aur_missing[@]}"
+        else
+            warn "已跳过 AUR 包"
+        fi
+    fi
+
+    # ── 可选工具（仅提示）──
+    local -a opt_missing=()
+    for p in "${OPTIONAL_PKGS[@]}"; do
+        is_installed "$p" || opt_missing+=("$p")
+    done
+    [ ${#opt_missing[@]} -gt 0 ] && printf "  ${CDIM}可选未装: %s${CDEF}\n" "${opt_missing[*]}"
+
+    # ── 安装后提示 ──
+    printf "\n"
+    info "安装后建议："
+    printf "  ${CDIM}·${CDEF} 输入法:   ${CBLD}fcitx5 -r -d${CDEF}\n"
+    printf "  ${CDIM}·${CDEF} 电源策略: ${CBLD}sudo systemctl enable --now power-profiles-daemon${CDEF}\n"
+    printf "  ${CDIM}·${CDEF} 网络管理: ${CBLD}sudo systemctl enable --now NetworkManager${CDEF}\n"
+    printf "  ${CDIM}·${CDEF} 电池保护: 见 ${CBLD}configs/niri/README-battery.md${CDEF}\n"
+}
+
+# ── Deploy ──────────────────────────────────────────────
+cmd_deploy() {
+    local stamp backup rel dst n=0
+    stamp="$(date +%Y%m%d-%H%M%S)"
+    backup="$BACKUP_ROOT/deploy-$stamp"
+
+    printf "\n${CBLD}>> 部署配置${CDEF}  ${CDIM}(mode=$MODE -> $DEST)${CDEF}\n"
+    rule
+
+    while IFS= read -r rel; do
+        dst="$DEST/$rel"
+        if [ "$DRY" = 1 ]; then
+            printf "  ${CBLU}[%s]${CDEF} configs/%s\n" "$MODE" "$rel"
+            continue
+        fi
+        mkdir -p "$(dirname "$dst")"
+        if [ -e "$dst" ] || [ -L "$dst" ]; then
+            mkdir -p "$backup/$(dirname "$rel")"
+            copy_entry "$dst" "$backup/$rel" 2>/dev/null || true
+        fi
+        if [ "$MODE" = "copy" ]; then
+            cp -a "$REPO/configs/$rel" "$dst"
+        else
+            ln -sfn "$REPO/configs/$rel" "$dst"
+        fi
+        n=$((n + 1))
+    done < <(target_files)
+
+    if [ "$DRY" = 1 ]; then
+        info "(dry-run) 未写入任何文件"
+        return 0
+    fi
+
+    mkdir -p "$backup"
+    printf 'Glasveil deploy backup\ncreated: %s\nfiles: %s\nmode: %s\n' \
+        "$(date '+%F %T')" "$n" "$MODE" > "$backup/MANIFEST.txt"
+    ok "部署了 $n 个文件"
+    skip "被覆盖的旧文件已备份到 $backup"
+    printf "\n"
+    info "后续步骤:"
+    printf "  1. 生成配色: ${CBLD}matugen image \"\$(awww query | awk -F 'image: ' '/image: /{print \$2; exit}')\" -t scheme-content -m dark${CDEF}\n"
+    printf "  2. 重载:     ${CBLD}niri msg action load-config-file && eww reload${CDEF}\n"
+    printf "  3. 电池保护: 见 ${CBLD}configs/niri/README-battery.md${CDEF}\n"
+}
+
+# ── Backup / Restore ────────────────────────────────────
+cmd_backup() {
     local tag="${1:-$(date +%Y%m%d-%H%M%S)}"
     local out="$BACKUP_ROOT/$tag" rel src n=0
-    if [ -d "$out" ]; then out="$out-$(date +%H%M%S)"; fi
+    [ -d "$out" ] && out="$out-$(date +%H%M%S)"
 
+    printf "\n${CBLD}>> 备份当前配置${CDEF}\n"
+    rule
     while IFS= read -r rel; do
         src="$DEST/$rel"
         [ -e "$src" ] || [ -L "$src" ] || continue
         if [ "$DRY" = 1 ]; then
-            printf '  [backup] %s\n' "$DEST/$rel"
+            printf "  ${CBLU}[backup]${CDEF} %s\n" "$DEST/$rel"
             n=$((n + 1)); continue
         fi
         mkdir -p "$out/$(dirname "$rel")"
@@ -93,113 +295,131 @@ do_backup() {
         n=$((n + 1))
     done < <(target_files)
 
-    if [ "$DRY" = 0 ]; then
-        mkdir -p "$out"
-        printf 'Glasveil backup\ncreated: %s\nfiles: %s\n' \
-            "$(date '+%F %T')" "$n" > "$out/MANIFEST.txt"
-        echo "已备份 $n 个文件 -> $out"
-    else
-        echo "(dry-run) 将备份 $n 个文件 -> $BACKUP_ROOT/$tag"
+    if [ "$DRY" = 1 ]; then
+        info "(dry-run) 将备份 $n 个文件 -> $out"
+        return 0
     fi
+    mkdir -p "$out"
+    printf 'Glasveil backup\ncreated: %s\nfiles: %s\n' "$(date '+%F %T')" "$n" > "$out/MANIFEST.txt"
+    ok "已备份 $n 个文件 -> $out"
 }
 
-# ---------------------------------------------------------------------------
-# 恢复：把备份目录里的文件写回 $DEST（先做一次安全备份）
-# ---------------------------------------------------------------------------
-do_restore() {
-    local want="$1" src="" rel from to n=0
+cmd_restore() {
+    local want="${1:-latest}" src="" rel from to n=0
     if [ "$want" = "latest" ]; then
         src="$(find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d ! -name 'pre-restore-*' 2>/dev/null | sort | tail -1)"
-        [ -n "$src" ] || { echo "还没有任何备份（$BACKUP_ROOT 为空）" >&2; exit 1; }
+        [ -n "$src" ] || die "还没有任何备份（$BACKUP_ROOT 为空）"
     elif [ -d "$want" ]; then
         src="$want"
     elif [ -d "$BACKUP_ROOT/$want" ]; then
         src="$BACKUP_ROOT/$want"
     else
-        echo "找不到备份: $want" >&2; echo "已存在的备份：" >&2; do_list; exit 1
+        die "找不到备份: $want（用 list-backups 查看）"
     fi
 
-    echo "将从备份恢复: $src"
-    do_backup "pre-restore-$(date +%Y%m%d-%H%M%S)"
+    printf "\n${CBLD}>> 恢复配置${CDEF}  ${CDIM}<- $src${CDEF}\n"
+    rule
+    [ "$DRY" = 1 ] || cmd_backup "pre-restore-$(date +%Y%m%d-%H%M%S)" >/dev/null
 
     while IFS= read -r rel; do
         case "$rel" in MANIFEST.txt|LINKS.tsv) continue ;; esac
         from="$src/$rel"; to="$DEST/$rel"
         if [ "$DRY" = 1 ]; then
-            printf '  [restore] %s\n' "$to"; n=$((n + 1)); continue
+            printf "  ${CBLU}[restore]${CDEF} %s\n" "$to"
+            n=$((n + 1)); continue
         fi
         mkdir -p "$(dirname "$to")"
-        rm -rf "$to"            # 清掉可能指向仓库的软链
+        rm -rf "$to"
         cp -a "$from" "$to"
         n=$((n + 1))
     done < <(cd "$src" && find . \( -type f -o -type l \) -print | sed 's|^\./||' | sort)
 
-    # 还原软链（备份时记录的原始指向），使备份/恢复完全对称
-    if [ -f "$src/LINKS.tsv" ] && [ "$DRY" = 0 ]; then
+    if [ "$DRY" = 0 ] && [ -f "$src/LINKS.tsv" ]; then
         while IFS=$'\t' read -r rel target; do
             [ -n "${rel:-}" ] || continue
             mkdir -p "$DEST/$(dirname "$rel")"
             ln -sfn "$target" "$DEST/$rel"
         done < "$src/LINKS.tsv"
-        echo "已还原 $(wc -l < "$src/LINKS.tsv") 个软链"
+        skip "已还原 $(wc -l < "$src/LINKS.tsv") 个软链"
     fi
 
-    [ "$DRY" = 1 ] && echo "(dry-run) 将恢复 $n 个文件" || echo "已恢复 $n 个文件到 $DEST"
+    [ "$DRY" = 1 ] && info "(dry-run) 将恢复 $n 个文件" || ok "已恢复 $n 个文件到 $DEST"
 }
 
-do_list() {
+cmd_list() {
+    printf "\n${CBLD}>> 已有备份${CDEF}\n"
+    rule
     if [ ! -d "$BACKUP_ROOT" ] || [ -z "$(find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
-        echo "还没有任何备份（$BACKUP_ROOT）"
+        skip "还没有任何备份（$BACKUP_ROOT）"
         return 0
     fi
     find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | while IFS= read -r tag; do
         dir="$BACKUP_ROOT/$tag"
-        printf '  %-32s %4s 个文件   %s\n' "$tag" \
+        printf "  %-34s ${CDIM}%4s 个文件   %s${CDEF}\n" "$tag" \
             "$(find "$dir" \( -type f -o -type l \) ! -name MANIFEST.txt ! -name LINKS.tsv | wc -l)" \
             "$(sed -n 's/^created: //p' "$dir/MANIFEST.txt" 2>/dev/null)"
     done
 }
 
-# ---------------------------------------------------------------------------
-# 部署
-# ---------------------------------------------------------------------------
-do_deploy() {
-    local stamp backup n=0 rel dst
-    stamp="$(date +%Y%m%d-%H%M%S)"
-    backup="$BACKUP_ROOT/deploy-$stamp"
+# ── Argument Parsing ────────────────────────────────────
+COMMAND=""
+CMD_ARG=""
+REPO_ONLY=0
+SAW_FLAG=0
 
-    echo "Glasveil -> $DEST  (mode=$MODE)"
-    while IFS= read -r rel; do
-        dst="$DEST/$rel"
-        if [ "$DRY" = 1 ]; then
-            printf '  [%s] configs/%s -> %s\n' "$MODE" "$rel" "$dst"
-            continue
-        fi
-        mkdir -p "$(dirname "$dst")"
-        if [ -e "$dst" ] || [ -L "$dst" ]; then
-            mkdir -p "$backup/$(dirname "$rel")"
-            copy_entry "$dst" "$backup/$rel" 2>/dev/null || true
-        fi
-        if [ "$MODE" = "copy" ]; then cp -a "$REPO/configs/$rel" "$dst"; else ln -sfn "$REPO/configs/$rel" "$dst"; fi
-        n=$((n + 1))
-    done < <(target_files)
+while [ $# -gt 0 ]; do
+    case "$1" in
+        deploy|deps|all|backup|restore|list-backups|help) COMMAND="$1" ;;
+        --copy) SAW_FLAG=1;      MODE="copy" ;;
+        --link) SAW_FLAG=1;      MODE="link" ;;
+        --dry-run) SAW_FLAG=1;   DRY=1 ;;
+        --yes|-y)    ASSUME_YES=1 ;;
+        --repo-only) SAW_FLAG=1; REPO_ONLY=1 ;;
+        -h|--help)   COMMAND="help" ;;
+        --*)         die "未知选项: $1（--help 查看用法）" ;;
+        *)
+            if [ -n "$COMMAND" ] && [ -z "$CMD_ARG" ]; then CMD_ARG="$1"
+            elif [ -z "$COMMAND" ]; then die "未知命令: $1（--help 查看用法）"
+            else die "多余参数: $1"; fi
+            ;;
+    esac
+    shift
+done
 
-    if [ "$DRY" = 0 ]; then
-        mkdir -p "$backup"
-        printf 'Glasveil deploy backup\ncreated: %s\nfiles: %s\nmode: %s\n' \
-            "$(date '+%F %T')" "$n" "$MODE" > "$backup/MANIFEST.txt"
-        echo "部署了 $n 个文件；被覆盖的旧文件已备份到 $backup"
-        echo
-        echo "后续步骤："
-        echo "  1. 首次生成配色：matugen image \"\$(awww query | awk -F 'image: ' '/image: /{print \$2; exit}')\" -t scheme-content -m dark"
-        echo "  2. 重载：niri msg action load-config-file && eww reload"
-        echo "  3. 电池保护（可选）：见 configs/niri/README-battery.md"
+# ── Interactive Menu (无参数时) ─────────────────────────
+if [ -z "$COMMAND" ] && [ "$SAW_FLAG" = 1 ]; then
+    COMMAND="deploy"
+fi
+
+if [ -z "$COMMAND" ]; then
+    if [ ! -t 0 ]; then
+        usage; exit 0
     fi
-}
+    while true; do
+        show_menu
+        printf "  ${CDIM}Select > ${CDEF}"
+        read -r choice
+        case "$choice" in
+            1) cmd_deploy ;;
+            2) cmd_deps 0 ;;
+            3) cmd_deps 0; cmd_deploy ;;
+            4) cmd_backup ;;
+            5) cmd_restore latest ;;
+            6) cmd_list ;;
+            q|Q) echo; exit 0 ;;
+            *) warn "无效选择"; continue ;;
+        esac
+        printf "\n"
+    done
+fi
 
-case "$ACTION" in
-    backup)  do_backup "${ARG:-}";;
-    restore) do_restore "$ARG";;
-    list)    do_list;;
-    deploy)  do_deploy;;
+# ── Dispatch ────────────────────────────────────────────
+case "$COMMAND" in
+    deploy)       cmd_deploy ;;
+    deps)         cmd_deps "$REPO_ONLY" ;;
+    all)          cmd_deps "$REPO_ONLY"; cmd_deploy ;;
+    backup)       cmd_backup "$CMD_ARG" ;;
+    restore)      cmd_restore "$CMD_ARG" ;;
+    list-backups) cmd_list ;;
+    help)         usage ;;
 esac

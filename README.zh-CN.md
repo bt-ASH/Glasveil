@@ -43,9 +43,11 @@ Glasveil/
 
 ```bash
 git clone <本仓库> ~/Glasveil && cd ~/Glasveil
-./install.sh            # 备份现有配置后逐文件软链
-./install.sh --copy     # 或复制
-./install.sh --backup / --list-backups / --restore latest   # 备份、列备份、回滚
+./install.sh                 # 交互菜单（部署 / 依赖 / 两者 / 备份 / 回滚 / 列备份）
+./install.sh deploy          # 只部署配置（默认；--copy 复制，--dry-run 预演）
+./install.sh deps            # 只装依赖（仓库包 + AUR；--repo-only 跳过 AUR）
+./install.sh all             # 依赖 + 配置
+./install.sh backup 调参前    # 快照 / list-backups 列表 / restore latest 回滚
 ```
 
 ## 许可

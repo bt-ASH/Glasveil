@@ -9,6 +9,7 @@ ok()  { printf '  \033[32mOK\033[0m %s\n' "$1"; }
 bad() { printf '  \033[31mFAIL\033[0m %s\n' "$1"; fail=1; }
 
 say "shell 脚本语法"
+if bash -n install.sh 2>/dev/null; then ok "install.sh"; else bad "install.sh"; fi
 while IFS= read -r -d '' f; do
     if bash -n "$f" 2>/dev/null; then ok "$f"; else bad "$f"; fi
 done < <(find configs -name '*.sh' -print0)
