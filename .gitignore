@@ -12,9 +12,5 @@ __pycache__/
 
 # 运行时状态（不入库）
 configs/fish/fish_variables
-configs/niri/colors.kdl
-configs/kitty/themes/noctalia.conf
-configs/kitty/themes/noctalia-override.conf
-configs/eww/color.scss
-configs/matugen/state/
+configs/fish/config.fish.pre-prompt.bak
 *.log

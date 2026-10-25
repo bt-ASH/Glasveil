@@ -1,0 +1,32 @@
+layout {
+    focus-ring {
+        width 2
+        active-color "#715a49"
+        inactive-color "transparent"
+        urgent-color "#ba1a1a"
+    }
+    shadow {
+        on
+        softness 28
+        spread 6
+        offset x=0 y=0
+        draw-behind-window false
+        color "#715a4995"
+        inactive-color "#00000045"
+    }
+    tab-indicator {
+        active-color "#715a49"
+        inactive-color "#bda18d"
+        urgent-color "#ba1a1a"
+    }
+    insert-hint {
+        color "#715a4980"
+    }
+}
+
+recent-windows {
+    highlight {
+        active-color "#fff8f5"
+        urgent-color "#ba1a1a"
+    }
+}
