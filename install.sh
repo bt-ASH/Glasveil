@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ╔═══════════════════════════════════════════════════════╗
 # ║               Glasveil Installer v1.0                 ║
-# ║          niri · Material You · eww · matugen          ║
+# ║          niri / Material You / eww / matugen          ║
 # ╚═══════════════════════════════════════════════════════╝
 
 set -euo pipefail
@@ -57,11 +57,11 @@ AUR_PKGS=(
 OPTIONAL_PKGS=(btop cava bat eza zoxide fastfetch)
 
 # ── Helpers ─────────────────────────────────────────────
-info()  { printf "${CBLU}::${CDEF} %s\n" "$*"; }
-ok()    { printf "  ${CGRN}✓${CDEF} %s\n" "$*"; }
+info()  { printf "${CBLU}>>${CDEF} %s\n" "$*"; }
+ok()    { printf "${CGRN}>>${CDEF} %s\n" "$*"; }
 skip()  { printf "  ${CDIM}·${CDEF} %s\n" "$*"; }
-warn()  { printf "${CYLW}[!]${CDEF} %s\n" "$*" >&2; }
-die()   { printf "${CRED}[✗]${CDEF} %s\n" "$*" >&2; exit 1; }
+warn()  { printf "${CYLW}>>${CDEF} %s\n" "$*" >&2; }
+die()   { printf "${CRED}>>${CDEF} %s\n" "$*" >&2; exit 1; }
 rule()  { printf "  ${CDIM}───────────────────────────────────────────────────${CDEF}\n"; }
 
 # 需要确认的操作（--yes 可跳过）
@@ -101,33 +101,34 @@ copy_entry() {
 
 # ── Usage ───────────────────────────────────────────────
 usage() {
-    printf "${CBLD}Glasveil Installer v%s${CDEF}\n\n" "$VERSION"
     cat <<'USAGE'
-用法: ./install.sh <命令> [选项]
+╔═══════════════════════════════════════════════════════╗
+║                Glasveil Installer v1.0                ║
+║          niri / Material You / eww / matugen          ║
+╚═══════════════════════════════════════════════════════╝
 
-命令 (只给一个):
-  deploy           只部署配置到 ~/.config（默认命令）
-  deps             只安装依赖（仓库包 + AUR 包）
-  all              先装依赖再部署
-  backup [标签]    备份当前 ~/.config 里本仓库管理的文件
-  restore <引用>   回滚（latest = 最近一次；也可给标签或路径）
-  list-backups     列出已有备份
-  help             显示本帮助
+  (无参数)                      交互菜单（部署 / 依赖 / 备份 / 回滚）
+  deploy                        只部署配置到 ~/.config（默认命令）
+  deps                          只安装依赖（仓库包 + AUR 包）
+  all                           先装依赖再部署
+  backup [标签]                 备份当前 ~/.config 里本仓库管理的文件
+  restore <引用>                回滚（latest / 备份标签 / 目录路径）
+  list-backups                  列出已有备份
 
-选项:
-  --copy           部署时复制而不是软链
-  --link           部署时软链（默认）
-  --dry-run        只打印将要做什么，不落地
-  --yes, -y        跳过所有确认
-  --repo-only      只装仓库包，跳过 AUR
-  -h, --help       显示本帮助
+  --copy                        部署时复制而不是软链
+  --link                        部署时软链（默认）
+  --dry-run                     只打印将要做什么，不落地
+  --yes, -y                     跳过所有确认
+  --repo-only                   只装仓库包，跳过 AUR
+  -h, --help                    显示本帮助
 
-示例:
-  ./install.sh                    # 交互菜单
-  ./install.sh deps               # 只装依赖
-  ./install.sh deploy --copy      # 只部署配置（复制模式）
-  ./install.sh backup 调参前      # 打快照
-  ./install.sh restore latest     # 回滚
+  示例
+  ./install.sh                  交互菜单
+  ./install.sh deps             只装依赖
+  ./install.sh deploy --copy    只部署配置（复制模式）
+  ./install.sh backup 调参前    打快照
+  ./install.sh restore latest   回滚到最近一次
+
 USAGE
 }
 
@@ -135,7 +136,7 @@ show_menu() {
     printf "\n${CBLD}${CYLW}"
     echo "╔═══════════════════════════════════════════════════════╗"
     echo "║                Glasveil Installer v1.0                ║"
-    echo "║          niri | Material You | eww | matugen          ║"
+    echo "║          niri / Material You / eww / matugen          ║"
     echo "╚═══════════════════════════════════════════════════════╝"
     printf "${CDEF}\n"
     printf "  ${CBLD}可用操作:${CDEF}\n"
