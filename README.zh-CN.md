@@ -16,7 +16,7 @@ matugen 取色模板与脚本，以及几个自己写的小工具（星环启动
 ## 主要特性
 
 - **壁纸取色一条龙**：`matugen` 用 Noctalia 同款 `m3-content` 方案取色，生成
-  niri / kitty / GTK3·4 / fcitx5 皮肤 / eww / fastfetch / wifitui / yazi / starship / btop / cava…
+  niri / kitty / GTK3·4 / fcitx5 皮肤 / eww / fastfetch / wifitui / zed / yazi / starship / btop / cava…
 - **`Mod+Shift+N` 明暗切换**：重跑 matugen + 切 `gsettings` + 热重载 niri/kitty/fcitx5/eww
 - **玻璃质感**：窗口 0.9 不透明度 + `blur passes 3`；`effects.kdl` 软链切换普通/护眼
 - **`Mod+N` 护眼**：关模糊、透明度加重、`wlsunset` 5500K

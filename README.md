@@ -11,7 +11,7 @@
 
 ## 特性
 
-- **壁纸驱动配色**：`matugen` 从当前壁纸取 Material You 调色板，一次生成 niri / kitty / GTK / fcitx5 / eww / fastfetch / wifitui / yazi / starship / btop / cava … 全部配色
+- **壁纸驱动配色**：`matugen` 从当前壁纸取 Material You 调色板，一次生成 niri / kitty / GTK / fcitx5 / eww / fastfetch / wifitui / **zed** / yazi / starship / btop / cava … 全部配色
 - **明暗一键切换**（`Mod+Shift+N`）：整套配色 + GTK 主题 + 终端 + 输入法一起切
 - **玻璃质感**：窗口 90% 不透明度 + 真实背景模糊，`effects.kdl` 软链一换即可在「普通 / 护眼」间切换
 - **护眼模式**（`Mod+N`）：关模糊、透明度加重、5500K 暖色温
@@ -37,6 +37,7 @@ Glasveil/
     ├── matugen/                # 取色模板与脚本（配色管线核心）
     ├── fastfetch/              # 系统信息
     ├── wifitui/                # （模板在 matugen/templates/wifitui-theme.toml）
+    ├── zed/  # 主题由 matugen 生成（Glasveil Dark / Light）
     ├── yazi/ · wireplumber/ · xdg-desktop-portal/
     └── scripts/                # 共享脚本（matugen-update 等）
 ```

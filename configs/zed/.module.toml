@@ -1,0 +1,7 @@
+# Zed 编辑器 manifest
+[packages]
+repo = ["zed"]
+
+[preserve]
+# themes/glasveil.json 由 matugen 从壁纸生成（双主题：Glasveil Dark / Glasveil Light）
+files = ["themes/glasveil.json"]

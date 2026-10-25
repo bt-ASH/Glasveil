@@ -243,6 +243,12 @@ output_path = '~/.config/eww/color.scss'
 input_path = '~/.config/matugen/templates/wifitui-theme.toml'
 output_path = '~/.config/wifitui/theme.toml'
 pre_hook = 'mkdir -p ~/.config/wifitui'
+
+# Zed 编辑器主题（同一套 M3 色板，UI + 语法 + 终端）
+[templates.zed]
+input_path = '~/.config/matugen/templates/zed-theme.json'
+output_path = '~/.config/zed/themes/glasveil.json'
+pre_hook = 'mkdir -p ~/.config/zed/themes'
 # post_hook = "eww reload"
 
 [templates.hexecute]
