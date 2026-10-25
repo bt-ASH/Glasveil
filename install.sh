@@ -130,10 +130,6 @@ usage() {
   ./install.sh restore latest   回滚到最近一次
   ./install.sh completion fish 输出 fish 补全脚本
 
-  ── shell 补全 ─────────────────────────────────────────
-  fish: cp completions/install.sh.fish ~/.config/fish/completions/
-  bash: source completions/install.bash   （或放进 /usr/share/bash-completion/completions/install.sh）
-  zsh : cp completions/_install.sh 到 $fpath 下任意目录后 compinit
 
 USAGE
 }
