@@ -12,6 +12,7 @@ Glasveil 是个人 niri 桌面配置，其中一部分组件派生自以下项�
 | `configs/niri/tools/wallpaper-picker.py`、`configs/niri/tools/wallpaper_picker/` | Nyxuri M3E 壁纸选择器 |
 | `configs/niri/scripts/clean-cache.py` | `nyxuri/clean.py` |
 | `configs/niri/scripts/toggle-eyecare.sh`、`session` 相关脚本 | `configs/niri/scripts/` |
+| `configs/niri/scripts/niri-brightness.sh`（思路：内屏 sysfs + 外屏 DDC 分流） | `configs/niri/scripts/niri-brightness.sh` |
 | `configs/niri/scripts/shell-action.sh`、`niri-scratch-toggle.sh` | 同上 |
 | `configs/niri/{layout,glow,animations,rules,effects_*}.kdl` 的部分结构 | `configs/niri/` |
 | `configs/matugen/templates/{niri-colors.kdl,kitty-override.conf,palette.toml,fcitx5-nyxmellow/*}` | Nyxuri 的配色模板 / NyxMellow 皮肤素材 |

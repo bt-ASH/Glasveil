@@ -235,19 +235,21 @@ binds {
     // -------------------------------------------------------------------------
     // 7. 多媒体与硬件控制 / Multimedia & Hardware Control
     // -------------------------------------------------------------------------
-    // 音量加 / 减 / 静音 (volumeosd)
-    Mod+F3 allow-when-locked=true { spawn "volumeosd" "up"; }
-    Mod+F2 allow-when-locked=true { spawn "volumeosd" "down"; }
-    Mod+F1 allow-when-locked=true { spawn "volumeosd" "mute"; }
+    // 音量加 / 减 / 静音（swayosd 在跑就用 OSD，否则 wpctl 静默）
+    Mod+F3 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "up"; }
+    Mod+F2 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "down"; }
+    Mod+F1 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "mute"; }
 
-    // 亮度 / Backlight brightness
-    Mod+F6 allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
-    Mod+F5 allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
+    // 亮度：内屏走 brightnessctl，外接屏自动走 DDC/CI (ddcutil)
+    Mod+F6 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "up"; }
+    Mod+F5 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "down"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "down"; }
 
     // 硬件音量键 / Hardware volume keys
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "volumeosd" "up"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "volumeosd" "down"; }
-    XF86AudioMute        allow-when-locked=true { spawn "volumeosd" "mute"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "down"; }
+    XF86AudioMute        allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "mute"; }
     XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
     // 媒体播放控制 / Media playback control
