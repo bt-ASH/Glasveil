@@ -64,8 +64,22 @@ Glasveil/
 ```bash
 git clone <this-repo> ~/Glasveil
 cd ~/Glasveil
-./install.sh            # 默认：备份现有配置 → 逐文件软链到 ~/.config
-./install.sh --copy     # 或：复制而不是链接
+./install.sh              # 备份现有配置 → 逐文件软链到 ~/.config
+./install.sh --copy       # 或者复制而不是链接
+./install.sh --dry-run    # 先看看会动哪些文件
+```
+
+### 备份 / 恢复
+
+部署前会自动把被覆盖的旧文件存进 `~/.config/.glasveil-backups/deploy-<时间戳>/`，
+也可以手动管理（备份会记录软链指向，恢复时原样还原）：
+
+```bash
+./install.sh --backup              # 快照当前 ~/.config 里本仓库管理的文件
+./install.sh --backup 调参前       # 带标签
+./install.sh --list-backups        # 看有哪些备份
+./install.sh --restore latest      # 回滚到最近一次
+./install.sh --restore 调参前      # 回滚到指定备份
 ```
 
 依赖（Arch）：`niri matugen kitty fish eww fcitx5-gtk wifitui starship yazi`

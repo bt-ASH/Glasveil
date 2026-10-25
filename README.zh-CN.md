@@ -45,6 +45,7 @@ Glasveil/
 git clone <本仓库> ~/Glasveil && cd ~/Glasveil
 ./install.sh            # 备份现有配置后逐文件软链
 ./install.sh --copy     # 或复制
+./install.sh --backup / --list-backups / --restore latest   # 备份、列备份、回滚
 ```
 
 ## 许可
