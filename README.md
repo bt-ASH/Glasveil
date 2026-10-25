@@ -73,6 +73,21 @@ cd ~/Glasveil
 ./install.sh restore latest  # 回滚到最近一次
 ```
 
+### Shell 补全
+
+```bash
+./install.sh completion fish   # 输出 fish 补全脚本
+./install.sh completion bash   # 输出 bash 补全脚本
+./install.sh completion zsh    # 输出 zsh 补全脚本
+```
+
+- **fish**：`cp completions/install.sh.fish ~/.config/fish/completions/`，或在 `config.fish` 里
+  `source ~/Glasveil/completions/install.sh.fish`
+- **bash**：`source completions/install.bash`
+- **zsh**：把 `completions/_install.sh` 放进 `$fpath` 任意目录后 `compinit`
+
+补全内容：子命令、选项，以及 `restore <TAB>` 会列出 `~/.config/.glasveil-backups/` 里真实的备份标签。
+
 依赖（Arch）：`niri matugen kitty fish eww fcitx5-gtk wifitui starship yazi`
 + AUR/可选：`gtk-layer-shell python-gobject python-cairo`（Orbit 星环）、`swayidle`、`awww`
 

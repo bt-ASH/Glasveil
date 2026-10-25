@@ -25,3 +25,8 @@ end
 
 # wifitui 使用 matugen 从壁纸生成的主题（换壁纸后自动更新）
 set -gx WIFITUI_THEME "$HOME/.config/wifitui/theme.toml"
+
+# ── 脚本补全（install.sh / niri-health.sh 不在 PATH，需显式 source）──
+for __comp in ~/Glasveil/completions/install.sh.fish ~/Scripts-chan/_tools/completions/niri-health.sh.fish
+    test -f $__comp; and source $__comp
+end

@@ -50,6 +50,11 @@ git clone <本仓库> ~/Glasveil && cd ~/Glasveil
 ./install.sh backup 调参前    # 快照 / list-backups 列表 / restore latest 回滚
 ```
 
+## Shell 补全
+
+`./install.sh completion fish|bash|zsh` 输出补全脚本；fish 放到 `~/.config/fish/completions/`，
+`restore <TAB>` 会自动列出现有备份标签。
+
 ## 许可
 
 GPL-3.0。部分组件派生自 [Nyxuri](https://github.com/ech678/Nyxuri)（同为 GPL-3.0），
