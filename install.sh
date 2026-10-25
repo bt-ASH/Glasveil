@@ -54,7 +54,8 @@ AUR_PKGS=(
 )
 
 # 可选工具（仅提示，不强制安装）
-OPTIONAL_PKGS=(btop cava bat eza zoxide fastfetch)
+# spicetify-cli 只有装 Spotify 主题时才需要，放在可选里（./install.sh spotify 会自动处理）
+OPTIONAL_PKGS=(btop cava bat eza zoxide fastfetch spicetify-cli)
 
 # ── Helpers ─────────────────────────────────────────────
 info()  { printf "${CBLU}>>${CDEF} %s\n" "$*"; }
@@ -111,6 +112,8 @@ usage() {
   deploy                        只部署配置到 ~/.config（默认命令）
   deps                          只安装依赖（仓库包 + AUR 包）
   all                           先装依赖再部署
+  spotify [配色方案]            安装 / 更新 Spotify（Spicetify）主题
+                                配色方案: Glasveil（浅，默认）| Glasveil-Dark（深）
   backup [标签]                 备份当前 ~/.config 里本仓库管理的文件
   restore <引用>                回滚（latest / 备份标签 / 目录路径）
   list-backups                  列出已有备份
@@ -126,6 +129,8 @@ usage() {
   ./install.sh                  交互菜单
   ./install.sh deps             只装依赖
   ./install.sh deploy --copy    只部署配置（复制模式）
+  ./install.sh spotify          装 Spotify 主题（浅色 Glasveil）
+  ./install.sh spotify Glasveil-Dark   深色版
   ./install.sh backup 调参前    打快照
   ./install.sh restore latest   回滚到最近一次
   ./install.sh completion fish 输出 fish 补全脚本
@@ -149,6 +154,7 @@ show_menu() {
     printf "  ${CGRN}4)${CDEF}  备份当前配置 ${CDIM}(backup)${CDEF}\n"
     printf "  ${CGRN}5)${CDEF}  回滚最近备份 ${CDIM}(restore latest)${CDEF}\n"
     printf "  ${CGRN}6)${CDEF}  列出备份      ${CDIM}(list-backups)${CDEF}\n"
+    printf "  ${CGRN}7)${CDEF}  装 Spotify 主题 ${CDIM}(spotify, 走 Spicetify)${CDEF}\n"
     rule
     printf "  ${CRED}q)${CDEF}  退出\n\n"
 }
@@ -228,6 +234,213 @@ cmd_deps() {
     printf "  ${CDIM}·${CDEF} 电源策略: ${CBLD}sudo systemctl enable --now power-profiles-daemon${CDEF}\n"
     printf "  ${CDIM}·${CDEF} 网络管理: ${CBLD}sudo systemctl enable --now NetworkManager${CDEF}\n"
     printf "  ${CDIM}·${CDEF} 电池保护: 见 ${CBLD}configs/niri/README-battery.md${CDEF}\n"
+    printf "  ${CDIM}·${CDEF} Spotify 主题: ${CBLD}./install.sh spotify${CDEF}${CDIM}（需要 Spotify + spicetify-cli）${CDEF}\n"
+}
+
+# ── Spotify / Spicetify 主题 ────────────────────────────
+# 配色由 matugen 渲染（configs/matugen/templates/spotify-color.ini），
+# section 级合并逻辑只有一份：configs/matugen/scripts/inject-spicetify-color.sh
+SPOTIFY_SCHEMES=(Glasveil Glasveil-Dark)
+SPOTIFY_FLAVOR=""     # native | launcher | flatpak
+SPOTIFY_PATH=""       # Spotify 安装目录（能给 spicetify 用的话）
+
+# spicetify 的部分子命令在这台机器上会挂起（已知 config-dir 会卡死），统一加超时
+spicetify_run() {
+    local secs="$1"; shift
+    timeout "$secs" spicetify "$@"
+}
+
+# 把 ~/.spicetify 加进本次运行的 PATH（官方脚本非 root 安装会装在这里）
+spicetify_path_fix() {
+    if [ -x "$HOME/.spicetify/spicetify" ]; then
+        case ":$PATH:" in
+            *":$HOME/.spicetify:"*) ;;
+            *) export PATH="$HOME/.spicetify:$PATH" ;;
+        esac
+    fi
+    if command -v spicetify >/dev/null 2>&1; then
+        return 0
+    fi
+    return 1
+}
+
+ensure_spicetify() {
+    if command -v spicetify >/dev/null 2>&1; then
+        skip "spicetify 已安装: $(command -v spicetify)"
+        return 0
+    fi
+    if spicetify_path_fix; then
+        skip "spicetify 在 ~/.spicetify（已加入本次 PATH）"
+        return 0
+    fi
+
+    warn "未检测到 spicetify"
+    local helper; helper="$(aur_helper)"
+    if [ -n "$helper" ]; then
+        if [ "$DRY" = 1 ]; then
+            info "(dry-run) $helper -S --needed spicetify-cli"
+        elif confirm "用 $helper 安装 AUR 包 spicetify-cli？"; then
+            if "$helper" -S --needed --noconfirm spicetify-cli && command -v spicetify >/dev/null 2>&1; then
+                ok "spicetify 安装完成"
+                return 0
+            fi
+            warn "spicetify-cli 安装失败，改用官方安装脚本"
+        fi
+    fi
+
+    # 官方 CLI 安装脚本（注意：用的是 spicetify/cli 的脚本，不是 marketplace 那个——
+    # marketplace 的脚本会顺带装 Marketplace 应用并改写 current_theme，这里只要 CLI）
+    local url="https://raw.githubusercontent.com/spicetify/cli/main/install.sh"
+    if [ "$DRY" = 1 ]; then
+        info "(dry-run) curl -fsSL $url | sh"
+        return 0
+    fi
+    if ! confirm "用官方脚本安装 spicetify CLI？（curl -fsSL $url | sh）"; then
+        warn "已跳过 spicetify 安装"
+        return 1
+    fi
+    curl -fsSL "$url" | sh || { warn "spicetify 官方安装脚本执行失败"; return 1; }
+
+    if spicetify_path_fix; then
+        ok "spicetify 安装完成: $(command -v spicetify)"
+        return 0
+    fi
+    warn "装完了但 PATH 里还找不到 spicetify，请手动加进 shell 的 PATH："
+    printf "      ${CDIM}fish: fish_add_path ~/.spicetify${CDEF}\n"
+    printf "      ${CDIM}bash/zsh: export PATH=\"\$HOME/.spicetify:\$PATH\"${CDEF}\n"
+    return 1
+}
+
+# 检测 Spotify 本体：返回 0 = 找到，并设置 SPOTIFY_FLAVOR / SPOTIFY_PATH
+detect_spotify() {
+    SPOTIFY_FLAVOR=""
+    SPOTIFY_PATH=""
+
+    if is_installed spotify; then
+        SPOTIFY_FLAVOR="native"
+        if [ -d /opt/spotify ]; then
+            SPOTIFY_PATH="/opt/spotify/"
+        fi
+        return 0
+    fi
+    if is_installed spotify-launcher; then
+        # spotify-launcher 把客户端下载到自己的私有目录，spicetify 需要显式 spotify_path
+        SPOTIFY_FLAVOR="launcher"
+        local d
+        for d in "$HOME/.local/share/spotify-launcher/install/usr/share/spotify" \
+                 "/opt/spotify-launcher/usr/share/spotify"; do
+            if [ -d "$d" ]; then SPOTIFY_PATH="$d"; break; fi
+        done
+        return 0
+    fi
+    if command -v flatpak >/dev/null 2>&1 && flatpak list --app 2>/dev/null | grep -qi 'com.spotify.Client'; then
+        SPOTIFY_FLAVOR="flatpak"
+        SPOTIFY_PATH="$HOME/.var/app/com.spotify.Client"
+        return 0
+    fi
+    return 1
+}
+
+cmd_spotify() {
+    local scheme="${1:-Glasveil}"
+    local inject="$REPO/configs/matugen/scripts/inject-spicetify-color.sh"
+    local theme theme_dir color_ini bad=0
+
+    case " ${SPOTIFY_SCHEMES[*]} " in
+        *" $scheme "*) ;;
+        *) die "未知配色方案: $scheme（可选 ${SPOTIFY_SCHEMES[*]}）" ;;
+    esac
+
+    printf "\n${CBLD}>> 安装 Spotify 主题${CDEF}  ${CDIM}(color_scheme=$scheme)${CDEF}\n"
+    rule
+
+    # ── 1) spicetify CLI ──
+    if ! ensure_spicetify; then
+        warn "跳过 Spotify 主题（没有可用的 spicetify）"
+        return 0
+    fi
+
+    # ── 2) Spotify 本体 ──
+    if detect_spotify; then
+        skip "Spotify: $SPOTIFY_FLAVOR${SPOTIFY_PATH:+ @ $SPOTIFY_PATH}"
+    else
+        warn "没找到 Spotify（spotify / spotify-launcher / flatpak com.spotify.Client 都没有）"
+        printf "  ${CDIM}· Arch: ${CDEF}paru -S spotify${CDIM} 或 ${CDEF}paru -S spotify-launcher\n"
+        printf "  ${CDIM}· 装好 Spotify 后重跑：${CDEF}./install.sh spotify\n"
+        skip "配色文件仍会先写进 ~/.config/spicetify/Themes/<theme>/color.ini"
+    fi
+
+    # ── 3) 主题目录：沿用已有的 marketplace（保住 [Marketplace]/[ZedMatch] 等 section）──
+    if [ -d "$DEST/spicetify/Themes/marketplace" ]; then
+        theme="marketplace"
+    else
+        theme="Glasveil"
+    fi
+    theme_dir="$DEST/spicetify/Themes/$theme"
+    color_ini="$theme_dir/color.ini"
+
+    # ── 4) 合并配色（复用仓库里的同步脚本，不在安装脚本里重写合并逻辑）──
+    [ -f "$inject" ] || die "缺少配色同步脚本: $inject"
+    if [ "$DRY" = 1 ]; then
+        info "(dry-run) bash $inject -t $color_ini"
+    elif bash "$inject" -t "$color_ini"; then
+        ok "配色已合并到 $color_ini"
+    else
+        die "配色合并失败（见上面的输出）"
+    fi
+
+    # ── 5) flatpak 版：spicetify 注入不进去，给明确提示而不是静默失败 ──
+    if [ "$SPOTIFY_FLAVOR" = "flatpak" ]; then
+        warn "flatpak 版 Spotify 不被 spicetify 支持（沙箱内资源只读，改不了 CSS）"
+        printf "  ${CDIM}· 想真正生效：卸掉 flatpak 版，改用 ${CDEF}paru -S spotify\n"
+        printf "  ${CDIM}· 现在只把配色写好了，装好原生版后跑一次 ${CDEF}./install.sh spotify\n"
+        return 0
+    fi
+
+    # ── 6) spicetify 配置 + apply ──
+    if [ "$DRY" = 1 ]; then
+        if [ "$SPOTIFY_FLAVOR" = "launcher" ] && [ -n "$SPOTIFY_PATH" ]; then
+            info "(dry-run) spicetify config spotify_path $SPOTIFY_PATH"
+        fi
+        info "(dry-run) spicetify config current_theme $theme"
+        info "(dry-run) spicetify config color_scheme $scheme"
+        info "(dry-run) spicetify apply -n"
+        return 0
+    fi
+
+    if [ "$SPOTIFY_FLAVOR" = "launcher" ] && [ -n "$SPOTIFY_PATH" ]; then
+        if spicetify_run 30 config spotify_path "$SPOTIFY_PATH" >/dev/null; then
+            skip "spotify_path=$SPOTIFY_PATH"
+        else
+            warn "写入 spotify_path 失败，请手动检查 ~/.config/spicetify/config-xpui.ini"
+        fi
+    fi
+
+    if spicetify_run 30 config current_theme "$theme" >/dev/null; then
+        skip "current_theme=$theme"
+    else
+        warn "设置 current_theme 失败"; bad=1
+    fi
+    if spicetify_run 30 config color_scheme "$scheme" >/dev/null; then
+        skip "color_scheme=$scheme"
+    else
+        warn "设置 color_scheme 失败"; bad=1
+    fi
+    if [ "$bad" = 1 ]; then
+        printf "  ${CDIM}· 可手动执行：${CDEF}spicetify config current_theme $theme && spicetify config color_scheme $scheme\n"
+        return 1
+    fi
+
+    if spicetify_run 180 apply -n; then
+        ok "已应用：current_theme=$theme · color_scheme=$scheme"
+        printf "  ${CDIM}· 重启 Spotify 才会看到新配色（或 ${CDEF}spicetify apply${CDIM} 让客户端一起重启）${CDEF}\n"
+    else
+        warn "spicetify apply 失败"
+        printf "  ${CDIM}· 首次使用先打补丁：${CDEF}spicetify backup apply\n"
+        printf "  ${CDIM}· 若路径不对，检查 ${CDEF}~/.config/spicetify/config-xpui.ini${CDIM} 的 spotify_path${CDEF}${SPOTIFY_PATH:+（检测到: $SPOTIFY_PATH）}\n"
+        return 1
+    fi
+    return 0
 }
 
 # ── Deploy ──────────────────────────────────────────────
@@ -389,7 +602,7 @@ SAW_FLAG=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        deploy|deps|all|backup|restore|list-backups|completion|help) COMMAND="$1" ;;
+        deploy|deps|all|backup|restore|list-backups|spotify|completion|help) COMMAND="$1" ;;
         --copy) SAW_FLAG=1;      MODE="copy" ;;
         --link) SAW_FLAG=1;      MODE="link" ;;
         --dry-run) SAW_FLAG=1;   DRY=1 ;;
@@ -426,6 +639,7 @@ if [ -z "$COMMAND" ]; then
             4) cmd_backup ;;
             5) cmd_restore latest ;;
             6) cmd_list ;;
+            7) cmd_spotify ;;
             q|Q) echo; exit 0 ;;
             *) warn "无效选择"; continue ;;
         esac
@@ -438,6 +652,7 @@ case "$COMMAND" in
     deploy)       cmd_deploy ;;
     deps)         cmd_deps "$REPO_ONLY" ;;
     all)          cmd_deps "$REPO_ONLY"; cmd_deploy ;;
+    spotify)      cmd_spotify "$CMD_ARG" ;;
     backup)       cmd_backup "$CMD_ARG" ;;
     restore)      cmd_restore "$CMD_ARG" ;;
     list-backups) cmd_list ;;

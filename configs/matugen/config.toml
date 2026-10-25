@@ -251,6 +251,16 @@ output_path = '~/.config/zed/themes/glasveil.json'
 pre_hook = 'mkdir -p ~/.config/zed/themes'
 # post_hook = "eww reload"
 
+# Spicetify / Spotify 配色：一个模板同时产出 [Glasveil]（浅）与 [Glasveil-Dark]（深）两个 section。
+# matugen 只会整文件覆盖，所以先渲染到 cache，再由 inject-spicetify-color.sh 做 section 级
+# 合并写进 Spicetify 的 color.ini（保留 [Marketplace] / [ZedMatch] 等已有 section）。
+# 颜色值用 hex_stripped（不带井号的 6 位十六进制），大写由注入脚本统一处理。
+[templates.spicetify]
+input_path = '~/.config/matugen/templates/spotify-color.ini'
+output_path = '~/.cache/matugen/spotify-color.ini'
+pre_hook = 'mkdir -p ~/.cache/matugen'
+post_hook = 'bash ~/.config/matugen/scripts/inject-spicetify-color.sh'
+
 [templates.hexecute]
 input_path = '~/.config/matugen/templates/hexecute-colors.json'
 output_path = '~/.config/hexecute/colors.json'

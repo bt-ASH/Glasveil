@@ -16,7 +16,7 @@ matugen 取色模板与脚本，以及几个自己写的小工具（星环启动
 ## 主要特性
 
 - **壁纸取色一条龙**：`matugen` 用 Noctalia 同款 `m3-content` 方案取色，生成
-  niri / kitty / GTK3·4 / fcitx5 皮肤 / eww / fastfetch / wifitui / zed / yazi / starship / btop / cava…
+  niri / kitty / GTK3·4 / fcitx5 皮肤 / eww / fastfetch / wifitui / zed / spotify（Spicetify）/ yazi / starship / btop / cava…
 - **`Mod+Shift+N` 明暗切换**：重跑 matugen + 切 `gsettings` + 热重载 niri/kitty/fcitx5/eww
 - **玻璃质感**：窗口 0.9 不透明度 + `blur passes 3`；`effects.kdl` 软链切换普通/护眼
 - **`Mod+N` 护眼**：关模糊、透明度加重、`wlsunset` 5500K
@@ -47,8 +47,15 @@ git clone <本仓库> ~/Glasveil && cd ~/Glasveil
 ./install.sh deploy          # 只部署配置（默认；--copy 复制，--dry-run 预演）
 ./install.sh deps            # 只装依赖（仓库包 + AUR；--repo-only 跳过 AUR）
 ./install.sh all             # 依赖 + 配置
+./install.sh spotify         # 装 Spotify（Spicetify）主题（浅色 Glasveil；深色加 Glasveil-Dark）
 ./install.sh backup 调参前    # 快照 / list-backups 列表 / restore latest 回滚
 ```
+
+Spotify 配色由 matugen 的 `[templates.spicetify]` 生成（`configs/matugen/templates/spotify-color.ini`，
+出 `[Glasveil]` / `[Glasveil-Dark]` 两套），再由 `configs/matugen/scripts/inject-spicetify-color.sh`
+按 section 合并进 Spicetify 的 `color.ini`——只替换这两个 section，`[Marketplace]` /
+`[ZedMatch]` 等既有 section 原样保留，改动前自动备份。flatpak 版 Spotify 不能注入，
+脚本会提示改用 `paru -S spotify`。
 
 ## Shell 补全
 

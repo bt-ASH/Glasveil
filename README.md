@@ -11,7 +11,7 @@
 
 ## 特性
 
-- **壁纸驱动配色**：`matugen` 从当前壁纸取 Material You 调色板，一次生成 niri / kitty / GTK / fcitx5 / eww / fastfetch / wifitui / **zed** / yazi / starship / btop / cava … 全部配色
+- **壁纸驱动配色**：`matugen` 从当前壁纸取 Material You 调色板，一次生成 niri / kitty / GTK / fcitx5 / eww / fastfetch / wifitui / **zed** / **spotify**（Spicetify）/ yazi / starship / btop / cava … 全部配色
 - **明暗一键切换**（`Mod+Shift+N`）：整套配色 + GTK 主题 + 终端 + 输入法一起切
 - **玻璃质感**：窗口 90% 不透明度 + 真实背景模糊，`effects.kdl` 软链一换即可在「普通 / 护眼」间切换
 - **护眼模式**（`Mod+N`）：关模糊、透明度加重、5500K 暖色温
@@ -65,14 +65,29 @@ Glasveil/
 ```bash
 git clone <this-repo> ~/Glasveil
 cd ~/Glasveil
-./install.sh                 # 交互菜单（1 部署 / 2 依赖 / 3 两者 / 4 备份 / 5 回滚 / 6 列备份）
+./install.sh                 # 交互菜单（1 部署 / 2 依赖 / 3 两者 / 4 备份 / 5 回滚 / 6 列备份 / 7 Spotify 主题）
 ./install.sh deploy          # 只部署配置（默认；--copy 复制模式，--dry-run 预演）
 ./install.sh deps            # 只安装依赖（仓库包 + AUR 包；--repo-only 跳过 AUR）
 ./install.sh all             # 先装依赖再部署
+./install.sh spotify         # 安装 / 更新 Spotify（Spicetify）主题，浅色 Glasveil
+./install.sh spotify Glasveil-Dark   # 深色配色方案
 ./install.sh backup 调参前    # 打快照
 ./install.sh list-backups    # 列出备份
 ./install.sh restore latest  # 回滚到最近一次
 ```
+
+### Spotify 主题（Spicetify）
+
+`./install.sh spotify [Glasveil|Glasveil-Dark]` 会：检测 / 安装 `spicetify`（AUR
+`spicetify-cli`，没有 AUR helper 时退回官方 CLI 安装脚本）→ 检测 Spotify（`spotify` /
+`spotify-launcher` / flatpak，flatpak 版 spicetify 注入不支持，会明确提示）→ 用
+`configs/matugen/scripts/inject-spicetify-color.sh` 把 `[Glasveil]` / `[Glasveil-Dark]`
+两个 section 合并进 `~/.config/spicetify/Themes/marketplace/color.ini`（**保留**
+`[Marketplace]` / `[ZedMatch]` 等已有 section，改前自动备份）→ `spicetify config
+current_theme …` + `spicetify apply -n`。
+
+wallpaper 换色后 matugen 会自动刷新 color.ini（`[templates.spicetify]` 的 post_hook），
+想在客户端里立刻看到就再跑一次 `spicetify apply`（或 `./install.sh spotify`）。
 
 ### Shell 补全
 
