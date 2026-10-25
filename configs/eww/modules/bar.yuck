@@ -1,0 +1,24 @@
+(defwidget bar []
+    (box :class "bar-widget" :orientation "h" :spacing 1
+
+        (box :orientation "h" :spacing 1 :space-evenly false :halign "start" :hexpand true
+            (power)
+            (workspaces)
+            (music)
+        )
+
+        (box :orientation "h" :spacing 1 :space-evenly false :halign "end"
+            (clock)
+            (volume)
+            (backlight)
+            (network)
+            (cpu)
+            (memory)
+            (temperature)
+            (ppd)
+            (battery)
+            (tray)
+        )
+
+    )
+)

@@ -1,0 +1,26 @@
+# niri window manager manifest
+# dir name = package = binary = "niri" → no repo override needed.
+# monitor.kdl is now the generic repo default (all outputs commented out) and a
+# normal deployed file, so repo edits to it propagate. Machine-specific display
+# parameters live in monitor__custom__.kdl, pulled in by an optional include in
+# config.kdl and protected by the Dunder Protocol (changed 2026-10-11).
+# effects.kdl is a runtime symlink (→ effects_normal.kdl / effects_eyecare.kdl)
+# created by toggle-eyecare.sh; preserve keeps the link itself (and the
+# EyeCare on/off state it encodes) across deploys and preset switches.
+# effects_normal.kdl stores active effects part variant across deploys.
+# glow.kdl stores active glow/focus-ring part variant across deploys.
+# colors.kdl stores dynamic Material You palette rendered by Noctalia.
+[packages]
+preserve = ["effects.kdl", "effects_normal.kdl", "glow.kdl", "colors.kdl"]
+chmod = ["scripts/*.sh", "scripts/*.py"]
+
+[parts.effects]
+target = "effects_normal.kdl"
+source_dir = "effects"
+default = "default"
+
+[parts.glow]
+target = "glow.kdl"
+source_dir = "glow"
+default = "default"
+

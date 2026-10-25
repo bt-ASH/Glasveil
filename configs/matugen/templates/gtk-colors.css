@@ -1,0 +1,58 @@
+/* GTK Material You 配色 —— 由 matugen 从壁纸生成，勿手改
+ * 角色映射对齐 Nyxuri（configs/noctalia/templates/gtk-3.0.css + gtk-4.0.css）
+ * 产物：~/.config/gtk-3.0/colors.css 与 ~/.config/gtk-4.0/colors.css
+ */
+
+/* ── libadwaita / GTK4 语义色 ── */
+@define-color accent_color             {{colors.primary.default.hex}};
+@define-color accent_bg_color          {{colors.primary.default.hex}};
+@define-color accent_fg_color          {{colors.on_primary.default.hex}};
+
+@define-color window_bg_color          {{colors.background.default.hex}};
+@define-color window_fg_color          {{colors.on_background.default.hex}};
+@define-color view_bg_color            {{colors.surface.default.hex}};
+@define-color view_fg_color            {{colors.on_surface.default.hex}};
+
+@define-color headerbar_bg_color       {{colors.surface_container_low.default.hex}};
+@define-color headerbar_fg_color       {{colors.on_secondary_container.default.hex}};
+@define-color headerbar_border_color   {{colors.secondary_container.default.hex}};
+@define-color headerbar_backdrop_color @headerbar_bg_color;
+
+@define-color card_bg_color            {{colors.surface_container_lowest.default.hex}};
+@define-color card_fg_color            {{colors.on_secondary_container.default.hex}};
+@define-color dialog_bg_color          {{colors.surface_container.default.hex}};
+@define-color dialog_fg_color          {{colors.on_secondary_container.default.hex}};
+@define-color popover_bg_color         {{colors.surface_container.default.hex}};
+@define-color popover_fg_color         {{colors.on_secondary_container.default.hex}};
+
+@define-color sidebar_bg_color         {{colors.surface.default.hex}};
+@define-color sidebar_fg_color         {{colors.on_surface.default.hex}};
+@define-color sidebar_border_color     {{colors.surface.default.hex}};
+@define-color sidebar_backdrop_color   {{colors.surface.default.hex}};
+
+@define-color borders                  rgba({{colors.outline.default.red}}, {{colors.outline.default.green}}, {{colors.outline.default.blue}}, 0.12);
+
+/* ── GTK3 旧式语义色（Nyxuri gtk-3.0.css 映射）── */
+@define-color theme_fg_color                      {{colors.on_background.default.hex}};
+@define-color theme_text_color                    {{colors.on_background.default.hex}};
+@define-color theme_bg_color                      {{colors.background.default.hex}};
+@define-color theme_base_color                    {{colors.surface.default.hex}};
+@define-color theme_selected_bg_color             {{colors.primary.default.hex}};
+@define-color theme_selected_fg_color             {{colors.on_primary.default.hex}};
+@define-color insensitive_bg_color                {{colors.surface.default.hex}};
+@define-color insensitive_fg_color                rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.5);
+@define-color insensitive_base_color              {{colors.surface_container.default.hex}};
+@define-color theme_unfocused_fg_color            {{colors.on_background.default.hex}};
+@define-color theme_unfocused_text_color          {{colors.on_surface_variant.default.hex}};
+@define-color theme_unfocused_bg_color            {{colors.background.default.hex}};
+@define-color theme_unfocused_base_color          {{colors.surface.default.hex}};
+@define-color theme_unfocused_selected_bg_color   {{colors.secondary.default.hex}};
+@define-color theme_unfocused_selected_fg_color   {{colors.on_secondary.default.hex}};
+@define-color wm_title                            {{colors.on_background.default.hex}};
+@define-color wm_unfocused_title                  rgba({{colors.on_surface_variant.default.red}}, {{colors.on_surface_variant.default.green}}, {{colors.on_surface_variant.default.blue}}, 0.7);
+@define-color wm_highlight                        rgba({{colors.on_surface_variant.default.red}}, {{colors.on_surface_variant.default.green}}, {{colors.on_surface_variant.default.blue}}, 0.1);
+@define-color wm_bg                               {{colors.background.default.hex}};
+@define-color wm_unfocused_bg                     {{colors.background.default.hex}};
+@define-color content_view_bg                     {{colors.surface.default.hex}};
+@define-color placeholder_text_color              {{colors.on_surface.default.hex}};
+@define-color error_color                         {{colors.error.default.hex}};

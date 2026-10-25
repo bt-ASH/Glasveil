@@ -1,0 +1,7 @@
+# matugen (Material You 配色引擎) manifest
+[packages]
+repo = ["matugen"]
+
+[preserve]
+# 生成的产物（不在仓库里，部署后由 matugen 写入）
+files = []

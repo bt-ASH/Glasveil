@@ -1,0 +1,309 @@
+// =============================================================================
+// Niri 快捷键配置文件 / Niri Keybindings Configuration
+// =============================================================================
+// 键位方案对齐 ~/Nyxuri/configs/niri/binds.kdl；
+// 但每条绑定触发的脚本 / 命令保持为本机原有实现（~/.config/niri/scripts/...）。
+// =============================================================================
+
+binds {
+    // -------------------------------------------------------------------------
+    // 1. 会话与系统控制 / Session & System Controls
+    // -------------------------------------------------------------------------
+    // 切换概览视角 (禁止按键重复) / Toggle workspace overview
+    Mod+Tab repeat=false { toggle-overview; }
+
+    // 兼容旧键位：Mod+O 也可切换概览
+    Mod+O repeat=false hotkey-overlay-title="切换总览界面 toggle overview" { toggle-overview; }
+
+    // Orbit 星环启动器（Nyxuri 的 radial-launcher，工具链在 ~/.config/niri/tools）
+    Mod+Shift+A repeat=false hotkey-overlay-title="星环启动器 Orbit Launcher" { spawn "~/.config/niri/scripts/shell-action.sh" "radial-launcher"; }
+
+    // 当前列居中 / Center focused column
+    Mod+A { center-column; }
+
+    // 关闭当前获得焦点的窗口 / Close active focused window
+    Mod+Q { close-window; }
+
+    // 退出 Niri 桌面会话 / Quit Niri desktop session
+    Mod+Shift+Q { quit; }
+
+    // 重新加载 Niri 配置文件 / Reload Niri configuration file
+    Mod+Shift+R { spawn "niri" "msg" "action" "load-config-file"; }
+
+    // 锁定屏幕 / Lock the screen
+    Mod+L { spawn-sh "hyprlock -c ~/.config/niri/hyprlock.conf || swaylock"; }
+
+    // 显示快捷键提示覆盖层 / Show interactive hotkey overlay
+    Mod+Slash { show-hotkey-overlay; }
+
+    // -------------------------------------------------------------------------
+    // 2. 应用启动与桌面外壳组件 / App Launchers & Shell Components
+    // -------------------------------------------------------------------------
+    // 启动终端模拟器 (kitty) / Launch terminal emulator
+    Mod+Return hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
+
+    // 启动文件管理器 (nautilus) / Launch file manager
+    Mod+E { spawn "nautilus"; }
+
+    // 应用启动器 (fuzzel) / Application launcher
+    Mod+R hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+
+    // 电源 / 会话菜单 / Power & session menu
+    Mod+X { spawn "~/.config/niri/scripts/powermenu"; }
+
+    // 剪贴板历史 (clipse) / Clipboard history
+    Mod+V { spawn "kitty" "-e" "clipse" "gui"; }
+
+    // 壁纸选择器 (waypaper) / Wallpaper picker
+    Mod+W repeat=false hotkey-overlay-title="切换壁纸 Change wallpaper" { spawn "waypaper"; }
+
+    // 随机切换下一张壁纸 / Switch to a random wallpaper
+    Mod+Ctrl+W hotkey-overlay-title="随机切换壁纸 Random wallpaper" { spawn "waypaper" "--random"; }
+
+    // 切换护眼模式 (关模糊 + 全窗口不透明 + 5500K 暖色温) / Toggle EyeCare mode
+    Mod+N hotkey-overlay-title="切换护眼模式 Toggle EyeCare" { spawn "~/.config/niri/scripts/toggle-eyecare.sh"; }
+
+    // 切换浅色/深色配色（matugen 重新生成全部主题） / Toggle Light/Dark palette
+    Mod+Shift+N hotkey-overlay-title="切换明暗配色 Toggle Light/Dark" { spawn "~/.config/niri/scripts/theme-toggle.sh"; }
+
+    // 壁纸背景选择器 / Background selector
+    Mod+B { spawn "bgselector"; }
+
+    // eww 状态栏重载 / Reload eww bar
+    Mod+Shift+W { spawn-sh "eww kill && eww daemon && eww open bar"; }
+
+    // remako 壁纸工具 / remako wallpaper tool
+    Mod+Shift+M { spawn-sh "bash ~/.config/niri/scripts/remako.sh"; }
+
+    // 随机下载动漫壁纸 / Random download anime wallpaper
+    Mod+Shift+F10 hotkey-overlay-title="随机下载动漫壁纸 Random download anime wallpaper" { spawn "~/.config/scripts/random-anime-wallpaper.sh"; }
+
+    // 切换输入法 (fcitx5) / Toggle fcitx5
+    Mod+0 { spawn-sh "pkill fcitx5 || fcitx5"; }
+
+    // 读屏 (orca) / Screen reader toggle
+    Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "killall orca || exec orca"; }
+
+    // -------------------------------------------------------------------------
+    // 3. 焦点导航与窗口移动 / Focus Navigation & Window Movement
+    // -------------------------------------------------------------------------
+    // 智能焦点导航 (达到边缘时自动穿透跨屏与跨工作区) / Smart focus
+    // 注意：niri 的方向焦点动作只作用于平铺窗口，焦点在浮动窗口时全部无效，
+    // 因此这里统一走 niri-focus.sh：浮动中按方向键 = 切回平铺；平铺到头再按 = 进浮动。
+    Mod+Left  { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-or-monitor-left"; }
+    Mod+Right { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-or-monitor-right"; }
+    Mod+Down  { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-or-workspace-down"; }
+    Mod+Up    { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-or-workspace-up"; }
+
+    // 列 / 窗口焦点快速切换 / Column & window focus
+    // Vim 风格方向焦点（等价 dotfile-niri 的 Mod+H/J/K/L），并在浮动/平铺之间来回切换
+    Mod+Z { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-left"; }
+    Mod+C { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-right"; }
+    Mod+J { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-down"; }
+    Mod+K { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-up"; }
+
+    // 智能窗口/列搬运 (推至边缘时自动搬运至相邻显示器或工作区) / Smart movement
+    Mod+Ctrl+Left  { move-column-left-or-to-monitor-left; }
+    Mod+Ctrl+Right { move-column-right-or-to-monitor-right; }
+    Mod+Ctrl+Down  { move-window-down-or-to-workspace-down; }
+    Mod+Ctrl+Up    { move-window-up-or-to-workspace-up; }
+
+    Mod+Ctrl+D { move-column-to-workspace-down; }
+    Mod+Ctrl+U { move-column-to-workspace-up; }
+
+    // Shift 辅助精准移动 (4 方向完整对称) / Precision movement with Shift
+    Mod+Shift+Z { move-column-left; }
+    Mod+Shift+C { move-column-right; }
+    Mod+Shift+D { move-window-down; }
+    Mod+Shift+U { move-window-up; }
+
+    // 工作区方向导航 / Workspace navigation
+    Mod+D { focus-workspace-down; }
+    Mod+U { focus-workspace-up; }
+
+    // 显示器精准导航与搬运 / Precision multi-monitor navigation
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+
+    // 首列 / 末列跳转（保留原有动作）/ First & last column
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    // -------------------------------------------------------------------------
+    // 4. 窗口布局与尺寸调整 / Window Layout & Sizing
+    // -------------------------------------------------------------------------
+    // 切换当前窗口的浮动/平铺状态 / Toggle window floating state
+    Mod+T { toggle-window-floating; }
+
+    // 平铺与浮动窗口之间穿透转移焦点 / Switch focus between floating and tiling
+    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
+
+    // 切换当前列为标签页分组模式 / Toggle column tabbed display
+    Mod+G { toggle-column-tabbed-display; }
+
+    // 最大化当前列宽度 / Maximize column width
+    Mod+F { maximize-column; }
+
+    // 全屏显示当前窗口 / Fullscreen focused window
+    Mod+Shift+F { fullscreen-window; }
+
+    // 循环切换预设列宽比例 / Switch preset column widths
+    Mod+Space { switch-preset-column-width; }
+
+    // 微调列宽 / Fine-tune column width
+    Mod+Ctrl+Z { set-column-width "-5%"; }
+    Mod+Ctrl+C { set-column-width "+5%"; }
+
+    // 微调窗口高度与重置 / Fine-tune window height & reset
+    Mod+Shift+K { set-window-height "-4%"; }
+    Mod+Shift+J { set-window-height "+4%"; }
+    Mod+Shift+Equal { reset-window-height; }
+
+    // 将相邻窗口合并入当前列 / Consume adjacent window into current column
+    Mod+Comma { consume-window-into-column; }
+
+    // 将当前窗口从列中分离吐出 / Expel window from current column
+    Mod+Period { expel-window-from-column; }
+
+    // 左右合并/吐出窗口（保留原有动作）/ Consume or expel left-right
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    // 列扩展至可用宽度（保留原有动作）/ Expand column to available width
+    Mod+Ctrl+F { expand-column-to-available-width; }
+
+    // -------------------------------------------------------------------------
+    // 5. 工作区管理 (1-9) / Workspace Management (1-9)
+    // -------------------------------------------------------------------------
+    // 切换至指定编号工作区 / Switch to workspace by index
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    // 将当前列移动至指定编号工作区 / Move focused column to workspace by index
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    // 工作区翻页（保留原有动作）/ Workspace paging
+    Mod+Page_Down      { focus-workspace-down; }
+    Mod+Page_Up        { focus-workspace-up; }
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+
+    // -------------------------------------------------------------------------
+    // 6. 鼠标与滚轮绑定 / Mouse & Wheel Binds
+    // -------------------------------------------------------------------------
+    // 滚轮上下滚动切换工作区 (带 150ms 冷却防误触) / Scroll wheel to switch workspace
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+
+    // Ctrl+滚轮携带当前列切换工作区 / Ctrl+Scroll to move column between workspaces
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    // 滚轮左右切换列焦点 / Scroll wheel left-right to switch column focus
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Shift+WheelScrollDown { focus-column-right; }
+    Mod+Shift+WheelScrollUp   { focus-column-left; }
+
+    // Ctrl+滚轮左右移动当前列 / Ctrl+wheel to move column left-right
+    Mod+Ctrl+WheelScrollRight      { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft       { move-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    // -------------------------------------------------------------------------
+    // 7. 多媒体与硬件控制 / Multimedia & Hardware Control
+    // -------------------------------------------------------------------------
+    // 音量加 / 减 / 静音 (volumeosd)
+    Mod+F3 allow-when-locked=true { spawn "volumeosd" "up"; }
+    Mod+F2 allow-when-locked=true { spawn "volumeosd" "down"; }
+    Mod+F1 allow-when-locked=true { spawn "volumeosd" "mute"; }
+
+    // 亮度 / Backlight brightness
+    Mod+F6 allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
+    Mod+F5 allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
+
+    // 硬件音量键 / Hardware volume keys
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "volumeosd" "up"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "volumeosd" "down"; }
+    XF86AudioMute        allow-when-locked=true { spawn "volumeosd" "mute"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+
+    // 媒体播放控制 / Media playback control
+    XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    // 旧键位兼容：音量微调（原 Mod+Right / Mod+Left，已被焦点导航占用）/ Legacy volume fine-tune
+    Mod+Alt+Right { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+"; }
+    Mod+Alt+Left  { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-"; }
+
+    // 关闭显示器 / Power off monitors
+    Mod+alt+P { power-off-monitors; }
+
+    // -------------------------------------------------------------------------
+    // 8. 截图按键控制 / Screenshot Controls
+    // -------------------------------------------------------------------------
+    // 交互式区域截图并进入 satty 标注 / Interactive region screenshot + annotate
+    Mod+Shift+S { spawn "~/.config/niri/scripts/edit-screenshot.sh"; }
+
+    // 交互式截图（niri 原生）/ Interactive screenshot
+    Print { screenshot; }
+
+    // 截取整个显示器屏幕 / Fullscreen screenshot
+    Mod+P { screenshot-screen; }
+
+    // 截取当前活动窗口 / Active window screenshot
+    Alt+Print { screenshot-window; }
+
+    // -------------------------------------------------------------------------
+    // 9. 个人附加绑定 / Personal Extras (warpd / matugen / 按键显示 等)
+    // -------------------------------------------------------------------------
+    // 切换颜色策略 / Change color strategy
+    Mod+Alt+M hotkey-overlay-title="切换颜色策略 Change color strategy" { spawn "~/.config/scripts/matugen-select-type.sh"; }
+    Mod+Alt+T hotkey-overlay-title="切换颜色策略 Change color strategy" { spawn "~/.config/scripts/matugen-select-type.sh"; }
+
+    // 切换按键显示（wshowkeys，跟随壁纸配色）/ Toggle keypress display
+    Mod+Alt+K hotkey-overlay-title="切换按键显示 Toggle keypress display" { spawn "~/.config/niri/scripts/wshowkeys-toggle.sh"; }
+
+    // 旧键位兼容：切换壁纸
+    Mod+Alt+W hotkey-overlay-title="切换壁纸 Change wallpaper" { spawn "waypaper"; }
+    // 旧键位兼容：随机切换壁纸
+    Mod+F10 hotkey-overlay-title="随机切换壁纸 Random wallpaper" { spawn "waypaper" "--random"; }
+
+    // 禁止/允许键盘快捷键（便于在 niri 内运行嵌套会话）/ Toggle keyboard shortcuts inhibit
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    // ===== warpd：全键盘控制鼠标 (Wayland/niri) =====
+    // Wayland 下 warpd 不能常驻 daemon、也不能自己抓全局热键，必须由合成器绑键，
+    // 因此这里每个模式各 spawn 一个「一次性」进程，选完或按 esc 立即退出，
+    // 不会留下任何后台进程。键位含义见 ~/.config/warpd/config
+    // (warpd --list-options / warpd --list-keys)
+    // 注：Mod+X / Mod+Z / Mod+G 已被 Nyxuri 键位占用，warpd 统一挪到 Mod+Alt+* 前缀。
+    Mod+Alt+X repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 提示选点 Hint mode" { spawn "/home/ash/build/warpd/bin/warpd" "--hint" "--click" "1"; }
+    Mod+Alt+Shift+X repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 两段提示 Two-pass hint mode" { spawn "/home/ash/build/warpd/bin/warpd" "--hint2" "--click" "1"; }
+    Mod+Alt+Z repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 移动指针 Normal mode" { spawn "/home/ash/build/warpd/bin/warpd" "--normal"; }
+    Mod+Alt+G repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 网格选点 Grid mode" { spawn "/home/ash/build/warpd/bin/warpd" "--grid"; }
+}

@@ -1,0 +1,10 @@
+(defwidget tray []
+    (eventbox :onhover "eww update tray_pending=false open_tray=true" :onhoverlost "nohup scripts/tray_hover_lost.sh >/dev/null 2>&1 &" :halign "end"
+        (box :class "tray-wrapper" :orientation "h" :space-evenly false
+            (label :text "󰅶" :class "tray-trigger")
+            (revealer :transition "slideleft" :reveal open_tray :duration {ANIM_DURATION}
+                (systray :class "tray" :orientation "h" :icon-size 14 :spacing 5)
+            )
+        )
+    )
+)

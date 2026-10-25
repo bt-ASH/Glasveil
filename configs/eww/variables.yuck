@@ -1,0 +1,29 @@
+; VARS
+
+(defvar open_tray false)
+(defvar tray_pending false)
+(defvar open_date false)
+(defvar open_volume false)
+(defvar open_backlight false)
+(defvar open_power false)
+(defvar ANIM_DURATION "200ms")
+
+; POLLS
+
+(defpoll time :interval "1s" :initial "--:--" "scripts/clock.sh")
+(defpoll date_str :interval "60s" :initial "----" "date +%Y-%m-%d")
+(defpoll cpu :interval "2s" :initial "0" "scripts/cpu.sh")
+(defpoll memory :interval "2s" :initial "0" "scripts/memory.sh")
+(defpoll temperature :interval "5s" :initial "50" "scripts/temperature.sh")
+(defpoll ppd :interval "1s" :initial "balanced" "scripts/ppd.sh")
+(defpoll bl :interval "5s" :initial "50" `scripts/backlight.sh`)
+(defpoll battery :interval "5s" :initial '{"capacity":"0","status":"Unknown"}' "scripts/battery.sh")
+(defpoll quote :interval "3600s" :initial "" "scripts/quote.sh")
+
+; LISTENS
+
+(deflisten workspaces :initial "[]" "scripts/workspaces.sh --listen")
+(defpoll volume :interval "1s" :initial "0" "scripts/volume.sh")
+(deflisten volume_dev :initial "default" "scripts/volume_dev.sh")
+(deflisten mpris :initial "{\"text\":\"\",\"title\":\"\",\"artist\":\"\",\"status\":\"Stopped\"}" "scripts/caway.sh")
+(defpoll network :interval "1s" :initial "󰖪   Disconnected" "scripts/network.sh")

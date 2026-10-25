@@ -1,0 +1,28 @@
+// 护眼模式：关闭毛玻璃模糊 + 透明度加重
+//   普通模式：焦点 0.90 / 失焦 0.85
+//   护眼模式：焦点 0.95 + 0.18 = 1.13 → 上限 1.0（完全不透明）
+//             失焦 0.90 + 0.18 = 1.08 → 上限 1.0（完全不透明）
+// niri 的 opacity 有效范围是 0.0–1.0，超过会自动按上限处理。
+
+// 1) 关模糊
+window-rule {
+    background-effect {
+        blur false
+        xray false
+    }
+}
+
+blur {
+    off
+}
+
+// 2) 聚焦窗口：完全不透明
+window-rule {
+    opacity 1.0
+}
+
+// 3) 失焦窗口：同样完全不透明（护眼模式下不做焦点区分）
+window-rule {
+    match is-focused=false
+    opacity 1.0
+}

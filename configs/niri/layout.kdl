@@ -1,0 +1,44 @@
+layout {
+    // 平铺区背景透明 —— 让壁纸透出来（Nyxuri 同款玻璃质感基础）
+    background-color "transparent"
+
+    // 窗口和窗口之间的间距（Nyxuri: 12）
+    gaps 12
+    //empty-workspace-above-first
+
+    // 聚焦窗口的居中策略: "never" / "always" / "on-overflow"
+    center-focused-column "never"
+
+    // 预设窗口宽度 ("switch-preset-column-width" = Mod+Space)
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        // fixed 1920
+    }
+
+    // 预设窗口高度 ("switch-preset-window-height")
+    // preset-window-heights { }
+
+    // 默认的窗口宽度
+    default-column-width { proportion 0.5; }
+
+    // 窗口距离屏幕边缘的距离（Nyxuri: 顶部 -7，抵掉栏的吞空间）
+    struts {
+        top -7
+        //left 64
+        // right 64
+        // bottom 64
+    }
+
+    // 标签页指示器与插入提示配色（Nyxuri 原值）
+    tab-indicator {
+        active-color "#b6c7e7"
+        inactive-color "#374761"
+        urgent-color "#ffb4ab"
+    }
+
+    insert-hint {
+        color "#b6c7e780"
+    }
+}

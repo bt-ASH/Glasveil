@@ -1,0 +1,7 @@
+{
+  "stroke": "{{colors.primary.default.hex}}",
+  "particles": "{{colors.tertiary.default.hex}}",
+  "background": "{{colors.surface_dim.default.hex}}",
+  "cursor_glow": "{{colors.primary.default.hex}}",
+  "cursor_glow_accent": "{{colors.tertiary.default.hex}}"
+}

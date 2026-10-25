@@ -1,0 +1,53 @@
+// 输入设备与手势配置 (受 Dunder Protocol 保护，更新自动保留)
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+input {
+    keyboard {
+        xkb {
+            layout "us,ru"
+            // options "caps:swapescape,altwin:swap_lalt_lwin"
+        }
+
+        // Enable numlock on startup, omitting this setting disables it.
+        numlock
+    }
+
+    touchpad {
+        // off
+        tap
+        // dwt
+        // dwtp
+        // drag false
+        //drag-lock
+        natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-method "two-finger"
+        // disabled-on-external-mouse
+    }
+
+    mouse {
+        // off
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-method "no-scroll"
+    }
+
+    trackpoint {
+        // off
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-method "on-button-down"
+        // scroll-button 273
+        // scroll-button-lock
+        // middle-emulation
+    }
+
+    focus-follows-mouse max-scroll-amount="0%"
+}

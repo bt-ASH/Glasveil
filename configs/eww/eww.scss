@@ -1,0 +1,205 @@
+* {
+    all: unset;
+    font-family: "JetBrainsMono Nerd Font Propo", "JetBrains Maple Mono";
+    font-size: 11px;
+    min-height: 0;
+}
+
+@import "color.scss";
+@import "scss/lib.scss";
+@import "scss/tray.scss";
+
+/* Noctalia style: fully transparent bar, each module is a capsule */
+.bar-widget {
+    background-color: transparent;
+    color: $capsule_fg;
+    padding: 0 0.4rem;
+    border: none;
+    box-shadow: none;
+}
+
+/* ===== common module style ===== */
+.power, .music, .clock, .volume, .backlight, .network,
+.cpu, .memory, .temperature, .ppd, .battery, .tray, .workspaces {
+    /* capsule size: padding 4px 11px (+20% width), font-size 10px (+10%) */
+    padding: 4px 11px;
+    min-height: 18px;
+    margin: 2px 2px;
+    background-color: $capsule_bg;
+    border: 1px solid $capsule_border;
+    border-radius: 80px;
+    color: $capsule_fg;
+    box-shadow: none;
+}
+/* ===== hover (waybar style: background-light on hover) ===== */
+.music:hover, .clock:hover, .volume:hover,
+.network:hover, .cpu:hover, .memory:hover, .temperature:hover,
+.ppd:hover, .power:hover, .backlight:hover, .battery:hover {
+    background-color: $background-light;
+}
+
+/* ===== module colors and underlines ===== */
+.power {
+    color: $capsule_fg;
+}
+
+.music {
+    color: $capsule_fg;
+}
+
+.music.Playing {
+    color: $blue;
+    font-weight: bold;
+}
+
+.music.Paused,
+.music.Stopped {
+    color: $playerctl-color;
+}
+
+.clock {
+    color: $capsule_fg;
+}
+
+.ppd {
+    color: $capsule_fg;
+}
+
+.cpu {
+    color: $capsule_fg;
+}
+
+.memory {
+    color: $capsule_fg;
+}
+
+.temperature {
+    color: $capsule_fg;
+}
+
+.temperature.critical {
+    color: $temperature-critical-color;
+}
+
+.battery {
+    color: $capsule_fg;
+}
+
+.battery.charging,
+.battery.plugged {
+    color: $battery-charging-color;
+}
+
+.battery.warning {
+    color: $battery-warning-color;
+}
+
+.network {
+    color: $capsule_fg;
+}
+
+.network.disconnected {
+    color: $network-disconnected-color;
+}
+
+.volume {
+    color: $capsule_fg;
+}
+
+.volume.muted {
+    color: $pulseaudio-muted-color;
+}
+
+.backlight {
+    color: $capsule_fg;
+}
+
+.tray {
+    color: $capsule_fg;
+}
+
+.tray-trigger {
+    color: $capsule_fg;
+    padding: 0 0.25rem 0 0.25rem;
+}
+
+.tray-trigger:hover {
+    background: $background-light;
+}
+
+/* ===== hover slide-out scales (volume/backlight) ===== */
+.volume-scale-bar trough,
+.backlight-scale-bar trough {
+    background-color: $surface_variant;
+    border-radius: 1rem;
+    min-height: 0.35rem;
+    min-width: 6rem;
+    margin: 0 0.25rem;
+}
+
+.volume-scale-bar trough highlight {
+    background-color: $backlight-color;
+    border-radius: 1rem;
+    min-height: 0.35rem;
+}
+
+.backlight-scale-bar trough highlight {
+    background-color: $backlight-color;
+    border-radius: 1rem;
+    min-height: 0.35rem;
+}
+
+/* ===== power hover slide-out menu ===== */
+.power-menu {
+    background-color: transparent;
+    border-radius: 0.5rem;
+    margin-left: 0.5rem;
+    padding: 0 0.25rem;
+}
+
+.power-menu-button {
+    background-color: transparent;
+    color: $power-color;
+    border-radius: 0.35rem;
+    padding: 0 0.25rem;
+    min-width: 1.4rem;
+    min-height: 1.1rem;
+    transition: 0.2s;
+}
+
+.power-menu-button:hover {
+    background-color: $background-light;
+    color: $power-color;
+}
+
+/* ===== workspaces (Material You tonal selection) ===== */
+.workspaces button {
+    padding: 0 7px;
+    background-color: transparent;
+    color: $capsule_fg;
+    margin: 0;
+    border-radius: 80px;
+}
+
+/* idle: very light primary tint on hover */
+.workspaces button:hover {
+    background-color: $ws_hover_bg;
+}
+
+/* selected: primary-tinted pill + primary bold text (same hue as flash) */
+.workspaces button.focused {
+    background-color: $ws_sel_bg;
+    color: $ws_sel_fg;
+    font-weight: 900;
+    animation: ws-flash 0.6s ease-out 1;
+}
+
+.workspaces button.focused:hover {
+    background-color: $ws_sel_bg_hover;
+}
+
+/* on switch: fade from stronger primary down into the selected state */
+@keyframes ws-flash {
+    from { background-color: $ws_flash_bg; }
+    to   { background-color: $ws_sel_bg; }
+}

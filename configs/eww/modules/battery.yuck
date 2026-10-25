@@ -1,0 +1,5 @@
+(defwidget battery []
+    (label :class {battery.status == "Charging" ? "battery charging" : battery.status == "Plugged" ? "battery plugged" : "battery"}
+        :markup {battery.status == "Charging" ? "<span color='#ffb0cd'> </span>  " + battery.capacity + "%" : battery.status == "Plugged" ? "<span color='#e1bdc8'>" + (battery.capacity > 80 ? "" : battery.capacity > 60 ? "" : battery.capacity > 40 ? "" : battery.capacity > 20 ? "" : "") + "  </span>  " + battery.capacity + "%" : "<span color='#f0bc96'>" + (battery.capacity > 80 ? "" : battery.capacity > 60 ? "" : battery.capacity > 40 ? "" : battery.capacity > 20 ? "" : "") + "</span>  " + battery.capacity + "%"}
+    )
+)

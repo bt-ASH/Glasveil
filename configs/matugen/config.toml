@@ -1,0 +1,256 @@
+
+[config]
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates/colors.css'
+output_path = '~/.config/waybar/colors.css'
+post_hook='rm ~/.config/waybar-niri-Win11Like/colors.css && ln -s ~/.config/waybar/colors.css ~/.config/waybar-niri-Win11Like/colors.css && bash ~/.config/scripts/darken-primary.sh'
+
+
+[templates.pywalfox]
+input_path = '~/.config/matugen/templates/pywalfox-colors.json'
+output_path = '~/.cache/wal/colors.json'
+post_hook = 'pywalfox update &'
+
+[templates.fuzzel]
+input_path = '~/.config/matugen/templates/fuzzel.ini'
+output_path = '~/.config/fuzzel/colors.ini'
+
+# kitty 基础配色（Nyxuri themes/noctalia.conf 对应物）
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty-colors.conf'
+output_path = '~/.config/kitty/themes/noctalia.conf'
+post_hook = "pkill -SIGUSR1 -x kitty || true"
+
+# 兼容旧路径：~/.config/kitty/current-theme.conf（nvim kitty-theme.lua / ghostty 迁移脚本读取）
+[templates.kitty_current]
+input_path = '~/.config/matugen/templates/kitty-colors.conf'
+output_path = '~/.config/kitty/current-theme.conf'
+
+# kitty 动态覆盖层（Nyxuri kitty-override.conf 同款：primary 统管 fg/cursor/color7/15）
+[templates.kitty_override]
+input_path = '~/.config/matugen/templates/kitty-override.conf'
+output_path = '~/.config/kitty/themes/noctalia-override.conf'
+
+[templates.fcitx5]
+input_path = '~/.config/matugen/templates/fcitx5-theme.conf'
+output_path = '~/.local/share/fcitx5/themes/Matugen/theme.conf'
+post_hook = 'busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true'
+
+# ── NyxMellow（Nyxuri 输入法皮肤，素材来自 ~/Nyxuri/assets/fcitx5/nyxmellow）──
+# 由 matugen 从壁纸渲染，风格与 Nyxuri 的 NyxMellow 完全一致
+[templates.fcitx5_nyxmellow_theme]
+input_path = '~/.config/matugen/templates/fcitx5-nyxmellow/theme.conf'
+output_path = '~/.local/share/fcitx5/themes/nyxmellow/theme.conf'
+pre_hook = 'mkdir -p ~/.local/share/fcitx5/themes/nyxmellow'
+post_hook = 'busctl --user --auto-start=no call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s classicui >/dev/null 2>&1 || true'
+
+[templates.fcitx5_nyxmellow_panel]
+input_path = '~/.config/matugen/templates/fcitx5-nyxmellow/panel.svg'
+output_path = '~/.local/share/fcitx5/themes/nyxmellow/panel.svg'
+
+[templates.fcitx5_nyxmellow_highlight]
+input_path = '~/.config/matugen/templates/fcitx5-nyxmellow/highlight.svg'
+output_path = '~/.local/share/fcitx5/themes/nyxmellow/highlight.svg'
+
+[templates.mako]
+input_path = '~/.config/matugen/templates/mako-colors.conf'
+output_path = '~/.config/mako/colors.conf'
+post_hook='makoctl reload &'
+
+[templates.btop]
+input_path = '~/.config/matugen/templates/btop.theme'
+output_path = '~/.config/btop/themes/matugen.theme'
+post_hook = 'killall -SIGUSR1 btop && killall -SIGUSR2 btop &'
+
+[templates.cava]
+input_path = '~/.config/matugen/templates/cava-colors.ini'
+output_path = '~/.cache/matugen/cava-colors.ini'
+pre_hook = 'mkdir -p ~/.cache/matugen'
+post_hook = "bash ~/.config/matugen/scripts/inject-cava-colors.sh"
+
+[templates.clipe]
+input_path = '~/.config/matugen/templates/clipse-theme.json'
+output_path = '~/.cache/matugen/clipse-theme.json'
+pre_hook = 'mkdir -p ~/.cache/matugen'
+post_hook = "bash ~/.config/matugen/scripts/inject-clipse-theme.sh"
+
+[templates.starship]
+input_path = '~/.config/matugen/templates/starship-colors.toml'
+output_path = '~/.config/starship.toml'
+
+[templates.yazi]
+input_path = '~/.config/matugen/templates/yazi-theme.toml'
+output_path = '~/.config/yazi/theme.toml'
+
+#[templates.wlogout]
+#input_path = '~/.config/matugen/templates/colors.css'
+#output_path = '~/.config/wlogout/colors.css'
+#[templates.wlogout-recolor]
+#input_path = '~/.config/matugen/templates/wlogout/recolor.sh'
+#output_path = '~/.config/wlogout/icons/recolor.sh'
+#post_hook = 'chmod +x ~/.config/wlogout/icons/recolor.sh && bash ~/.config/wlogout/icons/recolor.sh &'
+
+[templates.gtk3]
+input_path ='~/.config/matugen/templates/gtk-colors.css'
+output_path = '~/.config/gtk-3.0/colors.css'
+[templates.gtk4]
+input_path ='~/.config/matugen/templates/gtk-colors.css'
+output_path = '~/.config/gtk-4.0/colors.css'
+
+#[templates.swaync]
+#input_path = '~/.config/matugen/templates/swaync-colors.css'
+#output_path = '~/.config/swaync/colors.css'
+#post_hook = 'swaync-client -rs &'
+
+[templates.ghostty]
+input_path = '~/.config/matugen/templates/ghostty-colors.conf'
+output_path = '~/.config/ghostty/themes/Matugen'
+post_hook = 'pkill -SIGUSR2 ghostty || true'
+
+#[templates.qt5ct]
+#input_path = '~/.config/matugen/templates/qtct-colors.conf'
+#output_path = '~/.config/qt5ct/colors/matugen.conf'
+
+#[templates.qt6ct]
+#input_path = '~/.config/matugen/templates/qtct-colors.conf'
+#output_path = '~/.config/qt6ct/colors/matugen.conf'
+
+#[templates.color-scheme]
+#input_path = '~/.config/matugen/templates/Matugen.colors'
+#output_path = '~/.local/share/color-schemes/Matugen.colors'
+
+#[templates.hyprland]
+#input_path = '~/.config/matugen/templates/hyprland-colors.conf'
+#output_path = '~/.config/hypr/colors.conf'
+#post_hook = 'hyprctl reload &'
+
+#[templates.niriswitcher]
+#input_path = '~/.config/matugen/templates/niriswitcher-colors.css'
+#output_path = '~/.config/niriswitcher/style.css'
+#post_hook= 'pkill niriswitcher || true && niriswitcher & disown'
+
+[templates.niri]
+input_path = '~/.config/matugen/templates/niri-colors.kdl'
+output_path = '~/.config/niri/colors.kdl'
+
+# Material You 单一色源（供 Orbit / 壁纸选择器等下游工具读取，Nyxuri palette.toml 同款）
+[templates.palette]
+input_path = '~/.config/matugen/templates/palette.toml'
+output_path = '~/.cache/matugen/palette.toml'
+pre_hook = 'mkdir -p ~/.cache/matugen'
+
+# Orbit 启动器读取的配色（Nyxuri 约定路径）
+[templates.nyxuri_palette]
+input_path = '~/.config/matugen/templates/palette.toml'
+output_path = '~/.cache/nyxuri/palette.toml'
+pre_hook = 'mkdir -p ~/.cache/nyxuri'
+
+[templates.gtk-folder]
+input_path = '~/.config/matugen/templates/gtk-folder/recolor.sh'
+output_path = '~/.cache/matugen/recoloricons.sh'
+post_hook = 'bash ~/.cache/matugen/recoloricons.sh &'
+
+[templates.swayosd]
+input_path = '~/.config/matugen/templates/colors.css'
+output_path = '~/.config/swayosd/colors.css'
+post_hook = 'pkill swayosd && swayosd-server &'
+
+#[templates.swaylock-effects]
+#input_path = '~/.config/matugen/templates/swaylock-colors'
+#output_path = '~/.config/swaylock/config'
+
+# fastfetch 配置已改为独立维护（不再由 matugen 生成，避免每次换壁纸被覆盖）
+# [templates.fastfetch]
+# input_path = '~/.config/matugen/templates/fastfetch-config.jsonc'
+# output_path = '~/.config/fastfetch/config.jsonc'
+
+
+[templates.neovim]
+input_path = '~/.config/matugen/templates/nvim-catppuccin.lua'
+output_path = '~/.config/nvim/lua/user/matugen-catppuccin.lua'
+post_hook = "bash -c 'sleep 0.5 && for s in /tmp/nvim-*; do nvim --server \"$s\" --remote-send \"<Esc>:silent luafile ~/.config/nvim/lua/user/matugen-catppuccin.lua<Enter>\" 2>/dev/null; nvim --server \"$s\" --remote-send \":lua require(\\\"kitty-theme\\\").apply()<Enter>\" 2>/dev/null || true; done'"
+
+[templates.tmux]
+input_path = '~/.config/matugen/templates/tmux-catppuccin.conf'
+output_path = '~/.config/tmux/user/matugen-catppuccin.conf'
+post_hook = "tmux source ~/.config/tmux/user/matugen-catppuccin.conf 2>/dev/null && tmux run '~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux' >/dev/null 2>&1 & || true"
+
+[templates.astroui]
+input_path = '~/.config/matugen/templates/nvim-astroui.lua'
+output_path = '~/.config/nvim/lua/user/matugen-astroui.lua'
+pre_hook = 'mkdir -p ~/.config/nvim/lua/user'
+post_hook = "bash -c 'sleep 0.3; for s in ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/nvim.*/0 /tmp/nvim*/0; do [ -S \"$s\" ] && nvim --server \"$s\" --remote-send \"<Esc>:silent! lua require(\\\"astroui.status.heirline\\\").refresh_colors()<Enter>\" >/dev/null 2>&1; done; true'"
+
+#[templates.neovim]
+#input_path = '~/.config/matugen/templates/neovim/template.lua'
+#output_path = '~/.config/nvim/generated.lua'
+#post_hook = 'pkill -SIGUSR1 nvim'
+
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hyprland-colors.conf'
+output_path = '~/.cache/matugen/hypr/colors.conf'
+pre_hook = 'mkdir -p ~/.cache/matugen/hypr/'
+
+[templates.vscode_injection]
+input_path = "~/.config/matugen/templates/vscode-inject.json"
+output_path = "~/.cache/matugen_vscode_inject.json"
+post_hook = "~/.config/matugen/scripts/inject_vscode.sh"
+
+[templates.obs]
+input_path = '~/.config/matugen/templates/obs-matugen.obt'
+output_path = '~/.config/obs-studio/themes/matugen.obt'
+
+#[templates.steam]
+#input_path = '~/.config/matugen/templates/steam.css'
+#output_path = '~/.config/AdwSteamGtk/custom.css'
+#post_hook =  'adwaita-steam-gtk -i'
+
+
+[templates.fzf]
+input_path = '~/.config/matugen/templates/fzf-colors.sh'
+output_path = '~/.cache/matugen/fzf-colors.sh'
+pre_hook = 'mkdir -p ~/.cache/matugen'
+
+[templates.musicfox]
+input_path = '~/.config/matugen/templates/musicfox-theme.toml'
+output_path = '~/.config/go-musicfox/themes/matugen.toml'
+pre_hook = 'mkdir -p ~/.config/go-musicfox/themes'
+post_hook = "bash ~/.config/matugen/scripts/inject-go-musicfox-color.sh"
+
+[templates.wshowkeys]
+input_path = '~/.config/matugen/templates/wshowkeys-colors.sh'
+output_path = '~/.config/wshowkeys/colors.sh'
+pre_hook = 'mkdir -p ~/.config/wshowkeys'
+
+#[templates.regulus]
+#input_path = '~/.config/matugen/templates/regulus-colors.conf'
+#output_path = '~/.cache/matugen/regulus-colors.conf'
+#pre_hook = 'mkdir -p ~/.cache/matugen'
+#post_hook = 'bash ~/.config/matugen/scripts/inject-conky-regulus.sh'
+
+#[templates.mirach]
+#input_path = '~/.config/matugen/templates/mirach-colors.conf'
+#output_path = '~/.cache/matugen/mirach-colors.conf'
+#pre_hook = 'mkdir -p ~/.cache/matugen'
+#post_hook = 'bash ~/.config/matugen/scripts/inject-conky-mirach.sh && (killall conky 2>/dev/null; sleep 1; conky -c ~/.config/conky/Regulus/Regulus.conf &> /dev/null & conky -c ~/.config/conky/Mirach/Mirach.conf &> /dev/null &)'
+[templates.eww]
+input_path = '~/.config/matugen/templates/colors-eww.scss'
+output_path = '~/.config/eww/color.scss'
+
+# wifitui（TUI 无线网络管理）配色
+[templates.wifitui]
+input_path = '~/.config/matugen/templates/wifitui-theme.toml'
+output_path = '~/.config/wifitui/theme.toml'
+pre_hook = 'mkdir -p ~/.config/wifitui'
+# post_hook = "eww reload"
+
+[templates.hexecute]
+input_path = '~/.config/matugen/templates/hexecute-colors.json'
+output_path = '~/.config/hexecute/colors.json'
+
+[templates.bat]
+input_path = '~/.config/matugen/templates/bat-matugen.tmTheme'
+output_path = '~/.config/bat/themes/Matugen.tmTheme'
+pre_hook = 'mkdir -p ~/.config/bat/themes'
+post_hook = 'bat cache --clear && bat cache --build'

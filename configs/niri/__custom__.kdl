@@ -1,0 +1,15 @@
+// Nyxuri Custom Configuration
+//
+// 任何在此文件中的修改都会在系统更新时被安全保留 (Dunder Protocol)。
+// 本机原有的自启项、规则仍保留在 config.kdl / rules.kdl 中，此处只放新增的个人配置。
+// 你可以把针对个人习惯的配置写在这里，例如：
+//
+// spawn-at-startup "fcitx5" "-d"
+// spawn-at-startup "easyeffects" "--gapplication-service"
+//
+// window-rule {
+//     match app-id="my-custom-app"
+//     open-floating true
+// }
+//
+// 也可以在当前目录创建 __custom__/ 文件夹放置个人脚本。

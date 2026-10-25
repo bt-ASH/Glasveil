@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Matugen</string>
+	<key>settings</key>
+	<array>
+		<!-- global settings -->
+		<dict>
+			<key>settings</key>
+			<dict>
+				<key>background</key>
+				<string>{{colors.surface_dim.default.hex}}</string>
+				<key>foreground</key>
+				<string>{{colors.on_surface.default.hex}}</string>
+				<key>caret</key>
+				<string>{{colors.primary.default.hex}}</string>
+				<key>selectionBackground</key>
+				<string>{{colors.secondary_container.default.hex}}</string>
+				<key>lineHighlight</key>
+				<string>{{colors.surface_container_high.default.hex}}</string>
+				<key>gutter</key>
+				<string>{{colors.surface_dim.default.hex}}</string>
+				<key>inactiveSelection</key>
+				<string>{{colors.surface_container_high.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- comments -->
+		<dict>
+			<key>name</key>
+			<string>Comment</string>
+			<key>scope</key>
+			<string>comment, punctuation.definition.comment</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.outline.default.hex}}</string>
+				<key>fontStyle</key>
+				<string>italic</string>
+			</dict>
+		</dict>
+		<!-- keywords, storage, modifiers -->
+		<dict>
+			<key>name</key>
+			<string>Keyword</string>
+			<key>scope</key>
+			<string>keyword, storage, variable.language, keyword.operator.logical, keyword.operator.comparison</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.primary.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- strings -->
+		<dict>
+			<key>name</key>
+			<string>String</string>
+			<key>scope</key>
+			<string>string, punctuation.definition.string</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.tertiary.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- constants: numbers, booleans, escape chars -->
+		<dict>
+			<key>name</key>
+			<string>Constant</string>
+			<key>scope</key>
+			<string>constant.numeric, constant.language, constant.character.escape, constant.other.placeholder</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.secondary.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- functions -->
+		<dict>
+			<key>name</key>
+			<string>Function</string>
+			<key>scope</key>
+			<string>entity.name.function, support.function, meta.function-call, variable.function</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.primary_fixed_dim.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- types, classes, interfaces -->
+		<dict>
+			<key>name</key>
+			<string>Type</string>
+			<key>scope</key>
+			<string>entity.name.type, entity.name.class, entity.name.interface, entity.name.struct, entity.name.enum, support.type, support.class</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.secondary.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- variables and parameters -->
+		<dict>
+			<key>name</key>
+			<string>Variable</string>
+			<key>scope</key>
+			<string>variable.other, variable.parameter, meta.variable</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.on_surface_variant.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- punctuation -->
+		<dict>
+			<key>name</key>
+			<string>Punctuation</string>
+			<key>scope</key>
+			<string>punctuation, meta.brace, punctuation.separator, punctuation.terminator</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.on_surface_variant.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- tags and attributes (markup / html / xml) -->
+		<dict>
+			<key>name</key>
+			<string>Tag</string>
+			<key>scope</key>
+			<string>entity.name.tag, meta.tag</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.primary.default.hex}}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>Attribute</string>
+			<key>scope</key>
+			<string>entity.other.attribute-name</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.tertiary.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- errors -->
+		<dict>
+			<key>name</key>
+			<string>Invalid</string>
+			<key>scope</key>
+			<string>invalid, invalid.illegal</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.error.default.hex}}</string>
+				<key>background</key>
+				<string>{{colors.error_container.default.hex}}</string>
+			</dict>
+		</dict>
+		<!-- diff -->
+		<dict>
+			<key>name</key>
+			<string>Diff add</string>
+			<key>scope</key>
+			<string>markup.inserted, meta.diff.header.to-file</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.tertiary.default.hex}}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>Diff remove</string>
+			<key>scope</key>
+			<string>markup.deleted, meta.diff.header.from-file</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.error.default.hex}}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>Diff section</string>
+			<key>scope</key>
+			<string>meta.diff.header, meta.diff.range</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>{{colors.primary_fixed_dim.default.hex}}</string>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>

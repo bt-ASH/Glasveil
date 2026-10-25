@@ -1,0 +1,7 @@
+# eww status bar manifest
+[packages]
+repo = ["eww"]
+
+[preserve]
+# 这些由 matugen 生成，部署/更新时保留
+files = ["color.scss"]

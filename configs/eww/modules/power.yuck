@@ -1,0 +1,18 @@
+(defwidget power []
+    (eventbox :onhover "eww update open_power=true"
+              :onhoverlost "eww update open_power=false"
+        (box :class "power" :orientation "h" :space-evenly false :halign "start"
+            (label :class "power-trigger" :text "󰣇")
+            (revealer :transition "slideleft" :reveal open_power :duration {ANIM_DURATION}
+                (box :class "power-menu" :orientation "h" :space-evenly false
+                    (button :class "power-menu-button" :onclick "hyprlock -c ~/.config/niri/hyprlock.conf || swaylock" "")
+                    (button :class "power-menu-button" :onclick "niri msg action power-off-monitors" "󰶐")
+                    (button :class "power-menu-button" :onclick "niri msg action quit" "󰗼")
+                    (button :class "power-menu-button" :onclick "sleep 0.1 && gtklock & systemctl suspend &" "󰤄")
+                    (button :class "power-menu-button" :onclick "systemctl reboot" "󰜉")
+                    (button :class "power-menu-button" :onclick "systemctl poweroff" "󰤆")
+                )
+            )
+        )
+    )
+)

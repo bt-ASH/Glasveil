@@ -1,0 +1,5 @@
+(defwidget network []
+    (button :class "network" :timeout "10s" :onclick "bash ~/.config/niri/scripts/wifitui-preview.sh"
+        {network}
+    )
+)

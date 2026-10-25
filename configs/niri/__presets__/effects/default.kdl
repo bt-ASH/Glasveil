@@ -1,0 +1,102 @@
+// 标准外观模式：Nyxuri 玻璃质感（真实毛玻璃模糊 + 半透明）
+// 透明度与模糊都随 effects 文件切换：
+//   普通模式 焦点 0.90 / 失焦 0.85；护眼模式 焦点 0.95 / 失焦 0.90（更实一点）
+// 此文件由 __presets__/effects/default.kdl 部署而来（nyxuri preset 机制）。
+
+// ── 1) 模糊开关与参数（Nyxuri 原值）──
+window-rule {
+    background-effect {
+        blur true
+        xray false
+    }
+}
+
+blur {
+    passes 3
+    offset 2.3
+    noise 0.001
+    saturation 2
+}
+
+// ── 2) 玻璃白名单：为常用应用补一层更明显的模糊 ──
+window-rule {
+    match app-id="org.pwmt.zathura"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="codium"
+    match app-id="code-oss"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="steam"
+    background-effect { blur true; }
+}
+
+window-rule {
+    match app-id="obsidian"
+    background-effect { blur true; }
+}
+
+// Zen 浏览器
+window-rule {
+    match app-id="app.zen_browser.zen"
+    background-effect { blur true; }
+}
+
+// Nautilus 文件管理器
+window-rule {
+    match app-id=r"^org\.gnome\.Nautilus$"
+    background-effect { blur true; }
+}
+
+// ── 3) 透明度（普通模式）──
+// 聚焦窗口 90%
+window-rule {
+    opacity 0.9
+}
+
+// 失焦窗口 85%，形成层次
+window-rule {
+    match is-focused=false
+    opacity 0.85
+}
+
+// Nyxuri 玻璃白名单的透明度部分
+window-rule {
+    match app-id="org.pwmt.zathura"
+    opacity 0.8
+}
+
+window-rule {
+    match app-id="codium"
+    match app-id="code-oss"
+    opacity 0.85
+}
+
+window-rule {
+    match app-id="steam"
+    opacity 0.9
+}
+
+window-rule {
+    match app-id="obsidian"
+    opacity 0.9
+}
+
+// 本机原有外观规则（排在白名单之后，保持原有覆盖顺序）
+window-rule {
+    match app-id="code-oss"
+    opacity 0.94
+}
+
+window-rule {
+    match app-id="steam_app_default"
+    match app-id="steam"
+    match app-id="mpv"
+    match app-id="^Minecraft"
+    match app-id="steam_app_438100"
+    opacity 1.0
+}

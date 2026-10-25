@@ -1,0 +1,12 @@
+(defwidget workspaces []
+    (box :orientation "h" :space-evenly false :class "workspaces"
+        (for workspace in workspaces
+            (button
+                :class {workspace.focused ? "workspace focused" : "workspace"}
+                :timeout "5s"
+                :onclick "niri msg action focus-workspace ${workspace.id}"
+                {workspace.id}
+            )
+        )
+    )
+)

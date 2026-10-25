@@ -1,0 +1,93 @@
+name = "matugen"
+description = "matugen 同步主题（与 kitty 配色适配）"
+
+[dark]
+# 主色 -> kitty color8/color12 (primary)
+primary = "{{colors.primary.default.hex}}" # Matugen Generated
+# 次色 -> kitty color14 (secondary)
+secondary = "{{colors.secondary.default.hex}}"
+# 强调色 -> kitty color5 (tertiary)
+accent = "{{colors.tertiary.default.hex}}"
+# 成功色
+success = "{{colors.tertiary.default.hex}}"
+# 警告色
+warning = "{{colors.tertiary.default.hex}}"
+# 错误色 -> matugen error
+error = "{{colors.error.default.hex}}"
+# 信息色
+info = "{{colors.primary.default.hex}}"
+# 弱化文字
+muted = "{{colors.outline.default.hex}}"
+# 快捷键提示
+hintKey = "{{colors.outline.default.hex}}"
+# 背景色 -> kitty background (surface)
+background = "{{colors.surface.default.hex}}"
+# 前景色 -> kitty foreground (on_surface)
+foreground = "{{colors.on_surface.default.hex}}"
+# 边框色
+border = "{{colors.outline.default.hex}}"
+# 表面色（卡片/浮层背景）
+surface = "{{colors.surface.default.hex}}"
+# 菜单选中分隔符
+menuSelectedSepLeft = " "
+menuSelectedSepRight = " "
+
+[dark.highlights]
+# 菜单标题
+menuTitle = "{{colors.primary.default.hex}}"
+# 菜单项文字
+menuItem = "{{colors.on_surface.default.hex}}"
+# 鼠标悬停
+menuItemHover = "{{colors.primary.default.hex}}"
+# 方向键选中
+selectedItem = "{{colors.primary.default.hex}}"
+# 选中+悬停
+selectedItemHover = "{{colors.primary.default.hex}}"
+# 选中项背景
+selectedItemBg = "transparent"
+
+[dark.popup]
+surface = "{{colors.surface.default.hex}}"
+border = "{{colors.outline.default.hex}}"
+
+[dark.notification]
+surface = "{{colors.surface.default.hex}}"
+infoBorder = "{{colors.primary.default.hex}}"
+successBorder = "{{colors.primary.default.hex}}"
+warningBorder = "{{colors.tertiary.default.hex}}"
+errorBorder = "{{colors.error.default.hex}}"
+
+[dark.statusBar]
+nuggetLabelFg = "{{colors.primary.default.hex}}"
+nuggetLabelBg = "transparent"
+timeSepLeft = " "
+breadcrumbSepRight = " "
+breadcrumbHover = "{{colors.primary.default.hex}}"
+
+[dark.markdown]
+dark = "dark"
+light = "light"
+
+[dark.app]
+# 歌词配色
+lyricActive = "{{colors.on_surface.default.hex}}"
+lyricTransition = "{{colors.secondary.default.hex}}"
+lyricInactive = "{{colors.outline.default.hex}}"
+lyricHighlight = "{{colors.primary.default.hex}}"
+# 播放栏
+playbarMode = "{{colors.tertiary.default.hex}}"
+playbarVolume = "{{colors.primary.default.hex}}"
+playbarPlaying = "{{colors.primary.default.hex}}"
+playbarPaused = "{{colors.secondary.default.hex}}"
+playbarHeartLiked = "{{colors.primary.default.hex}}"
+playbarHeartUnliked = "{{colors.outline.default.hex}}"
+playbarArtist = "{{colors.outline.default.hex}}"
+# 频谱
+visualizerColorStart = "{{colors.primary.default.hex}}"
+visualizerColorEnd = "{{colors.tertiary.default.hex}}"
+# 背景类
+background = "transparent"
+contextMenuBg = "transparent"
+spectrumVerticalBg = "transparent"
+desktopLyricsBg = "transparent"
+configTableSelectedBg = "transparent"

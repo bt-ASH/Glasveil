@@ -1,0 +1,7 @@
+(defwidget music []
+    (button :class {mpris.status == "Playing" ? "music Playing" : mpris.status == "Paused" ? "music Paused" : "music Stopped"}
+        :onclick "playerctl play-pause"
+        :onrightclick "setsid -f kitty -e bluetui"
+        {mpris.status == "Playing" ? mpris.text : mpris.status == "Paused" ? "󰏤  " + mpris.title : "󰋋"}
+    )
+)

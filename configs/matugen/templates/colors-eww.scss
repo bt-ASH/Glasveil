@@ -1,0 +1,45 @@
+/* ===== matugen dynamic colors (same source as waybar/colors.css) ===== */
+<* for name, value in colors *>
+${{name}}: {{value.default.hex}};
+<* endfor *>
+
+/* ===== semantic aliases for eww bar ===== */
+$background-light: {{ colors.surface_container_high.default.hex }};
+$foreground: {{ colors.on_background.default.hex }};
+$blue: {{ colors.primary.default.hex }};
+$pink: {{ colors.tertiary.default.hex }};
+
+/* ===== Noctalia capsule colors (mirror Nyxuri noctalia-config.toml [bar.bar]) =====
+ * capsule fill = surface_variant @ 0.79 / border = outline / foreground = secondary
+ * bar background = fully transparent, each module becomes a capsule
+ */
+$capsule_bg: rgba({{colors.surface_variant.default.red}}, {{colors.surface_variant.default.green}}, {{colors.surface_variant.default.blue}}, 0.79);
+$capsule_border: {{colors.outline.default.hex}};
+$capsule_fg: {{colors.secondary.default.hex}};
+
+/* ===== workspace selection (A: primary tint pill + primary text) ===== */
+$ws_sel_bg:       rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.22);
+$ws_sel_bg_hover: rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.32);
+$ws_hover_bg:     rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.10);
+$ws_flash_bg:     rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.55);
+$ws_sel_fg:       {{colors.primary.default.hex}};
+
+/* ===== module colors (mirror waybar style.css) ===== */
+$mode-color: {{ colors.tertiary.default.hex }};
+$playerctl-color: {{ colors.secondary.default.hex }};
+$clock-color: {{ colors.primary.default.hex }};
+$cpu-color: {{ colors.primary.default.hex }};
+$memory-color: {{ colors.secondary.default.hex }};
+$temperature-color: {{ colors.tertiary.default.hex }};
+$temperature-critical-color: {{ colors.error.default.hex }};
+$battery-color: {{ colors.primary.default.hex }};
+$battery-charging-color: {{ colors.primary.default.hex }};
+$battery-warning-color: {{ colors.error.default.hex }};
+$battery-critical-color: {{ colors.error.default.hex }};
+$network-color: {{ colors.primary.default.hex }};
+$network-disconnected-color: {{ colors.error.default.hex }};
+$pulseaudio-color: {{ colors.tertiary.default.hex }};
+$pulseaudio-muted-color: {{ colors.error.default.hex }};
+$backlight-color: {{ colors.tertiary.default.hex }};
+$power-color: {{ colors.primary.default.hex }};
+$workspaces-color: {{ colors.on_background.default.hex }};

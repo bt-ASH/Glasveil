@@ -1,0 +1,5 @@
+(defwidget temperature []
+    (button :class "temperature" :timeout "10s" :onclick "kitty -e s-tui"
+        {temperature >= 80 ? "󱃂  " + temperature + "°C" : temperature >= 60 ? "󰔏  " + temperature + "°C" : "󱃃  " + temperature + "°C"}
+    )
+)

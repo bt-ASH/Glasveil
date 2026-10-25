@@ -1,0 +1,5 @@
+(defwidget ppd []
+    (button :class "ppd" :timeout "5s" :onclick "scripts/toggle_ppd.sh"
+        {ppd == "performance" ? "󱐋" : ppd == "power-saver" ? "" : "☯"}
+    )
+)

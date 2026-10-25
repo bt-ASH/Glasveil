@@ -1,0 +1,5 @@
+(defwidget cpu []
+    (button :class "cpu" :timeout "10s" :onclick "kitty -e btop"
+        "󰍛  ${cpu}%"
+    )
+)

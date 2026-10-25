@@ -1,0 +1,38 @@
+(defwidget volume []
+    (eventbox :onscroll "scripts/scroll_volume.sh {}"
+              :onhover "eww update open_volume=true"
+              :onhoverlost "eww update open_volume=false"
+        (box :class {volume == "muted" ? "volume muted" : "volume"}
+            :orientation "h"
+            :space-evenly false
+            (button :class "volume-button"
+                :timeout "2s"
+                :onclick "scripts/open_wiremix.sh"
+                :onrightclick "scripts/toggle_mute.sh"
+                (box :orientation "h" :spacing 2 :space-evenly false
+                    (label :text {volume == "muted" && volume_dev == "bt" ? "󰂲  "
+                                  : volume_dev == "bt" ? "󰂰  "
+                                  : volume == "muted" ? "󰝟"
+                                  : volume_dev == "headphone" ? "󰋋  "
+                                  : volume_dev == "hands-free" ? "󰥰  "
+                                  : volume_dev == "headset" ? "󰋎  "
+                                  : volume_dev == "phone" ? "󰏲  "
+                                  : volume_dev == "portable" ? "󰄝  "
+                                  : volume_dev == "car" ? "󰄋  "
+                                  : volume < 33 ? "󰕿  " : volume < 67 ? "󰖀  " : "󰕾  "}
+                    )
+                    (label :text {volume == "muted" ? "" : volume + "%"})
+                )
+            )
+            (revealer :transition "slideleft" :reveal open_volume :duration {ANIM_DURATION}
+                (scale :class "volume-scale-bar"
+                    :value {volume == "muted" ? "0" : volume}
+                    :orientation "h"
+                    :max 100
+                    :min 0
+                    :onchange "pactl set-sink-volume @DEFAULT_SINK@ {}%"
+                )
+            )
+        )
+    )
+)

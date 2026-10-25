@@ -1,0 +1,24 @@
+(defwidget backlight []
+    (eventbox :onscroll "scripts/scroll_backlight.sh {}"
+              :onhover "eww update open_backlight=true"
+              :onhoverlost "eww update open_backlight=false"
+        (box :class "backlight"
+            :orientation "h"
+            :space-evenly false
+            (button :class "backlight-button"
+                :timeout "2s"
+                :onclick "scripts/toggle_bl_osd.sh"
+                {bl > 66 ? "󰃠  " + bl + "%" : bl > 33 ? "󰃟  " + bl + "%" : "󰃞 " + bl + "%"}
+            )
+            (revealer :transition "slideleft" :reveal open_backlight :duration {ANIM_DURATION}
+                (scale :class "backlight-scale-bar"
+                    :value bl
+                    :orientation "h"
+                    :max 100
+                    :min 0
+                    :onchange "brightnessctl s {}%"
+                )
+            )
+        )
+    )
+)

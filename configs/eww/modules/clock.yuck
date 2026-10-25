@@ -1,0 +1,10 @@
+(defwidget clock []
+    (eventbox :onhover "eww update open_date=true" :onhoverlost "eww update open_date=false"
+        (box :class "clock" :orientation "h" :space-evenly false
+            (label :text "󰥔 ${time} ")
+            (revealer :transition "slideleft" :reveal open_date :duration {ANIM_DURATION}
+                (label :class "clock-date" :text " 󰃭 ${date_str}")
+            )
+        )
+    )
+)

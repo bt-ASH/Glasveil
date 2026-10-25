@@ -1,0 +1,3 @@
+# fastfetch manifest（配置独立维护，不再由 matugen 生成）
+[packages]
+repo = ["fastfetch"]
