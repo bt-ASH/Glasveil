@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ╔═══════════════════════════════════════════════════════╗
-# ║               Glasveil Installer v1.3                 ║
+# ║               Glasveil Installer                   ║
 # ║          niri / Material You / eww / matugen          ║
 # ╚═══════════════════════════════════════════════════════╝
 
@@ -19,7 +19,37 @@ CDEF='\033[0m'
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
 BACKUP_ROOT="$DEST/.glasveil-backups"
-VERSION="1.0"
+FALLBACK_VERSION="1.3"   # 没有 git tag 时的兜底版本；正常情况由 git tag 决定
+
+# 版本号来源：git 标签（单一事实来源）
+#   v1.3            → 1.3
+#   v1.3+5-g1a2b3c  → 1.3+5（tag 之后有 5 个提交）
+#   v1.3+5-dirty    → 工作区有未提交改动
+repo_version() {
+    local base ahead dirty=""
+    if command -v git >/dev/null 2>&1 && [ -d "$REPO/.git" ]; then
+        base="$(git -C "$REPO" describe --tags --abbrev=0 2>/dev/null || true)"
+        if [ -n "$base" ]; then
+            ahead="$(git -C "$REPO" rev-list --count "${base}..HEAD" 2>/dev/null || echo 0)"
+            git -C "$REPO" diff --quiet 2>/dev/null || dirty="-dirty"
+            if [ "${ahead:-0}" -gt 0 ]; then
+                printf '%s+%s%s' "${base#v}" "$ahead" "$dirty"
+            else
+                printf '%s%s' "${base#v}" "$dirty"
+            fi
+            return
+        fi
+    fi
+    printf '%s' "$FALLBACK_VERSION"
+}
+VERSION="$(repo_version)"
+
+# 标题方框（55 列，ASCII 居中）
+box_line() {
+    local t="$1" pad left right
+    pad=$((55 - ${#t})); left=$((pad / 2)); right=$((pad - left))
+    printf '║%*s%s%*s║\n' "$left" '' "$t" "$right" ''
+}
 
 # ── Defaults (可由命令行覆盖) ────────────────────────────
 MODE="link"      # link | copy
@@ -102,11 +132,11 @@ copy_entry() {
 
 # ── Usage ───────────────────────────────────────────────
 usage() {
+    printf '╔═══════════════════════════════════════════════════════╗\n'
+    box_line "Glasveil Installer v$VERSION"
+    box_line "niri / Material You / eww / matugen"
+    printf '╚═══════════════════════════════════════════════════════╝\n'
     cat <<'USAGE'
-╔═══════════════════════════════════════════════════════╗
-║                Glasveil Installer v1.3                ║
-║          niri / Material You / eww / matugen          ║
-╚═══════════════════════════════════════════════════════╝
 
   (无参数)                      交互菜单（部署 / 依赖 / 备份 / 回滚）
   deploy                        只部署配置到 ~/.config（默认命令）
@@ -117,6 +147,7 @@ usage() {
   backup [标签]                 备份当前 ~/.config 里本仓库管理的文件
   restore <引用>                回滚（latest / 备份标签 / 目录路径）
   list-backups                  列出已有备份
+  version                       打印版本号（取自 git tag）
 
   --copy                        部署时复制而不是软链
   --link                        部署时软链（默认）
@@ -142,8 +173,8 @@ USAGE
 show_menu() {
     printf "\n${CBLD}${CYLW}"
     echo "╔═══════════════════════════════════════════════════════╗"
-    echo "║                Glasveil Installer v1.3                ║"
-    echo "║          niri / Material You / eww / matugen          ║"
+    box_line "Glasveil Installer v$VERSION"
+    box_line "niri / Material You / eww / matugen"
     echo "╚═══════════════════════════════════════════════════════╝"
     printf "${CDEF}\n"
     printf "  ${CBLD}可用操作:${CDEF}\n"
@@ -602,7 +633,7 @@ SAW_FLAG=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        deploy|deps|all|backup|restore|list-backups|spotify|completion|help) COMMAND="$1" ;;
+        deploy|deps|all|backup|restore|list-backups|spotify|completion|version|help) COMMAND="$1" ;;
         --copy) SAW_FLAG=1;      MODE="copy" ;;
         --link) SAW_FLAG=1;      MODE="link" ;;
         --dry-run) SAW_FLAG=1;   DRY=1 ;;
@@ -656,6 +687,8 @@ case "$COMMAND" in
     backup)       cmd_backup "$CMD_ARG" ;;
     restore)      cmd_restore "$CMD_ARG" ;;
     list-backups) cmd_list ;;
+    version)      printf '%s\n' "$VERSION" ;;
+    version)      printf '%s\n' "$VERSION" ;;
     completion)   cmd_completion "$CMD_ARG" ;;
     help)         usage ;;
 esac
