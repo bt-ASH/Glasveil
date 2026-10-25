@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3] - 2026-10-26
+
+### Added
+- **Spotify / Spicetify 主题**：`./install.sh spotify [配色方案]`，配色由 `templates/spotify-color.ini`
+  经 matugen 渲染，`inject-spicetify-color.sh` 注入 Spicetify（含 fallback 配色）
+- **Zed 主题**：单文件同时产出 `Glasveil Dark` / `Glasveil Light`（用 matugen adaptive 变体）
+- `install.sh version` 子命令
+
+### Changed
+- 版本号改为 **git tag 单源推导**：`v1.3` / `v1.3+5` / `v1.3+5-dirty`，
+  `--help` 与交互菜单抬头不再硬编码版本
+- 补全脚本覆盖新增的 `spotify` / `version` 子命令
+
 ## [0.1.0] - 2026-10-25
 
 首个公开快照。

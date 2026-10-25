@@ -109,6 +109,19 @@ wallpaper 换色后 matugen 会自动刷新 color.ini（`[templates.spicetify]` 
 
 配色管线：壁纸 → `matugen-update`（waypaper 的 `post_command` 自动调用）→ 全部主题文件。
 
+## 版本
+
+版本号**由 git 标签决定**，`./install.sh version` 打印：
+
+| git 状态 | 输出 |
+|---|---|
+| HEAD 正好在 `v1.3` | `1.3` |
+| tag 之后还有 5 个提交 | `1.3+5` |
+| 另有未提交改动 | `1.3+5-dirty` |
+
+发布流程：改 `CHANGELOG.md` → `git commit` → `git tag -a vX.Y.Z -m "..."` → `git push && git push --tags`。
+递增规则：**MAJOR** 需要迁移的配置结构变化 · **MINOR** 新增功能/配色模板 · **PATCH** 修复。
+
 ## 许可
 
 GPL-3.0。派生自 [Nyxuri](https://github.com/ech678/Nyxuri) 的部分同样为 GPL-3.0，

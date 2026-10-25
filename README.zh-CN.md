@@ -62,6 +62,11 @@ Spotify 配色由 matugen 的 `[templates.spicetify]` 生成（`configs/matugen/
 `./install.sh completion fish|bash|zsh` 输出补全脚本；fish 放到 `~/.config/fish/completions/`，
 `restore <TAB>` 会自动列出现有备份标签。
 
+## 版本
+
+`./install.sh version` 的输出来自 git 标签：正好在 `v1.3` 时是 `1.3`，tag 之后有提交是 `1.3+5`，
+工作区有未提交改动则是 `1.3+5-dirty`。发布就是 `git tag -a vX.Y.Z` + `git push --tags`。
+
 ## 许可
 
 GPL-3.0。部分组件派生自 [Nyxuri](https://github.com/ech678/Nyxuri)（同为 GPL-3.0），
