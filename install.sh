@@ -28,7 +28,8 @@ FALLBACK_VERSION="1.3"   # 没有 git tag 时的兜底版本；正常情况由 g
 repo_version() {
     local base ahead dirty=""
     if command -v git >/dev/null 2>&1 && [ -d "$REPO/.git" ]; then
-        base="$(git -C "$REPO" describe --tags --abbrev=0 2>/dev/null || true)"
+        # 取「当前提交可达的、版本号最大」的 tag（同一提交上打多个 tag 时也更确定）
+        base="$(git -C "$REPO" tag --sort=-v:refname --merged HEAD 2>/dev/null | head -1)"
         if [ -n "$base" ]; then
             ahead="$(git -C "$REPO" rev-list --count "${base}..HEAD" 2>/dev/null || echo 0)"
             git -C "$REPO" diff --quiet 2>/dev/null || dirty="-dirty"
