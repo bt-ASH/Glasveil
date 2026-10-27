@@ -1,9 +1,9 @@
-(defwidget bar []
+(defwidget bar [ws]
     (box :class "bar-widget" :orientation "h" :spacing 1
 
         (box :orientation "h" :spacing 1 :space-evenly false :halign "start" :hexpand true
             (power)
-            (workspaces)
+            (workspaces :items ws)
             (music)
         )
 

@@ -41,8 +41,11 @@ timeout "$EWW_TIMEOUT" eww close-all >/dev/null 2>&1 || true
 count=$(active_outputs)
 [ "${count:-0}" -ge 1 ] 2>/dev/null || count=1
 
+# 只定义了 bar0 / bar1 两个窗口（对应 monitor 0/1）
+[ "$count" -gt 2 ] 2>/dev/null && count=2
+
 i=0
 while [ "$i" -lt "$count" ]; do
-    timeout "$EWW_TIMEOUT" eww open bar --id "bar$i" --screen "$i" >/dev/null 2>&1 || true
+    timeout "$EWW_TIMEOUT" eww open "bar$i" >/dev/null 2>&1 || true
     i=$((i + 1))
 done
