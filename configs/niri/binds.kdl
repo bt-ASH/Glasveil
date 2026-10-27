@@ -70,7 +70,7 @@ binds {
     Mod+B { spawn "bgselector"; }
 
     // eww 状态栏重载 / Reload eww bar
-    Mod+Shift+W { spawn-sh "eww kill && eww daemon && eww open bar"; }
+    Mod+Shift+W { spawn-sh "bash ~/.config/eww/scripts/launch.sh"; }
 
     // remako 壁纸工具 / remako wallpaper tool
     Mod+Shift+M { spawn-sh "bash ~/.config/niri/scripts/remako.sh"; }

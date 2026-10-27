@@ -43,7 +43,7 @@ environment {
 // PolKit 认证代理（GUI 密码弹窗）
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 spawn-at-startup "nm-applet"
-spawn-sh-at-startup "sh ~/.config/eww/scripts/launch.sh"
+spawn-sh-at-startup "bash ~/.config/eww/scripts/launch.sh"
 spawn-sh-at-startup "sh ~/.config/eww/scripts/watch-outputs.sh"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "sh" "-c" "sleep 2 && DISPLAY=:1 glava --desktop"

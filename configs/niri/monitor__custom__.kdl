@@ -11,7 +11,7 @@
 // 示例 1: 笔记本内置屏幕 (标准 1080p@60Hz)
 output "eDP-1" {
      mode "1366x768@60.000"
-     scale 1.0
+     scale 1.2
      position x=117 y=0
 }
 
