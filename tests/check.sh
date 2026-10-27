@@ -34,6 +34,28 @@ sys.exit(bad)
 PY
 [ $? -ne 0 ] && fail=1
 
+say "eww 样式必须是纯 ASCII（GTK 不认 SCSS 自动插入的 @charset）"
+python3 - <<'PYCHK'
+import pathlib, sys
+files = [
+    pathlib.Path("configs/eww/eww.scss"),
+    pathlib.Path("configs/matugen/templates/colors-eww.scss"),
+]
+bad = 0
+for f in files:
+    if not f.exists():
+        continue
+    text = f.read_text(encoding="utf-8")
+    hits = [(i + 1, l) for i, l in enumerate(text.splitlines()) if not l.isascii()]
+    if hits:
+        print(f"  \033[31mFAIL\033[0m {f}: 第 {hits[0][0]} 行含非 ASCII")
+        bad = 1
+    else:
+        print(f"  \033[32mOK\033[0m {f}")
+sys.exit(0 if bad == 0 else 1)
+PYCHK
+[ $? -ne 0 ] && fail=1
+
 say "niri 配置校验（未安装 niri 则跳过）"
 if command -v niri >/dev/null 2>&1; then
     if niri validate -c configs/niri/config.kdl >/dev/null 2>&1; then

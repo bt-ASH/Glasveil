@@ -34,7 +34,7 @@
 /* ===== hover (waybar style: background-light on hover) ===== */
 .music:hover, .clock:hover, .volume:hover,
 .network:hover, .cpu:hover, .memory:hover, .temperature:hover,
-.ppd:hover, .power:hover, .backlight:hover, .battery:hover {
+.ppd:hover, .power:hover, .backlight:hover, .battery:hover, .tray:hover {
     background-color: $background-light;
 }
 
@@ -120,11 +120,13 @@
 
 .tray-trigger {
     color: $capsule_fg;
-    padding: 0 0.25rem 0 0.25rem;
+    padding: 0;
 }
 
-.tray-trigger:hover {
-    background: $background-light;
+/* icon strip: capsule styling lives on the outer .tray */
+.tray-icons {
+    color: $capsule_fg;
+    padding: 0 0 0 6px;
 }
 
 /* ===== hover slide-out scales (volume/backlight) ===== */
