@@ -1,14 +1,23 @@
+; 三段式：左（电源 / 工作区 / 应用）· 中（时钟，严格居中）· 右（系统状态 + 托盘）
+; 用 centerbox（eww 0.5 支持，必须正好 3 个子元素），时钟与左右两侧内容宽度无关，
+; 恒在屏幕正中。
 (defwidget bar [ws]
-    (box :class "bar-widget" :orientation "h" :spacing 1
+    (centerbox :class "bar-widget" :orientation "h"
 
-        (box :orientation "h" :spacing 1 :space-evenly false :halign "start" :hexpand true
+        ; ── 左 ──
+        (box :orientation "h" :spacing 1 :space-evenly false :halign "start"
             (power)
             (workspaces :items ws)
             (music)
         )
 
-        (box :orientation "h" :spacing 1 :space-evenly false :halign "end"
+        ; ── 中 ──
+        (box :orientation "h" :spacing 1 :halign "center"
             (clock)
+        )
+
+        ; ── 右 ──
+        (box :orientation "h" :spacing 1 :space-evenly false :halign "end"
             (volume)
             (backlight)
             (network)
@@ -19,6 +28,5 @@
             (battery)
             (tray)
         )
-
     )
 )
