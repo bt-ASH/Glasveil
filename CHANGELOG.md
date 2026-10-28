@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- **浅色模式下 TUI 代码块看不清**：Miyu 等 TUI 的语法高亮用的是 xterm **256 色立方体**
+  （实测 `#d7d7ff`=189、`#afd7af`=151），这些索引不受 matugen 的 16 色主题控制，
+  在浅底上对比度只有 1.3~1.5。
+  新增 `configs/scripts/kitty-cube-tune.sh`：浅色模式下把 color16–255 中较亮的颜色
+  压暗 20%（`factor=0.8`，可调），由 `theme-toggle.sh` 在切明暗时自动 on/off。
+
 ## [1.3] - 2026-10-26
 
 ### Added

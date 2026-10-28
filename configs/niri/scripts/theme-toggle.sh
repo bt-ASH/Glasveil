@@ -75,6 +75,11 @@ if command -v eww >/dev/null 2>&1 && eww ping >/dev/null 2>&1; then
     eww reload >/dev/null 2>&1 || true
 fi
 
+# 浅色模式下压暗 xterm 256 色立方体（TUI 的 256 色语法高亮在浅底上会发白）
+if [ -x "$HOME/.config/scripts/kitty-cube-tune.sh" ]; then
+    "$HOME/.config/scripts/kitty-cube-tune.sh" "$new" >/dev/null 2>&1 || true
+fi
+
 # --- 4) 提示 ---
 if [ "$new" = "light" ]; then
     notify-send -t 2000 "Theme : Light" "配色已切换为亮色"
