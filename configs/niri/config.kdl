@@ -50,6 +50,8 @@ spawn-at-startup "sh" "-c" "sleep 2 && DISPLAY=:1 glava --desktop"
 spawn-at-startup "awww-daemon"
 spawn-at-startup "fcitx5 --replace -d"
 spawn-at-startup "~/.config/niri/scripts/restore-wallpaper.sh"
+// 开机按当前明暗校正 kitty 的 256 色立方体覆盖（light 挂 / dark 摘）
+spawn-at-startup "~/.config/scripts/kitty-cube-tune.sh" "auto"
 // 电池保护：开机把充电上限锁到 80%（下限 75%）；无 root 权限时静默跳过
 spawn-at-startup "~/.config/niri/scripts/battery-care.sh"
 spawn-at-startup "~/.config/niri/scripts/swayidle.sh"

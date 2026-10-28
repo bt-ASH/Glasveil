@@ -5,6 +5,9 @@
 #   kitty-cube-tune.sh off    关闭
 #   kitty-cube-tune.sh auto   按当前明暗模式自动 on/off（theme-toggle.sh 会调用）
 #
+# gen 生成完会自动执行 auto，所以「gen 0.65」在 dark 模式下不会生效；
+# 开机时 niri 自启项也会跑一次 auto，避免上次 light 留下的 include 带到 dark。
+#
 # 只影响 256 色立方体（color16-255），不动前 16 个主题色（那些由 matugen 控制）。
 set -uo pipefail
 
@@ -55,7 +58,11 @@ PYGEN
 
 action="${1:-auto}"
 case "$action" in
-    gen) gen_cube "${2:-0.8}"; exit 0 ;;
+    gen)
+        gen_cube "${2:-0.8}"
+        # 生成后立刻按当前模式对齐：light → 挂 include；dark → 摘掉（不生效）
+        exec "$0" auto
+        ;;
     auto)
         m="$(cat "$MODE_FILE" 2>/dev/null || echo dark)"
         [ "$m" = "light" ] && action=on || action=off
