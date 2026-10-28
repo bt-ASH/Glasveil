@@ -18,7 +18,7 @@ INC="include themes/xterm-cube-light.conf"
 
 CUBE_CONF="$CFG_DIR/kitty/themes/xterm-cube-light.conf"
 
-# 生成 256 色立方体覆盖文件：只压暗「较亮」的颜色（暗色本来就看得清）
+# 生成 256 色立方体覆盖文件：16-255 全部按 factor 压暗
 #   gen [factor]   默认 0.8（= 压暗 20%），factor 越小越深
 gen_cube() {
     local factor="${1:-0.8}"
@@ -36,11 +36,8 @@ def xterm(n):
         v = 8 + 10 * (n - 232)
         return (v, v, v)
     return None
-def lum(c):
-    r, g, b = [x / 255 for x in c]
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b
 lines = [
-    "# xterm 256 色立方体 —— 浅色模式下压暗（供 TUI 的 256 色语法高亮）",
+    "# xterm 256 色立方体 —— 浅色模式下全部压暗（供 TUI 的 256 色语法高亮）",
     f"# factor={factor} 由 kitty-cube-tune.sh gen 生成，勿手改",
 ]
 n_tuned = 0
@@ -48,12 +45,11 @@ for n in range(16, 256):
     c = xterm(n)
     if c is None:
         continue
-    if lum(c) > 0.45:
-        c = tuple(int(round(v * factor)) for v in c)
-        n_tuned += 1
+    c = tuple(int(round(v * factor)) for v in c)
+    n_tuned += 1
     lines.append(f"color{n} #{c[0]:02x}{c[1]:02x}{c[2]:02x}")
 out.write_text("\n".join(lines) + "\n")
-print(f"已生成 {out}（factor={factor}，压暗 {n_tuned} 个颜色）")
+print(f"已生成 {out}（factor={factor}，压暗全部 {n_tuned} 个立方体颜色）")
 PYGEN
 }
 
