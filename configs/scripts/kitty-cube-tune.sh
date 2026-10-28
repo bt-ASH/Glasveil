@@ -140,7 +140,15 @@ case "$action" in
         [ -n "$val" ] || { echo "用法: kitty-cube-tune.sh gen <factor> [--light|--dark]" >&2; exit 2; }
         [ -n "$target" ] || target="$(mode_now)"
         factor_set "$target" "$val"
-        gen_cube "$target" "$val"
+        case "$val" in
+            1|1.0|1.00)
+                rm -f "$THEME_DIR/xterm-cube-$target.conf"
+                echo "cube-tune: $target 系数=1.0，已移除覆盖文件（不处理）"
+                ;;
+            *)
+                gen_cube "$target" "$val"
+                ;;
+        esac
         reconcile
         ;;
     on)

@@ -9,7 +9,7 @@
   新增 `configs/scripts/kitty-cube-tune.sh`：浅色模式下把 color16–255 中较亮的颜色
   压暗 20%（`factor=0.8`，可调），由 `theme-toggle.sh` 在切明暗时自动 on/off。
   之后改为 **按模式独立系数**：`gen <factor> [--light|--dark]`，
-  light 默认 0.65、dark 默认 0.9，各自生成 `themes/xterm-cube-{light,dark}.conf`，
+  light = 0.65、dark = 1.0（不处理，不生成文件），
   系数为 1.0 时该模式不启用覆盖（`kitty-cube-tune.sh show` 可查）。
 
 ## [1.3] - 2026-10-26
