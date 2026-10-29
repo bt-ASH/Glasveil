@@ -13,6 +13,11 @@
   系数为 1.0 时该模式不启用覆盖（`kitty-cube-tune.sh show` 可查）。
 
 ### Changed
+- **锁屏改成 Noctalia 风格**（hyprlock 实现，不依赖 Noctalia 常驻）：
+  模糊壁纸背景、居中大时钟 + 日期、圆角卡片式密码框；
+  新增 matugen 模板 `hyprlock-colors.conf`（surface_variant 88% 卡片色、outline 描边、带 alpha），
+  配色跟随壁纸与明暗。
+
 - `install.sh` 的 shell 补全脚本从顶层 `completions/` 移到 `configs/fish/completions/`，
   与 fish 配置同目录（`./install.sh completion fish|bash|zsh` 仍然可用）。
 

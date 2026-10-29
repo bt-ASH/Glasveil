@@ -190,6 +190,11 @@ post_hook = "bash -c 'sleep 0.3; for s in ${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
 [templates.hyprlock]
 input_path = '~/.config/matugen/templates/hyprland-colors.conf'
 output_path = '~/.cache/matugen/hypr/colors.conf'
+
+# hyprlock 专用派生色（带 alpha 的 tint / 卡片色）
+[templates.hyprlock_extras]
+input_path = '~/.config/matugen/templates/hyprlock-colors.conf'
+output_path = '~/.cache/matugen/hypr/hyprlock-colors.conf'
 pre_hook = 'mkdir -p ~/.cache/matugen/hypr/'
 
 [templates.vscode_injection]
