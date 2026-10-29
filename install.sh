@@ -165,7 +165,6 @@ usage() {
   ./install.sh spotify Glasveil-Dark   深色版
   ./install.sh backup 调参前    打快照
   ./install.sh restore latest   回滚到最近一次
-  ./install.sh completion fish 输出 fish 补全脚本
 
 
 USAGE
@@ -610,22 +609,6 @@ cmd_list() {
 }
 
 
-# ── Shell Completions ───────────────────────────────────
-cmd_completion() {
-    local shell="${1:-}"
-    local file
-    case "$shell" in
-        bash) file="$REPO/configs/fish/completions/install.sh.bash" ;;
-        fish) file="$REPO/configs/fish/completions/install.sh.fish" ;;
-        zsh)  file="$REPO/configs/fish/completions/_install.sh" ;;
-        *)
-            printf '%s\n' "用法: ./install.sh completion bash|fish|zsh" >&2
-            exit 1 ;;
-    esac
-    [ -f "$file" ] || die "补全脚本缺失: $file"
-    cat "$file"
-}
-
 # ── Argument Parsing ────────────────────────────────────
 COMMAND=""
 CMD_ARG=""
@@ -634,7 +617,7 @@ SAW_FLAG=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        deploy|deps|all|backup|restore|list-backups|spotify|completion|version|help) COMMAND="$1" ;;
+        deploy|deps|all|backup|restore|list-backups|spotify|version|help) COMMAND="$1" ;;
         --copy) SAW_FLAG=1;      MODE="copy" ;;
         --link) SAW_FLAG=1;      MODE="link" ;;
         --dry-run) SAW_FLAG=1;   DRY=1 ;;
@@ -690,6 +673,5 @@ case "$COMMAND" in
     list-backups) cmd_list ;;
     version)      printf '%s\n' "$VERSION" ;;
     version)      printf '%s\n' "$VERSION" ;;
-    completion)   cmd_completion "$CMD_ARG" ;;
     help)         usage ;;
 esac
