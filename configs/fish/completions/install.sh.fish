@@ -1,5 +1,5 @@
 # fish completion for Glasveil install.sh
-# 用法: cp ~/Glasveil/completions/install.sh.fish ~/.config/fish/completions/
+# 用法: cp ~/Glasveil/configs/fish/completions/install.sh.fish ~/.config/fish/completions/
 set -l __gv_cmds deploy deps all backup restore list-backups completion help
 
 complete -c install.sh -f

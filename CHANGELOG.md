@@ -12,6 +12,10 @@
   light = 0.65、dark = 1.0（不处理，不生成文件），
   系数为 1.0 时该模式不启用覆盖（`kitty-cube-tune.sh show` 可查）。
 
+### Changed
+- `install.sh` 的 shell 补全脚本从顶层 `completions/` 移到 `configs/fish/completions/`，
+  与 fish 配置同目录（`./install.sh completion fish|bash|zsh` 仍然可用）。
+
 ## [1.3] - 2026-10-26
 
 ### Added

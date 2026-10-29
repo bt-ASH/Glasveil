@@ -615,9 +615,9 @@ cmd_completion() {
     local shell="${1:-}"
     local file
     case "$shell" in
-        bash) file="$REPO/completions/install.bash" ;;
-        fish) file="$REPO/completions/install.sh.fish" ;;
-        zsh)  file="$REPO/completions/_install.sh" ;;
+        bash) file="$REPO/configs/fish/completions/install.sh.bash" ;;
+        fish) file="$REPO/configs/fish/completions/install.sh.fish" ;;
+        zsh)  file="$REPO/configs/fish/completions/_install.sh" ;;
         *)
             printf '%s\n' "用法: ./install.sh completion bash|fish|zsh" >&2
             exit 1 ;;

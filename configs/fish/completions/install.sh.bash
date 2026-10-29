@@ -1,5 +1,5 @@
 # bash completion for Glasveil install.sh
-# 用法: source ~/Glasveil/completions/install.bash
+# 用法: source ~/Glasveil/configs/fish/completions/install.sh.bash
 _glasveil_install() {
     local cur prev cmds opts backups
     cur="${COMP_WORDS[COMP_CWORD]}"
