@@ -12,9 +12,6 @@ binds {
     // 切换概览视角 (禁止按键重复) / Toggle workspace overview
     Mod+Tab repeat=false { toggle-overview; }
 
-    // 兼容旧键位：Mod+O 也可切换概览
-    Mod+O repeat=false hotkey-overlay-title="切换总览界面 toggle overview" { toggle-overview; }
-
     // Orbit 星环启动器（Nyxuri 的 radial-launcher，工具链在 ~/.config/niri/tools）
     Mod+Shift+A repeat=false hotkey-overlay-title="星环启动器 Orbit Launcher" { spawn "~/.config/niri/scripts/shell-action.sh" "radial-launcher"; }
 
@@ -88,13 +85,6 @@ binds {
     // 3. 焦点导航与窗口移动 / Focus Navigation & Window Movement
     // -------------------------------------------------------------------------
     // 智能焦点导航 (达到边缘时自动穿透跨屏与跨工作区) / Smart focus
-    // 注意：niri 的方向焦点动作只作用于平铺窗口，焦点在浮动窗口时全部无效，
-    // 因此这里统一走 niri-focus.sh：浮动中按方向键 = 切回平铺；平铺到头再按 = 进浮动。
-    Mod+Left  { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-or-monitor-left"; }
-    Mod+Right { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-or-monitor-right"; }
-    Mod+Down  { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-or-workspace-down"; }
-    Mod+Up    { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-or-workspace-up"; }
-
     // 列 / 窗口焦点快速切换 / Column & window focus
     // Vim 风格方向焦点（等价 dotfile-niri 的 Mod+H/J/K/L），并在浮动/平铺之间来回切换
     Mod+Z { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-left"; }
@@ -236,13 +226,13 @@ binds {
     // 7. 多媒体与硬件控制 / Multimedia & Hardware Control
     // -------------------------------------------------------------------------
     // 音量加 / 减 / 静音（swayosd 在跑就用 OSD，否则 wpctl 静默）
-    Mod+F3 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "up"; }
-    Mod+F2 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "down"; }
+    Mod+up allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "up"; }
+    Mod+down allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "down"; }
     Mod+F1 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-volume.sh" "mute"; }
 
     // 亮度：内屏走 brightnessctl，外接屏自动走 DDC/CI (ddcutil)
-    Mod+F6 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "up"; }
-    Mod+F5 allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "down"; }
+    Mod+left allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "up"; }
+    Mod+right allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "down"; }
     XF86MonBrightnessUp   allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "up"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "~/.config/niri/scripts/niri-brightness.sh" "down"; }
 
@@ -272,7 +262,7 @@ binds {
     Mod+Shift+S { spawn "~/.config/niri/scripts/edit-screenshot.sh"; }
 
     // 交互式截图（niri 原生）/ Interactive screenshot
-    Print { screenshot; }
+    Mod+Shift+P { screenshot; }
 
     // 截取整个显示器屏幕 / Fullscreen screenshot
     Mod+P { screenshot-screen; }

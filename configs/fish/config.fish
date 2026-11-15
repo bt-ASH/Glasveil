@@ -249,13 +249,14 @@ if status is-interactive
 
     alias clean='nyxuri clean'
     alias nyxniri='nyxuri'
+    alias icat='kitten icat'
 
     # se：模糊搜索软件包 (支持 aur <kw> / pac <kw> 前缀) 并用 fzf 交互安装 (无 fzf 时自动降级)
     function se --description "Fuzzy search & install packages (aur/pac prefix)"
         if not command -v fzf &>/dev/null
             nyxuri pkg search $argv
             return
-        end 
+        end
 
         # 构建 fzf 选项与搜索预填
         set -l fzf_query ""
@@ -311,7 +312,7 @@ if status is-interactive
             nyxuri pkg remove $pkgs
         end
     end
-    
+
     if command -v eza &>/dev/null
         if test "$TERM" != "linux"
             alias ls 'eza --icons=auto'

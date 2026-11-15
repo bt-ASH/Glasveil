@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-swayidle \
-    timeout 300  'hyprlock -c ~/.config/niri/hyprlock.conf &' \
+pgrep -x swayidle >/dev/null && exit 0
+
+exec swayidle \
+    timeout 300  'pgrep -x hyprlock >/dev/null || hyprlock -c ~/.config/niri/hyprlock.conf' \
     timeout 600  'niri msg action power-off-monitors' \
     resume       'niri msg action power-on-monitors' \
-    before-sleep 'hyprlock -c ~/.config/niri/hyprlock.conf || swaylock'
-   # timeout 3700 'systemctl suspend'
+    before-sleep 'setsid -f hyprlock -c ~/.config/niri/hyprlock.conf' \
+    timeout 3700 'systemctl suspend'

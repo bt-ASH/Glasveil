@@ -1,10 +1,11 @@
 ; 每个输出一个 bar 窗口（eww 0.5 的 defwindow 只能固定一个 :monitor 索引）
 ;
-; 实测本机映射（用 niri msg layers 探针确认）：
-;   monitor 0 = DP-1（外接）
-;   monitor 1 = eDP-1（内屏）
-; 插拔屏幕后索引可能变化；工作区列表用 niri 的 output 名过滤，所以
-; 万一索引错位，只会出现「显示的是另一块屏的工作区」，不会重复。
+; :monitor 吃的是「活动输出序号」（0 = 第一块点亮的屏），不是输出名：
+;   - 两块屏：monitor 0 / 1 各一条
+;   - 只剩一块屏：launch.sh 只开 bar0，它就是那块屏
+; 所以工作区列表也按同一个序号取（scripts/workspaces.sh --slot N），
+; 不再写死 DP-1 / eDP-1 —— 写死的话单屏时 bar0 会挂在没插的 DP-1 上，
+; 过滤结果恒为空，整段工作区就空了。
 (defwindow bar0
     :monitor 0
     :stacking "fg"
@@ -17,7 +18,7 @@
     :focusable false
     :transparent true
     :namespace "eww"
-    (bar :ws ws_dp1)
+    (bar :ws ws0)
 )
 
 (defwindow bar1
@@ -32,5 +33,5 @@
     :focusable false
     :transparent true
     :namespace "eww"
-    (bar :ws ws_edp1)
+    (bar :ws ws1)
 )

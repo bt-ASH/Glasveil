@@ -1,10 +1,35 @@
 # ~/.config/yazi/yazi.toml
 
+# ── 打开方式 ────────────────────────────────────────────
+# 视频      → 直接起 mpv 独立窗口播放（q 退出，播完自动关）
+# 图片/GIF  → 新开 kitty 窗口，kitten icat 显示，按任意键关闭
+#
+# 几个必须知道的点（都在 yazi 26.9.1 上实测过）：
+#   · 占位符是 %s（全部选中项）/ %s1（第一个），不是 shell 的 "$@"
+#   · block = true：yazi 让出键盘等查看器退出，否则两边抢按键
+#   · 规则里必须写 mime（或 url）。只写 name = "*.png" 会让整份
+#     yazi.toml 解析失败，yazi 静默回落到内置默认配置，表现为「按回车没反应」
+#   · GIF 属于 image/*，icat 默认 --loop -1 会一直循环；--hold 否则窗口立刻关
 [opener]
-feh_image_opener = [
-    { run = "feh %s", desc = 'Open with Feh', block = true }
+mpv_video_opener = [
+    { run = "mpv %s1", desc = "Video (mpv)", block = true }
+    # 想在终端里循环播放就换成：
+    # { run = "kitty -e mpv --vo=kitty --loop=inf %s1", desc = "Video (mpv in kitty)", block = true }
 ]
+
+icat_image_opener = [
+    { run = "kitty -e kitten icat --hold %s", desc = "Image (kitten icat)", block = true }
+]
+
+# 想保留 feh 那套就取消注释，并在下面加一条 append_rules 指向它
+# feh_image_opener = [
+#     { run = "feh %s", desc = "Open with Feh", block = true }
+# ]
+
+[[open.prepend_rules]]
+mime = "video/*"
+use = "mpv_video_opener"
 
 [[open.prepend_rules]]
 mime = "image/*"
-use = "feh_image_opener"
+use = "icat_image_opener"

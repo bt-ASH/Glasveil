@@ -22,9 +22,10 @@
 
 ; LISTENS
 
-; 每个输出一条工作区列表（多屏 bar 各自高亮自己那块屏）
-(deflisten ws_dp1  :initial "[]" "scripts/workspaces.sh --listen DP-1")
-(deflisten ws_edp1 :initial "[]" "scripts/workspaces.sh --listen eDP-1")
+; 每条 bar 一条工作区列表：--slot N 对应那条 bar 的 :monitor N
+; （不写死输出名，单屏 / 插拔屏都不会错位）
+(deflisten ws0 :initial "[]" "scripts/workspaces.sh --listen --slot 0")
+(deflisten ws1 :initial "[]" "scripts/workspaces.sh --listen --slot 1")
 (defpoll volume :interval "1s" :initial "0" "scripts/volume.sh")
 (deflisten volume_dev :initial "default" "scripts/volume_dev.sh")
 (deflisten mpris :initial "{\"text\":\"\",\"title\":\"\",\"artist\":\"\",\"status\":\"Stopped\"}" "scripts/caway.sh")

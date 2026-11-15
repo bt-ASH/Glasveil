@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Removed
+- **Spotify / Spicetify 主题支持整体移除**：删除
+  `configs/matugen/templates/spotify-color.ini`、`scripts/inject-spicetify-color.sh`、
+  `scripts/apply-spicetify-colors.sh`、`spotify-color.fallback.ini`，
+  以及 `config.toml` 里的 `[templates.spicetify]` 模板配置（换壁纸不再渲染 Spotify 配色）；
+  `install.sh` 的 `spotify` 子命令、辅助函数、交互菜单第 7 项、`OPTIONAL_PKGS` 里的
+  `spicetify-cli` 与相关文档一并删除。本机也已还原客户端
+  （`spicetify restore` 取回原版 `xpui.spa` / `login.spa`，并清理
+  `~/.config/spicetify`、`~/.local/state/spicetify`）。
+
 ### Fixed
 - **浅色模式下 TUI 代码块看不清**：Miyu 等 TUI 的语法高亮用的是 xterm **256 色立方体**
   （实测 `#d7d7ff`=189、`#afd7af`=151），这些索引不受 matugen 的 16 色主题控制，
