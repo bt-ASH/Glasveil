@@ -242,6 +242,7 @@ pre_hook = 'mkdir -p ~/.config/wshowkeys'
 [templates.eww]
 input_path = '~/.config/matugen/templates/colors-eww.scss'
 output_path = '~/.config/eww/color.scss'
+post_hook = 'command -v eww >/dev/null 2>&1 && eww ping >/dev/null 2>&1 && eww reload >/dev/null 2>&1 || true'
 
 # wifitui（TUI 无线网络管理）配色
 [templates.wifitui]
