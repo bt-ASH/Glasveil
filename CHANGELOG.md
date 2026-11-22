@@ -27,6 +27,8 @@
   `wallpaper_picker` 后端重写为纯 awww（含 matugen 刷新），去掉视频扫描、ffmpeg 缩略图、
   “Live/Static” 分类与徽标；`rules.kdl` 移除 mpvpaper 图层规则；`install.sh` 的 AUR 依赖去掉 mpvpaper；
   `get_current_wallpaper()` 改为查 `awww query`。
+- `waypaper` 配置：`backend` 从 `mpvpaper` 改为 **`awww`**，删除 `mpvpaper_*` 与过时的 `swww_*` 键；
+  新增 `configs/waypaper/`（config.ini + style.css）入仓。
 
 ### Changed
 - **锁屏改成 Noctalia 风格**（hyprlock 实现，不依赖 Noctalia 常驻）：
