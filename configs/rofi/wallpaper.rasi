@@ -1,54 +1,85 @@
-/* 壁纸选择器（rofi 缩略图网格）—— 对齐 waypaper 的观感：
- * 3 列大缩略图、无文字、浅色半透明卡片、选中项蓝色圆角描边 */
+/* 壁纸选择器（rofi 缩略图）—— 参考图风格：
+ * 窗口无底色、背景全透明，缩略图直接浮在壁纸上；
+ * 选中项只有蓝色圆角描边；底部一条圆角搜索栏
+ * （参考图下面那排“显示器 / 暗度 / 偏移”按钮不要，只留搜索框）。
+ *
+ * 注意：rofi 对 * 里的 rgba 变量在 element 背景上会回退成白色，
+ * 所以透明/着色一律写字面量，不要用 @变量。 */
 * {
-    bg:    rgba(250, 248, 255, 0.92);
-    acc:   #7aa2f7;
-    clear: rgba(0, 0, 0, 0);
+    fg:  #e8ecf5;
+    dim: #98a2b3;
 }
 
 window {
-    width:            78%;
-    height:           80%;
-    background-color: @bg;
-    border-radius:    20px;
-    padding:          18px;
+    width:            88%;
+    height:           62%;
+    background-color: transparent;
+    border:           0px;
+    padding:          0px;
 }
 
-/* 只留网格，隐藏顶部输入条（想恢复过滤功能就删掉下面这行 children） */
 mainbox {
-    children: [ listview ];
-    padding:  0px;
-    spacing:  0px;
+    children:         [ listview, inputbar ];
+    background-color: rgba(0, 0, 0, 0);
+    padding:          0px;
+    spacing:          22px;
 }
 
+/* 缩略图直接铺开，不画任何底色 */
 listview {
-    columns:       3;
-    lines:         4;
-    fixed-columns: true;
-    spacing:       18px;
-    padding:       0px;
-    border:        0px;
-    scrollbar:     false;
+    columns:          6;
+    lines:            2;
+    fixed-columns:    true;
+    fixed-height:     false;
+    spacing:          16px;
+    padding:          0px;
+    border:           0px;
+    scrollbar:        false;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 element {
-    padding:          6px;
+    padding:          5px;
     spacing:          0px;
     border:           2px;
-    border-radius:    16px;
-    border-color:     @clear;
-    background-color: @clear;
+    border-radius:    18px;
+    border-color:     rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
 }
 
-element normal.normal   { background-color: @clear; }
-element selected.normal { border-color: @acc; background-color: @clear; }
+element normal.normal   { background-color: rgba(0, 0, 0, 0); }
+element selected.normal {
+    border-color:     #7aa2f7;
+    background-color: rgba(122, 162, 247, 0.10);
+}
 
 element-icon {
-    size:   20em;
-    cursor: pointer;
+    size:             17em;
+    cursor:           pointer;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 /* 缩略图网格不显示文字标签 */
 element-text {
     enabled: false;
 }
+
+/* 底部圆角搜索栏（替代参考图下方那排按钮与滑杆） */
+inputbar {
+    background-color: rgba(14, 18, 28, 0.78);
+    border-radius:    999px;
+    padding:          10px 20px;
+    margin:           0px 590px;   /* 窄条居中：和参考图一样的短搜索条 */
+    spacing:          8px;
+    children:         [ entry ];
+}
+
+entry {
+    placeholder:       "搜索壁纸";
+    placeholder-color: #98a2b3;
+    text-color:        #e8ecf5;
+    cursor:            text;
+}
+
+prompt { enabled: false; }
+case-indicator { enabled: false; }

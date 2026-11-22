@@ -32,8 +32,11 @@
 
 ### Changed
 - **rofi 壁纸选择器的缩略图改成 waypaper 同款网格**：
-  新增 `configs/rofi/wallpaper.rasi`（3 列大缩略图、隐藏输入条、浅色半透明卡片
-  `rgba(250,248,255,0.92)`、选中项蓝色圆角描边 `#7aa2f7`）；
+  新增 `configs/rofi/wallpaper.rasi`：窗口与卡片都不画底色（`background-color:
+  transparent`），缩略图直接浮在壁纸上，选中项只有 `#7aa2f7` 蓝色圆角描边；
+  底部一条窄的圆角搜索栏（`margin: 0px 590px`）带占位文字「搜索壁纸」，
+  取代参考图里那排显示器/暗度/偏移按钮；
+  注意 rofi 的 `*{}` rgba 变量用在 `element` 背景上会回退成白色，透明值必须写字面量；
   `wallpicker.sh` / `wallpapers` 两个 rofi 选择器共用该主题，
   `wallpicker.sh` 同时改为 awww 应用 + matugen 刷新、缩略图并行生成。
 
