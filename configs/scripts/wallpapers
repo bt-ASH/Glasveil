@@ -1,0 +1,536 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Steam 创意工坊壁纸查看器 / Wallpaper Engine workshop browser
+
+默认模式用 rofi 弹出带缩略图的选片菜单（Enter → mpv 全屏循环播放）。
+另有浏览器画廊、终端列表、mpv 连续播放。
+
+用法:
+    wallpapers                 # 一键：rofi 缩略图选片 → mpv 全屏循环
+    wallpapers gallery         # 浏览器里的缩略图画廊（可搜索、点击播放）
+    wallpapers list            # 终端里列出全部壁纸
+    wallpapers play            # mpv 全屏连播全部
+    wallpapers play 蒂法        # 只播标题/标签匹配的
+    wallpapers --no-open       # 只生成画廊不打开
+    wallpapers --root DIR      # 指定别的收集目录
+
+环境变量:
+    WALLPAPER_ROOT   壁纸目录（默认 431960 创意工坊目录）
+    WALLPAPER_MPV    mpv 可执行文件/额外参数（默认 "mpv"）
+"""
+
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import os
+import shutil
+import subprocess
+import sys
+import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+DEFAULT_ROOT = Path("/home/ash/.local/share/Steam/steamapps/workshop/content/431960")
+VIDEO_EXT = {".mp4", ".webm", ".mkv", ".mov", ".m4v", ".avi", ".flv", ".wmv"}
+IMAGE_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".bmp"}
+
+
+def cache_dir() -> Path:
+    base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    d = base / "wallpaper-gallery"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def run(cmd: list[str]) -> str:
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=20).stdout.strip()
+    except Exception:
+        return ""
+
+
+def probe(path: Path) -> tuple[int, int, float]:
+    """返回 (宽, 高, 时长秒)，失败为 0。"""
+    if not shutil.which("ffprobe"):
+        return 0, 0, 0.0
+    out = run([
+        "ffprobe", "-v", "error", "-select_streams", "v:0",
+        "-show_entries", "stream=width,height:format=duration",
+        "-of", "json", str(path),
+    ])
+    try:
+        data = json.loads(out or "{}")
+        st = (data.get("streams") or [{}])[0]
+        dur = float((data.get("format") or {}).get("duration") or 0)
+        return int(st.get("width") or 0), int(st.get("height") or 0), dur
+    except Exception:
+        return 0, 0, 0.0
+
+
+def human_size(n: float) -> str:
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if n < 1024 or unit == "TB":
+            return f"{n:.0f} {unit}" if unit in ("B", "KB") else f"{n:.1f} {unit}"
+        n /= 1024.0
+    return f"{n:.1f} TB"
+
+
+def load_probe_cache() -> dict:
+    try:
+        return json.loads((cache_dir() / "probe-cache.json").read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_probe_cache(cache: dict) -> None:
+    try:
+        (cache_dir() / "probe-cache.json").write_text(
+            json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def probe_many(paths: list[Path]) -> dict[str, tuple[int, int, float]]:
+    """并发探测，并把结果按 (路径|mtime|大小) 缓存，第二次打开瞬间出结果。"""
+    cache = load_probe_cache()
+    out: dict[str, tuple[int, int, float]] = {}
+    todo: list[tuple[Path, str]] = []
+    for p in paths:
+        try:
+            st = p.stat()
+            key = f"{p}|{int(st.st_mtime)}|{st.st_size}"
+        except OSError:
+            continue
+        if key in cache:
+            v = cache[key]
+            out[str(p)] = (int(v[0]), int(v[1]), float(v[2]))
+        else:
+            todo.append((p, key))
+    if todo:
+        with ThreadPoolExecutor(max_workers=min(16, len(todo))) as ex:
+            results = list(ex.map(lambda pk: probe(pk[0]), todo))
+        for (p, key), r in zip(todo, results):
+            out[str(p)] = r
+            cache[key] = [r[0], r[1], round(r[2], 3)]
+        save_probe_cache(cache)
+    return out
+
+
+def human_dur(sec: float) -> str:
+    if sec <= 0:
+        return ""
+    sec = int(round(sec))
+    h, rem = divmod(sec, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
+def pick_file(d: Path, names: list[str]) -> Path | None:
+    for n in names:
+        if not n:
+            continue
+        p = d / n
+        if p.is_file():
+            return p
+    return None
+
+
+def collect(root: Path) -> list[dict]:
+    items: list[dict] = []
+    if not root.is_dir():
+        return items
+    for d in sorted(root.iterdir()):
+        if not d.is_dir() or d.name.startswith("."):
+            continue
+        meta: dict = {}
+        pj = d / "project.json"
+        if pj.is_file():
+            try:
+                meta = json.loads(pj.read_text(encoding="utf-8", errors="replace"))
+            except Exception:
+                meta = {}
+
+        media = pick_file(d, [str(meta.get("file") or "")])
+        preview = pick_file(d, [str(meta.get("preview") or "")])
+        if preview is None:
+            cands = sorted(
+                [p for p in d.iterdir() if p.is_file() and p.suffix.lower() in IMAGE_EXT],
+                key=lambda p: p.stat().st_size, reverse=True,
+            )
+            preview = cands[0] if cands else None
+        if media is None:
+            media = pick_file(d, ["scene.json", "scene.pkg"])
+
+        media_ext = media.suffix.lower() if media else ""
+        playable = bool(media and media.is_file() and media_ext in (VIDEO_EXT | IMAGE_EXT))
+        # 场景类（scene.pkg）无法用 mpv 播放，只能显示预览图
+        if str(meta.get("type", "")).lower() == "scene" and media_ext not in (VIDEO_EXT | IMAGE_EXT):
+            playable = False
+
+        thumb = preview or media
+        try:
+            size = sum(p.stat().st_size for p in d.rglob("*") if p.is_file())
+        except Exception:
+            size = 0
+
+        title = str(meta.get("title") or d.name).replace("\n", " ").strip() or d.name
+        tags = meta.get("tags") or []
+        if isinstance(tags, str):
+            tags = [tags]
+        items.append({
+            "id": d.name,
+            "title": title,
+            "type": str(meta.get("type") or ("video" if media_ext in VIDEO_EXT else "file")),
+            "tags": [str(t) for t in tags],
+            "rating": str(meta.get("contentrating") or ""),
+            "dir": str(d),
+            "media": str(media) if media and media.is_file() else "",
+            "preview": str(thumb) if thumb else "",
+            "playable": playable,
+            "width": 0, "height": 0, "duration": 0.0,
+            "size": size,
+        })
+    # 分辨率/时长：并发 ffprobe + 缓存
+    vids = [Path(it["media"]) for it in items
+            if it["media"] and Path(it["media"]).suffix.lower() in VIDEO_EXT]
+    if vids:
+        infos = probe_many(vids)
+        for it in items:
+            info = infos.get(it["media"])
+            if info:
+                it["width"], it["height"], it["duration"] = info
+    items.sort(key=lambda i: i["title"].lower())
+    return items
+
+
+def as_url(p: str) -> str:
+    return "file://" + urllib.parse.quote(p, safe="/")
+
+
+TYPE_ZH = {"video": "视频", "scene": "场景", "web": "网页", "application": "程序"}
+
+# rofi 网格主题：与 waypaper / wallpicker 统一（3 列大缩略图、无文字、浅色卡片）
+ROFI_THEME_FILE = os.path.expanduser("~/.config/rofi/wallpaper.rasi")
+
+
+CSS = """
+:root{--bg:#0b0d11;--card:#151a21;--fg:#e7ecf3;--dim:#8b97a8;--acc:#7cc4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+ font:14px/1.5 "Noto Sans CJK SC","Source Han Sans SC",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;display:flex;gap:16px;align-items:center;
+ padding:14px 22px;background:rgba(11,13,17,.82);backdrop-filter:blur(14px);
+ border-bottom:1px solid #1e2530}
+h1{margin:0;font-size:16px;letter-spacing:.5px;font-weight:600;white-space:nowrap}
+h1 small{color:var(--dim);font-weight:400;margin-left:8px}
+#q{flex:1;max-width:420px;padding:8px 12px;border-radius:8px;border:1px solid #26303d;
+ background:#0f141a;color:var(--fg);outline:none;font-size:13px}
+#q:focus{border-color:var(--acc)}
+main{display:grid;gap:14px;padding:18px 22px 60px;
+ grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{margin:0;background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;
+ border:1px solid #1c232d;transition:transform .16s,border-color .16s,box-shadow .16s}
+.card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 26px #0009}
+.thumb{position:relative;aspect-ratio:16/9;background:#0a0d11;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.badge{position:absolute;font-size:11px;padding:2px 7px;border-radius:6px;
+ background:#000000b3;backdrop-filter:blur(4px);letter-spacing:.3px}
+.b-type{top:8px;left:8px;color:var(--acc)}
+.b-dur{bottom:8px;right:8px;font-variant-numeric:tabular-nums}
+figcaption{padding:10px 12px 12px}
+figcaption b{display:block;font-size:13px;font-weight:600;line-height:1.35;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+figcaption small{display:block;color:var(--dim);font-size:11.5px;margin-top:4px;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewer{position:fixed;inset:0;z-index:50;background:#05070ae8;backdrop-filter:blur(8px);
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:26px}
+#viewer[hidden]{display:none}
+#viewer .stage{max-width:96vw;max-height:82vh;display:flex;align-items:center;justify-content:center}
+#viewer video,#viewer img{max-width:96vw;max-height:82vh;border-radius:10px;
+ background:#000;box-shadow:0 20px 60px #000c}
+#viewer .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+ color:var(--dim);font-size:12.5px;max-width:96vw;text-align:center}
+#viewer .bar b{color:var(--fg);font-size:14px;font-weight:600}
+button{font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;cursor:pointer;
+ border:1px solid #2b3644;background:#141a22;color:var(--fg)}
+button:hover{border-color:var(--acc);color:var(--acc)}
+.hint{color:#5f6c7d;font-size:12px;white-space:nowrap}
+"""
+
+
+JS = """
+const cards=[...document.querySelectorAll('.card')];
+const box=document.getElementById('viewer'),stage=box.querySelector('.stage'),
+  bar=box.querySelector('.bar'),q=document.getElementById('q');
+let cur=-1;
+function show(i){
+  if(!cards.length)return;
+  i=(i+cards.length)%cards.length;cur=i;
+  const c=cards[i];
+  stage.innerHTML='';
+  if(c.dataset.playable==='1'){
+    const v=document.createElement('video');
+    v.src=c.dataset.media;v.controls=true;v.autoplay=true;v.loop=true;v.playsInline=true;
+    stage.appendChild(v);
+  }else if(c.dataset.preview){
+    const im=document.createElement('img');im.src=c.dataset.preview;stage.appendChild(im);
+  }
+  const extra=c.dataset.playable==='1'?'':' · engine scene 包，只能显示预览';
+  bar.innerHTML='';
+  const t=document.createElement('b');t.textContent=c.dataset.title;
+  const m=document.createElement('span');m.textContent=c.dataset.meta+extra;
+  const cp=document.createElement('button');cp.textContent='复制路径';
+  cp.onclick=()=>{navigator.clipboard.writeText(c.dataset.source||'').then(
+    ()=>cp.textContent='已复制',()=>cp.textContent='复制失败');};
+  const nx=document.createElement('button');nx.textContent='下一个 →';
+  nx.onclick=()=>show(cur+1);
+  const cl=document.createElement('button');cl.textContent='关闭 Esc';
+  cl.onclick=close;
+  bar.append(t,m,cp,nx,cl);
+  box.hidden=false;document.body.style.overflow='hidden';
+}
+function close(){stage.innerHTML='';box.hidden=true;document.body.style.overflow='';cur=-1}
+cards.forEach((c,i)=>c.addEventListener('click',()=>show(i)));
+box.addEventListener('click',e=>{if(e.target===box||e.target===stage)close()});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')close();
+  else if(!box.hidden&&e.key==='ArrowRight')show(cur+1);
+  else if(!box.hidden&&e.key==='ArrowLeft')show(cur-1);
+  else if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus()}
+});
+function filter(){
+  const s=q.value.trim().toLowerCase();let n=0;
+  cards.forEach(c=>{
+    const hit=!s||(c.dataset.title+' '+c.dataset.tags).toLowerCase().includes(s);
+    c.style.display=hit?'':'none';if(hit)n++;
+  });
+  document.getElementById('count').textContent=n+' / '+cards.length;
+}
+q.addEventListener('input',filter);filter();
+"""
+
+
+def build_gallery(items: list[dict]) -> Path:
+    cdir = cache_dir()
+    cards = []
+    for it in items:
+        tags = " · ".join(it["tags"])
+        res = f'{it["width"]}×{it["height"]}' if it["width"] and it["height"] else ""
+        dur = human_dur(it["duration"])
+        meta = " · ".join(b for b in (tags, res, dur, human_size(it["size"])) if b)
+        badge_type = TYPE_ZH.get(it["type"].lower(), it["type"])
+        badges = f'<span class="badge b-type">{html.escape(badge_type)}</span>'
+        if dur:
+            badges += f'<span class="badge b-dur">{dur}</span>'
+        if not it["playable"]:
+            badges += ('<span class="badge" style="bottom:8px;left:8px;color:#ffd479">仅预览</span>')
+        img = (f'<img src="{html.escape(as_url(it["preview"]))}" loading="lazy" alt="">'
+               if it["preview"] else "")
+        cards.append(
+            f'<figure class="card" data-playable="{1 if it["playable"] else 0}" '
+            f'data-media="{html.escape(as_url(it["media"]))}" '
+            f'data-preview="{html.escape(as_url(it["preview"]))}" '
+            f'data-title="{html.escape(it["title"], quote=True)}" '
+            f'data-tags="{html.escape(" ".join(it["tags"]), quote=True)}" '
+            f'data-meta="{html.escape(meta, quote=True)}" '
+            f'data-source="{html.escape(it["media"] or it["preview"], quote=True)}">'
+            f'<div class="thumb">{img}{badges}</div>'
+            f'<figcaption><b>{html.escape(it["title"])}</b>'
+            f'<small>{html.escape(meta or "—")}</small></figcaption>'
+            '</figure>'
+        )
+
+    page = (
+        '<!doctype html>\n<html lang="zh-CN"><head><meta charset="utf-8">\n'
+        f'<title>壁纸画廊 · {len(items)}</title>\n'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        f'<style>{CSS}</style></head><body>\n'
+        f'<header><h1>创意工坊壁纸<small><span id="count">{len(items)}</span> 项</small></h1>\n'
+        '<input id="q" placeholder="搜索标题 / 标签…" autocomplete="off">\n'
+        '<span class="hint">点击卡片播放 · ← → 切换 · Esc 关闭</span></header>\n'
+        '<main id="grid">\n' + "\n".join(cards) + '\n</main>\n'
+        '<div id="viewer" hidden><div class="stage"></div><div class="bar"></div></div>\n'
+        f'<script>{JS}</script>\n</body></html>\n'
+    )
+    index = cdir / "index.html"
+    index.write_text(page, encoding="utf-8")
+    (cdir / "manifest.json").write_text(
+        json.dumps(items, ensure_ascii=False, indent=1), encoding="utf-8")
+    return index
+
+
+def cmd_list(items: list[dict]) -> None:
+    print(f"{'#':>3}  {'类型':<4} {'时长':>8} {'大小':>9}  标题")
+    for i, it in enumerate(items, 1):
+        t = TYPE_ZH.get(it["type"].lower(), it["type"])[:4]
+        print(f"{i:>3}  {t:<4} {human_dur(it['duration']):>8} "
+              f"{human_size(it['size']):>9}  {it['title']}")
+    total = sum(it["size"] for it in items)
+    print(f"\n共 {len(items)} 项，合计 {human_size(total)}")
+
+
+def mpv_cmd() -> list[str]:
+    return (os.environ.get("WALLPAPER_MPV") or "mpv").split()
+
+
+def play_files(paths: list[Path]) -> int:
+    if not paths:
+        print("没有可播放的文件", file=sys.stderr)
+        return 1
+    cmd = mpv_cmd() + ["--fullscreen", "--no-terminal", "--title=壁纸预览"]
+    if len(paths) > 1:
+        m3u = cache_dir() / "playlist.m3u8"
+        m3u.write_text("#EXTM3U\n" + "\n".join(str(p) for p in paths) + "\n",
+                       encoding="utf-8")
+        cmd += ["--loop-playlist=inf", f"--playlist={m3u}"]
+    else:
+        cmd += ["--loop-file=inf", str(paths[0])]
+    return subprocess.call(cmd)
+
+
+def play_target(it: dict) -> Path:
+    """能播的播正片，engine 场景包退化成预览图。"""
+    if it["playable"] and it["media"]:
+        return Path(it["media"])
+    return Path(it["preview"])
+
+
+def copy_path(path: str) -> None:
+    if shutil.which("wl-copy"):
+        subprocess.run(["wl-copy"], input=path, text=True, check=False)
+    elif shutil.which("xclip"):
+        subprocess.run(["xclip", "-selection", "clipboard"], input=path, text=True, check=False)
+    if shutil.which("notify-send"):
+        subprocess.run(["notify-send", "-a", "wallpapers", "壁纸路径已复制", path],
+                       check=False)
+
+
+def rofi_rows(pool: list[dict]) -> str:
+    """rofi dmenu 输入：每行 `文本\\0icon\\x1f<预览图路径>`。"""
+    rows = []
+    for it in pool:
+        title = it["title"] if len(it["title"]) <= 44 else it["title"][:43] + "…"
+        bits = [b for b in (it["tags"][0] if it["tags"] else "", human_dur(it["duration"]),
+                            human_size(it["size"])) if b]
+        note = "" if it["playable"] else "  ·  仅预览"
+        text = f"{title}{note}   ·   {' · '.join(bits)}"
+        icon = it["preview"] or ""
+        rows.append(f"{text}\0icon\x1f{icon}" if icon else text)
+    return "\n".join(rows) + "\n"
+
+
+def cmd_rofi(items: list[dict]) -> int:
+    pool = [it for it in items if it["playable"] or it["preview"]]
+    if not pool:
+        print("没有可用的壁纸", file=sys.stderr)
+        return 1
+    gui = os.environ.get("WAYLAND_DISPLAY") or os.environ.get("DISPLAY")
+    if not (shutil.which("rofi") and gui):
+        return cmd_fallback_pick(pool)
+
+    cmd = [
+        "rofi", "-dmenu", "-i", "-show-icons",
+        "-format", "i",                       # 只输出选中行号
+        "-kb-custom-1", "Ctrl+o",
+        "-no-custom",
+    ]
+    # 有统一主题文件就用它（网格 + 大缩略图 + 无文字）
+    if os.path.isfile(ROFI_THEME_FILE):
+        cmd += ["-theme", ROFI_THEME_FILE]
+    else:
+        cmd += ["-p", "壁纸",
+                "-mesg", "Enter 播放 · Ctrl+O 复制路径 · Esc 取消",
+                "-theme-str", "window {width: 62%;} listview {columns: 3; lines: 4; spacing: 14px;}"]
+    p = subprocess.run(cmd, input=rofi_rows(pool), text=True, capture_output=True)
+    if p.returncode not in (0, 10) or not p.stdout.strip().isdigit():
+        return 0                              # 用户取消
+    idx = int(p.stdout.strip())
+    if not (0 <= idx < len(pool)):
+        return 0
+    it = pool[idx]
+    if p.returncode == 10:                    # Ctrl+O：复制路径
+        copy_path(it["media"] or it["preview"])
+        return 0
+    return play_files([play_target(it)])
+
+
+def cmd_fallback_pick(pool: list[dict]) -> int:
+    """没有 rofi/图形会话时的退路：fzf 或编号输入。"""
+    labels = [f"{it['title']}   ·   "
+              f"{human_dur(it['duration']) or TYPE_ZH.get(it['type'].lower(), it['type'])}"
+              for it in pool]
+    idx = None
+    if shutil.which("fzf"):
+        p = subprocess.run(["fzf", "-d", "\t", "--with-nth=2.."],
+                           input="\n".join(f"{i}\t{l}" for i, l in enumerate(labels)),
+                           text=True, capture_output=True)
+        if p.returncode == 0 and p.stdout.strip():
+            idx = int(p.stdout.split("\t")[0])
+    else:
+        for i, l in enumerate(labels, 1):
+            print(f"{i:>2}. {l}")
+        try:
+            idx = int(input("选择编号: ")) - 1
+        except Exception:
+            return 1
+    if idx is None or not (0 <= idx < len(pool)):
+        return 0
+    return play_files([play_target(pool[idx])])
+
+
+def cmd_play(items: list[dict], keyword: str | None) -> int:
+    pool = [it for it in items if it["playable"]]
+    if keyword:
+        k = keyword.lower()
+        pool = [it for it in pool if k in (it["title"] + " " + " ".join(it["tags"])).lower()]
+    return play_files([Path(it["media"]) for it in pool])
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(
+        prog="wallpapers",
+        description="浏览 Steam 创意工坊壁纸（Wallpaper Engine appid 431960）")
+    ap.add_argument("mode", nargs="?", default="rofi",
+                    choices=["rofi", "gallery", "list", "play", "pick"],
+                    help="默认 rofi（pick 为 rofi 的旧别名）")
+    ap.add_argument("keyword", nargs="?", help="play 时用于过滤标题/标签")
+    ap.add_argument("--root", help="壁纸目录")
+    ap.add_argument("--no-open", action="store_true", help="只生成画廊，不打开浏览器")
+    a = ap.parse_args()
+
+    root = Path(a.root).expanduser() if a.root else Path(
+        os.environ.get("WALLPAPER_ROOT") or DEFAULT_ROOT).expanduser()
+    items = collect(root)
+    if not items:
+        print(f"没找到壁纸：{root}", file=sys.stderr)
+        return 1
+
+    if a.mode == "list":
+        cmd_list(items)
+        return 0
+    if a.mode == "play":
+        return cmd_play(items, a.keyword)
+    if a.mode in ("rofi", "pick"):
+        return cmd_rofi(items)
+
+    index = build_gallery(items)
+    if a.no_open:
+        print(index)
+        return 0
+    opener = (shutil.which("chromium") or shutil.which("google-chrome-stable")
+              or shutil.which("google-chrome") or shutil.which("xdg-open"))
+    if not opener:
+        print(f"画廊已生成：{index}", file=sys.stderr)
+        return 1
+    cmd = [opener, "--new-window", str(index)] if "chrom" in opener else [opener, str(index)]
+    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+    print(index)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

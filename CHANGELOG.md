@@ -31,6 +31,12 @@
   新增 `configs/waypaper/`（config.ini + style.css）入仓。
 
 ### Changed
+- **rofi 壁纸选择器的缩略图改成 waypaper 同款网格**：
+  新增 `configs/rofi/wallpaper.rasi`（3 列大缩略图、隐藏输入条、浅色半透明卡片
+  `rgba(250,248,255,0.92)`、选中项蓝色圆角描边 `#7aa2f7`）；
+  `wallpicker.sh` / `wallpapers` 两个 rofi 选择器共用该主题，
+  `wallpicker.sh` 同时改为 awww 应用 + matugen 刷新、缩略图并行生成。
+
 - **锁屏改成 Noctalia 风格**（hyprlock 实现，不依赖 Noctalia 常驻）：
   模糊壁纸背景、居中大时钟 + 日期、圆角卡片式密码框；
   新增 matugen 模板 `hyprlock-colors.conf`（surface_variant 88% 卡片色、outline 描边、带 alpha），

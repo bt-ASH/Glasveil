@@ -13,3 +13,18 @@
 // }
 //
 // 也可以在当前目录创建 __custom__/ 文件夹放置个人脚本。
+
+// ---------------------------------------------------------------------------
+// Steam 创意工坊壁纸 / Workshop wallpapers (Wallpaper Engine appid 431960)
+// 见 ~/.local/bin/wallpapers
+// ---------------------------------------------------------------------------
+binds {
+    // rofi 缩略图选片 → Enter 用 mpv 全屏循环播放
+    Mod+Shift+W repeat=false hotkey-overlay-title="壁纸速览 Wallpaper picker" {
+        spawn "wallpapers";
+    }
+    // 浏览器里的缩略图网格（可搜索）
+    Mod+Shift+G repeat=false hotkey-overlay-title="壁纸画廊 Wallpaper gallery" {
+        spawn "wallpapers" "gallery";
+    }
+}

@@ -1,0 +1,5 @@
+# rofi manifest
+[packages]
+repo = ["rofi"]
+
+# wallpaper.rasi = 壁纸选择器网格主题（3 列大缩略图、无文字、选中蓝框）
