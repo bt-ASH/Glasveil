@@ -13,7 +13,6 @@ import os
 import sys
 import hashlib
 import subprocess
-import uuid
 from concurrent.futures import ThreadPoolExecutor
 import gi
 gi.require_version("GLib", "2.0")
@@ -21,19 +20,18 @@ gi.require_version("GdkPixbuf", "2.0")
 from gi.repository import GLib, GdkPixbuf
 
 from .config import (
-    VIDEO_EXTENSIONS, ALL_SUPPORTED_EXTENSIONS,
+    ALL_SUPPORTED_EXTENSIONS,
     CACHE_DIR, get_wallpaper_search_roots
 )
 
 
 class WallpaperItem:
-    """Represents a single static or live wallpaper item."""
+    """Represents a single wallpaper item."""
 
     def __init__(self, path: str, category: str = "Wallpapers"):
         self.path = os.path.realpath(path)
         self.filename = os.path.basename(path)
         self.ext = os.path.splitext(self.filename)[1].lower()
-        self.is_video = self.ext in VIDEO_EXTENSIONS
         self.title = os.path.splitext(self.filename)[0].replace("_", " ").replace("-", " ").strip()
         self.category = category
         # Lowercase once; the filter runs against every item per keystroke
@@ -60,7 +58,7 @@ class WallpaperScanner:
     def __init__(self, on_thumb_ready_cb=None):
         self.on_thumb_ready_cb = on_thumb_ready_cb
         self.items = []
-        self.categories = ["All", "Static", "Live"]
+        self.categories = ["All"]
         self.executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="wp_thumb")
         os.makedirs(CACHE_DIR, exist_ok=True)
         self._thumb_queue = []
@@ -99,8 +97,7 @@ class WallpaperScanner:
                             discovered_items.append(item)
                             # Ignore format/system folder names that map to primary tabs
                             if cat_name.lower() not in (
-                                "all", "static", "live", "wallpapers", "pictures", "图片",
-                                "video", "videos", "mpvpaper", "livewallpaper", "livewallpapers"
+                                "all", "wallpapers", "pictures", "图片", "video", "videos"
                             ):
                                 custom_subfolders.add(cat_name)
 
@@ -110,7 +107,7 @@ class WallpaperScanner:
 
         # Build categories list: primary tabs + actual custom user subfolders
         sorted_subfolders = sorted(list(custom_subfolders), key=lambda x: x.lower())
-        self.categories = ["All", "Static", "Live"] + sorted_subfolders
+        self.categories = ["All"] + sorted_subfolders
 
         for it in self.items[:6]:
             if os.path.isfile(it.thumb_path):
@@ -159,40 +156,20 @@ class WallpaperScanner:
     def _generate_thumbnail_worker(self, item: WallpaperItem):
         try:
             if not os.path.isfile(item.thumb_path):
-                if item.is_video:
-                    tmp_thumb = f"{item.thumb_path}.tmp.{os.getpid()}.{uuid.uuid4().hex[:6]}.jpg"
-                    cmd = [
-                        "ffmpeg", "-y", "-ss", "00:00:01", "-i", item.path,
-                        "-vframes", "1", "-vf", "scale=480:-2", tmp_thumb
-                    ]
-                    res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=4)
-                    if res.returncode != 0 or not os.path.isfile(tmp_thumb):
-                        # Fallback for very short videos
-                        cmd = [
-                            "ffmpeg", "-y", "-ss", "00:00:00.1", "-i", item.path,
-                            "-vframes", "1", "-vf", "scale=480:-2", tmp_thumb
-                        ]
-                        res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=4)
-
-                    if res.returncode == 0 and os.path.isfile(tmp_thumb):
-                        os.replace(tmp_thumb, item.thumb_path)
-                    elif os.path.isfile(tmp_thumb):
-                        os.remove(tmp_thumb)
-                else:
-                    try:
-                        pix = GdkPixbuf.Pixbuf.new_from_file_at_scale(item.path, 480, 270, True)
-                        # JPEG 不支持 alpha 通道（glycin 编码器会拒绝 Rgba8），
-                        # 带透明的图先合成到不透明黑底上再存
-                        if pix.get_has_alpha():
-                            flat = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8,
-                                                        pix.get_width(), pix.get_height())
-                            flat.fill(0x000000)
-                            pix.composite(flat, 0, 0, flat.get_width(), flat.get_height(),
-                                          0, 0, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255)
-                            pix = flat
-                        pix.savev(item.thumb_path, "jpeg", ["quality"], ["85"])
-                    except Exception as e:
-                        print(f"Thumbnail generation error on {item.filename}: {e}", file=sys.stderr)
+                try:
+                    pix = GdkPixbuf.Pixbuf.new_from_file_at_scale(item.path, 480, 270, True)
+                    # JPEG 不支持 alpha 通道（glycin 编码器会拒绝 Rgba8），
+                    # 带透明的图先合成到不透明黑底上再存
+                    if pix.get_has_alpha():
+                        flat = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8,
+                                                    pix.get_width(), pix.get_height())
+                        flat.fill(0x000000)
+                        pix.composite(flat, 0, 0, flat.get_width(), flat.get_height(),
+                                      0, 0, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255)
+                        pix = flat
+                    pix.savev(item.thumb_path, "jpeg", ["quality"], ["85"])
+                except Exception as e:
+                    print(f"Thumbnail generation error on {item.filename}: {e}", file=sys.stderr)
 
             if os.path.isfile(item.thumb_path):
                 GLib.idle_add(self._thumb_ready, item)
@@ -202,12 +179,14 @@ class WallpaperScanner:
             item.is_loading = False
 
     def get_current_wallpaper(self) -> str:
-        """Query Noctalia IPC for the currently active wallpaper path."""
+        """Query awww for the currently active wallpaper path."""
         try:
-            res = subprocess.run(["noctalia", "msg", "wallpaper-get"], capture_output=True, text=True, timeout=0.3)
-            wp = res.stdout.strip()
-            if wp and os.path.isfile(wp):
-                return os.path.realpath(wp)
+            res = subprocess.run(["awww", "query"], capture_output=True, text=True, timeout=1)
+            for line in res.stdout.splitlines():
+                if "image:" in line:
+                    wp = line.split("image:", 1)[1].strip()
+                    if wp and os.path.isfile(wp):
+                        return os.path.realpath(wp)
         except Exception:
             pass
         return ""

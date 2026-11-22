@@ -19,7 +19,7 @@ output "eDP-1" {
  output "DP-1" {
      mode "2240x1400@60.000"
      scale 1.2
-     transform "normal"
+     transform "normal" // normal/°
      position x=0 y=0
 //     // 开启可变刷新率 (VRR / G-Sync / FreeSync)
 //     // 强烈推荐添加 on-demand=true：仅在运行游戏等规则应用时激活 VRR。

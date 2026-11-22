@@ -81,7 +81,6 @@ AUR_PKGS=(
     waypaper
     clipse
     wshowkeys
-    mpvpaper
 )
 
 # 可选工具（仅提示，不强制安装）

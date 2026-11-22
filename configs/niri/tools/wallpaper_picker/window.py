@@ -432,10 +432,6 @@ class WallpaperPickerWindow(Gtk.Window):
 
         info = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         info.get_style_context().add_class("card-info")
-        if item.is_video:
-            live = Gtk.Label(label="Live")
-            live.get_style_context().add_class("live")
-            info.pack_start(live, False, False, 0)
         title = Gtk.Label(label=item.title)
         title.set_ellipsize(Pango.EllipsizeMode.END)
         title.set_max_width_chars(30)
@@ -456,7 +452,7 @@ class WallpaperPickerWindow(Gtk.Window):
         title = Gtk.Label(label="No wallpapers found")
         title.set_halign(Gtk.Align.CENTER)
         title.get_style_context().add_class("empty-title")
-        hint = Gtk.Label(label="Add images or videos to your wallpaper folders")
+        hint = Gtk.Label(label="Add images to your wallpaper folders")
         hint.set_halign(Gtk.Align.CENTER)
         hint.get_style_context().add_class("empty-hint")
         empty.pack_start(title, False, False, 0)
@@ -525,10 +521,6 @@ class WallpaperPickerWindow(Gtk.Window):
         if self.active_cat_idx == 0:
             return True
         cat = self.scanner.categories[self.active_cat_idx]
-        if cat == "Static":
-            return not item.is_video
-        if cat == "Live":
-            return item.is_video
         return item.category == cat
 
     def _visible_children(self):

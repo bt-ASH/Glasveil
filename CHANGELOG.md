@@ -22,6 +22,12 @@
   light = 0.65、dark = 1.0（不处理，不生成文件），
   系数为 1.0 时该模式不启用覆盖（`kitty-cube-tune.sh show` 可查）。
 
+### Removed
+- **视频壁纸 / mpvpaper 支持**：壁纸切换统一走 `awww`。
+  `wallpaper_picker` 后端重写为纯 awww（含 matugen 刷新），去掉视频扫描、ffmpeg 缩略图、
+  “Live/Static” 分类与徽标；`rules.kdl` 移除 mpvpaper 图层规则；`install.sh` 的 AUR 依赖去掉 mpvpaper；
+  `get_current_wallpaper()` 改为查 `awww query`。
+
 ### Changed
 - **锁屏改成 Noctalia 风格**（hyprlock 实现，不依赖 Noctalia 常驻）：
   模糊壁纸背景、居中大时钟 + 日期、圆角卡片式密码框；

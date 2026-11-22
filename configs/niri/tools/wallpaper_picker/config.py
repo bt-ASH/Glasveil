@@ -18,9 +18,9 @@ except ImportError:
         HAS_TOMLLIB = False
 
 # ── File Format Definitions ───────────────────────────────────────────────────
-STATIC_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".jxl", ".avif", ".bmp", ".svg"}
-VIDEO_EXTENSIONS = {".mp4", ".webm", ".mkv", ".mov", ".gif"}
-ALL_SUPPORTED_EXTENSIONS = STATIC_EXTENSIONS | VIDEO_EXTENSIONS
+# 全部壁纸（含 .gif，awww 按静图处理）—— 不再有视频壁纸
+STATIC_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".jxl", ".avif", ".bmp", ".svg", ".gif"}
+ALL_SUPPORTED_EXTENSIONS = STATIC_EXTENSIONS
 
 CACHE_DIR = os.path.expanduser("~/.cache/nyxuri/thumbnails")
 NOCTALIA_CONFIG_PATH = os.path.expanduser("~/.config/noctalia/noctalia-config.toml")
@@ -78,16 +78,12 @@ def get_wallpaper_search_roots() -> list:
                 wp_dir = data.get("wallpaper", {}).get("directory")
                 if wp_dir:
                     candidates.append(os.path.expanduser(wp_dir))
-                video_dir = data.get("plugin_settings", {}).get("noctalia/mpvpaper", {}).get("video_directory")
-                if video_dir:
-                    candidates.append(os.path.expanduser(video_dir))
         except Exception as e:
             print(f"Notice: Failed to load Noctalia config: {e}", file=sys.stderr)
 
     # Priority 2: XDG Pictures directory + Wallpapers
     pics_dir = get_xdg_pictures_dir()
     candidates.append(os.path.join(pics_dir, "Wallpapers"))
-    candidates.append(os.path.join(pics_dir, "Wallpapers", "video"))
 
     # Priority 3: Multilingual standard paths
     candidates.append(os.path.expanduser("~/图片/Wallpapers"))
