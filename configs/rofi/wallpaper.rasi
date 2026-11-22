@@ -1,7 +1,9 @@
 /* 壁纸选择器（rofi 缩略图）—— 参考图风格：
- * 窗口无底色、背景全透明，缩略图直接浮在壁纸上；
- * 选中项只有蓝色圆角描边；底部一条圆角搜索栏
- * （参考图下面那排“显示器 / 暗度 / 偏移”按钮不要，只留搜索框）。
+ * · 窗口无底色、背景全透明，缩略图直接浮在壁纸上
+ * · 单元格做成 16:9（≈ 壁纸常见分辨率比例）：16:9 壁纸正好填满卡片，
+ *   竖图/超宽图按自己的比例居中显示，不拉伸不裁切
+ * · 选中项柔和高亮（淡蓝底 + 半透明蓝边）
+ * · 底部一条与网格等宽的圆角搜索栏，替代参考图下方那排按钮
  *
  * 注意：rofi 对 * 里的 rgba 变量在 element 背景上会回退成白色，
  * 所以透明/着色一律写字面量，不要用 @变量。 */
@@ -12,7 +14,7 @@
 
 window {
     width:            88%;
-    height:           62%;
+    height:           46%;
     background-color: transparent;
     border:           0px;
     padding:          0px;
@@ -27,10 +29,10 @@ mainbox {
 
 /* 缩略图直接铺开，不画任何底色 */
 listview {
-    columns:          6;
+    columns:          4;
     lines:            2;
     fixed-columns:    true;
-    fixed-height:     false;
+    fixed-height:     true;
     spacing:          16px;
     padding:          0px;
     border:           0px;
@@ -48,13 +50,15 @@ element {
 }
 
 element normal.normal   { background-color: rgba(0, 0, 0, 0); }
+/* 选中：柔和高亮（单元格比例固定，硬描边会盖住非 16:9 的图，故用淡底） */
 element selected.normal {
-    border-color:     #7aa2f7;
-    background-color: rgba(122, 162, 247, 0.10);
+    border-color:     rgba(122, 162, 247, 0.55);
+    background-color: rgba(122, 162, 247, 0.16);
 }
 
 element-icon {
-    size:             17em;
+    size:             210px;   /* 单元格宽由列宽决定，高度=该值，
+                                 * 4 列时正好接近 16:9，横图能填满卡片 */
     cursor:           pointer;
     background-color: rgba(0, 0, 0, 0);
 }
@@ -67,9 +71,9 @@ element-text {
 /* 底部圆角搜索栏（替代参考图下方那排按钮与滑杆） */
 inputbar {
     background-color: rgba(14, 18, 28, 0.78);
-    border-radius:    999px;
+    border-radius:    18px;       /* 和缩略图卡片同一圆角风格 */
     padding:          10px 20px;
-    margin:           0px 590px;   /* 窄条居中：和参考图一样的短搜索条 */
+    margin:           0px 6px;     /* 与缩略图网格等宽 */
     spacing:          8px;
     children:         [ entry ];
 }
