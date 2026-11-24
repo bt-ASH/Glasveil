@@ -1,0 +1,30 @@
+/* Rofi — Material You 配色 / Material You palette
+ *
+ * 由 matugen 从当前壁纸渲染 → ~/.config/rofi/colors.rasi
+ * 使用方：config.rasi（启动器）、clipboard.rasi（剪贴板菜单）
+ *
+ * 全部输出 8 位十六进制（#RRGGBBAA）：
+ * rofi 对 *{} 里的 rgba() 变量用在 element 背景上会回退成白色，故不用 rgba()。
+ * 窗口底色带 90% alpha（e6），靠 transparency: "real" 透出壁纸。
+ */
+
+* {
+    bg:                     #{{colors.surface_container.default.hex_stripped}}e6;   /* surface_container + 90% */
+    bg-alt:                 #{{colors.surface_container_high.default.hex_stripped}}f2;   /* surface_container_high */
+    surface:                #{{colors.surface_container_highest.default.hex_stripped}}ff;   /* surface_container_highest */
+    primary:                #{{colors.primary.default.hex_stripped}}ff;
+    primary-soft:           #{{colors.primary.default.hex_stripped}}1f;
+    on-primary:             #{{colors.on_primary.default.hex_stripped}}ff;
+    on-primary-muted:       #{{colors.on_primary.default.hex_stripped}}a6;
+    primary-container:      #{{colors.primary_container.default.hex_stripped}}ff;
+    on-primary-container:   #{{colors.on_primary_container.default.hex_stripped}}ff;
+    secondary:              #{{colors.secondary.default.hex_stripped}}ff;
+    secondary-container:    #{{colors.secondary_container.default.hex_stripped}}ff;
+    on-secondary-container: #{{colors.on_secondary_container.default.hex_stripped}}ff;
+    tertiary:               #{{colors.tertiary.default.hex_stripped}}ff;
+    text:                   #{{colors.on_surface.default.hex_stripped}}ff;
+    muted:                  #{{colors.on_surface_variant.default.hex_stripped}}ff;
+    outline:                #{{colors.outline_variant.default.hex_stripped}}ff;
+    error:                  #{{colors.error.default.hex_stripped}}ff;
+    on-error:               #{{colors.on_error.default.hex_stripped}}ff;
+}

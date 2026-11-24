@@ -15,15 +15,24 @@
 // 也可以在当前目录创建 __custom__/ 文件夹放置个人脚本。
 
 // ---------------------------------------------------------------------------
-// Steam 创意工坊壁纸 / Workshop wallpapers (Wallpaper Engine appid 431960)
-// 见 ~/.local/bin/wallpapers
+// rofi 启动器与剪贴板 / rofi launcher & clipboard
+// configs: ~/.config/rofi/config.rasi、clipboard.rasi（配色由 matugen 渲染）
 // ---------------------------------------------------------------------------
 binds {
-    // rofi 缩略图选片 → Enter 用 mpv 全屏循环播放
-    Mod+Shift+W repeat=false hotkey-overlay-title="壁纸速览 Wallpaper picker" {
-        spawn "wallpapers";
+    // 应用启动器（drun）/ Application launcher
+    Mod+R repeat=false hotkey-overlay-title="应用启动器 App launcher (rofi)" {
+        spawn "rofi" "-show" "drun";
     }
-    // 浏览器里的缩略图网格（可搜索）
+    // 剪贴板历史（clipse 历史 → rofi → wl-copy）/ Clipboard history
+    Mod+V repeat=false hotkey-overlay-title="剪贴板历史 Clipboard history (rofi)" {
+        spawn "~/.config/rofi/clipboard.sh";
+    }
+    // 壁纸选择器（rofi 单行竖版卡片 + 预览）/ Wallpaper picker with preview
+    Mod+W repeat=false hotkey-overlay-title="壁纸选择器 Wallpaper picker (wallsel)" {
+        spawn "~/.config/rofi/wallsel.sh";
+    }
+    // Steam 创意工坊壁纸：浏览器里的缩略图网格（可搜索）
+    // 命令行 ~/.local/bin/wallpapers 也可弹出 rofi 选片（原 Mod+Shift+W 已让位给启动器）
     Mod+Shift+G repeat=false hotkey-overlay-title="壁纸画廊 Wallpaper gallery" {
         spawn "wallpapers" "gallery";
     }

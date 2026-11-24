@@ -21,6 +21,8 @@ matugen 取色模板与脚本，以及几个自己写的小工具（星环启动
 - **玻璃质感**：窗口 0.9 不透明度 + `blur passes 3`；`effects.kdl` 软链切换普通/护眼
 - **`Mod+N` 护眼**：关模糊、透明度加重、`wlsunset` 5500K
 - **`Mod+Shift+A` Orbit 星环**：GTK3 + gtk-layer-shell 全屏覆盖层，cairo 矢量绘制
+- **`Mod+Shift+W` / `Mod+Shift+V` rofi**：应用启动器（drun）与 clipse 剪贴板历史，配色由 matugen 渲染
+- **`Mod+B` 壁纸选择器**：rofi 单行竖版卡片 + 文件名预览，当前壁纸预选中，`hjkl` 或 `↑↓` 选卡；应用后照 waypaper 的 `post_command` 同步状态并刷新 matugen / tmux
 - **Sweep 缓存清理**：勾选式 TUI，支持干跑、白名单围栏
 - **eww 胶囊状态栏**：透明底、胶囊模块、工作区选中态 primary 淡染
 - **电池保护**：开机锁 80% 充电阈值（需一次性 root 配置）
@@ -31,7 +33,7 @@ matugen 取色模板与脚本，以及几个自己写的小工具（星环启动
 Glasveil/
 ├── configs/
 │   ├── niri/        # kdl + scripts/ + tools/ + __presets__/
-│   ├── kitty/  fish/  eww/  fastfetch/  matugen/
+│   ├── kitty/  fish/  eww/  fastfetch/  matugen/  rofi/
 │   ├── yazi/  wireplumber/  xdg-desktop-portal/  scripts/
 │   └── starship.toml
 ├── install.sh

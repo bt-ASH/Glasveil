@@ -16,8 +16,15 @@ if [ "$cur" = "dark" ]; then new="light"; else new="dark"; fi
 
 # --- 当前壁纸（优先「聚焦输出」的壁纸，回退 waypaper 配置）---
 WALL=""
-if command -v awww >/dev/null 2>&1; then
-    OUT="$(niri msg focused-output 2>/dev/null | head -n 1 | awk -F '[()]' '{print $2}')"
+# 视频壁纸在 mpvpaper 图层上，优先从进程取
+if pgrep -x mpvpaper >/dev/null 2>&1; then
+    MPV_PID=$(pgrep -x mpvpaper | head -1)
+    [ -n "$MPV_PID" ] && WALL=$(tr '\0' '\n' < "/proc/$MPV_PID/cmdline" | tail -1)
+fi
+if [ -z "${WALL:-}" ] && command -v awww >/dev/null 2>&1; then
+    OUT="$(niri msg -j focused-output 2>/dev/null | jq -r '.name // empty' 2>/dev/null)"
+    [ -n "$OUT" ] || OUT="$(niri msg focused-output 2>/dev/null | head -n 1 |
+        sed -n 's/.*(\([^()]*\)).*$/\1/p')"
     if [ -n "${OUT:-}" ]; then
         WALL="$(awww query 2>/dev/null | grep "^: ${OUT}:" | awk -F 'image: ' '{print $2}' | xargs)"
     fi
@@ -37,7 +44,16 @@ if [ ! -f "${WALL:-/nonexistent}" ]; then
 fi
 
 # --- 1) 用 matugen 生成新模式的全部配色 ---
-if ! matugen image "$WALL" -t "$TYPE" -m "$new" --source-color-index "$IDX" >>"$LOG" 2>&1; then
+# 视频壁纸先取首帧，避免 matugen 直接读 mp4 失败
+FRAME_HELPER="$HOME/.config/scripts/wallpaper-frame.sh"
+[ -x "$FRAME_HELPER" ] || FRAME_HELPER="$(dirname "$(readlink -f "$0")")/../../scripts/wallpaper-frame.sh"
+if [ -x "$FRAME_HELPER" ]; then
+    MATE_INPUT="$("$FRAME_HELPER" "$WALL" 2>/dev/null)" || MATE_INPUT="$WALL"
+else
+    MATE_INPUT="$WALL"
+fi
+
+if ! matugen image "$MATE_INPUT" -t "$TYPE" -m "$new" --source-color-index "$IDX" >>"$LOG" 2>&1; then
     notify-send -u critical "Theme" "matugen 生成 $new 配色失败（日志: $LOG）"
     exit 1
 fi

@@ -32,8 +32,7 @@ binds {
 
     // 显示快捷键提示覆盖层 / Show interactive hotkey overlay
     Mod+Slash { show-hotkey-overlay; }
-
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
     // 2. 应用启动与桌面外壳组件 / App Launchers & Shell Components
     // -------------------------------------------------------------------------
     // 启动终端模拟器 (kitty) / Launch terminal emulator
@@ -43,16 +42,10 @@ binds {
     Mod+E { spawn "nautilus"; }
 
     // 应用启动器 (fuzzel) / Application launcher
-    Mod+R hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    // Mod+R hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
 
     // 电源 / 会话菜单 / Power & session menu
     Mod+X { spawn "~/.config/niri/scripts/powermenu"; }
-
-    // 剪贴板历史 (clipse) / Clipboard history
-    Mod+V { spawn "kitty" "-e" "clipse" "gui"; }
-
-    // 壁纸选择器 (waypaper) / Wallpaper picker
-    Mod+W repeat=false hotkey-overlay-title="切换壁纸 Change wallpaper" { spawn "waypaper"; }
 
     // 随机切换下一张壁纸 / Switch to a random wallpaper
     Mod+Ctrl+W hotkey-overlay-title="随机切换壁纸 Random wallpaper" { spawn "waypaper" "--random"; }
@@ -62,9 +55,6 @@ binds {
 
     // 切换浅色/深色配色（matugen 重新生成全部主题） / Toggle Light/Dark palette
     Mod+Shift+N hotkey-overlay-title="切换明暗配色 Toggle Light/Dark" { spawn "~/.config/niri/scripts/theme-toggle.sh"; }
-
-    // 壁纸背景选择器 / Background selector
-    Mod+B { spawn "bgselector"; }
 
     // eww 状态栏重载 / Reload eww bar
     Mod+Shift+W { spawn-sh "bash ~/.config/eww/scripts/launch.sh"; }
@@ -91,6 +81,8 @@ binds {
     Mod+C { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-column-right"; }
     Mod+J { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-down"; }
     Mod+K { spawn "~/.config/niri/scripts/niri-focus.sh" "focus-window-up"; }
+    // 想要「滚动窗口内容」而不是切窗口：Alt+, / Alt+.（见第 6 节 ydotool 键盘滚轮）
+    // 键盘鼠标层（指针移动 / 左键 / 滚动）也都在第 6 节。
 
     // 智能窗口/列搬运 (推至边缘时自动搬运至相邻显示器或工作区) / Smart movement
     Mod+Ctrl+Left  { move-column-left-or-to-monitor-left; }
@@ -203,8 +195,36 @@ binds {
     // 6. 鼠标与滚轮绑定 / Mouse & Wheel Binds
     // -------------------------------------------------------------------------
     // 滚轮上下滚动切换工作区 (带 150ms 冷却防误触) / Scroll wheel to switch workspace
+    // 裸 Mod+滚轮（物理上是「印着 Alt 那颗键」+ 滚轮）。
+    // 和键盘滚轮 Alt+, / Alt+. 不冲突：那两条注入滚轮时按住的是 niri 的 Alt（物理 Win 键），
+    // 而 niri 只在「按住 Mod 且存在 Mod+WheelScroll* 绑定」时才吞滚轮，两者修饰键不同。
+    // 方向由 input.mouse 的 natural-scroll 决定；手感反了就把 Down/Up 的动作互换。
     Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+
+    // ===========================================================
+    // 键盘鼠标层（ydotool 注入真实 EV_REL / BTN 事件，落在光标处）
+    // 本机由 ~/.local/bin/ydotool（master 708e96f 自编译）+ 用户服务 ydotool.service 提供。
+    // 注意 keyd 把左右 Alt/Super 对调了：niri 的 Alt == 键盘上印着 Super/Win 的那颗键，
+    // 所以下面所有「Alt+X」物理上都要按 Win+X。想整层换成 Ctrl 前缀就批量替换 Alt+ 即可。
+    // ===========================================================
+
+    // 指针移动：Alt+H/J/K/L = 左/下/上/右；每格像素数就写在下面对应参数里，可直接改大改小
+    // cooldown-ms 限制按住连发速度（25ms ≈ 40 格/秒）：越小越快，越大越稳
+    Alt+H cooldown-ms=20 hotkey-overlay-title="指针左移 Pointer Left (ydotool)"  { spawn "ydotool" "mousemove" "-x" "-25" "-y" "0"; }
+    Alt+J cooldown-ms=20 hotkey-overlay-title="指针下移 Pointer Down (ydotool)"  { spawn "ydotool" "mousemove" "-x" "0" "-y" "25"; }
+    Alt+K cooldown-ms=20 hotkey-overlay-title="指针上移 Pointer Up (ydotool)"    { spawn "ydotool" "mousemove" "-x" "0" "-y" "-25"; }
+    Alt+L cooldown-ms=20 hotkey-overlay-title="指针右移 Pointer Right (ydotool)" { spawn "ydotool" "mousemove" "-x" "25" "-y" "0"; }
+
+    // 鼠标按键：0xC0=左键 0xC1=右键 0xC2=中键（0x40/0x80 = 只按下/只抬起）
+    // repeat=false 防止按住连点
+    Alt+S repeat=false hotkey-overlay-title="鼠标左键 Left Click (ydotool)"   { spawn "ydotool" "click" "0xC0"; }
+    Alt+X repeat=false hotkey-overlay-title="鼠标右键 Right Click (ydotool)" { spawn "ydotool" "click" "0xC1"; }
+
+    // 键盘滚轮：Alt+, 向下滚 / Alt+. 向上滚（每格一个滚轮刻度）
+    // 按住速度由 cooldown-ms 控制；方向反了就对调 "0" "-1" 与 "0" "1"
+    Alt+Comma  cooldown-ms=40 hotkey-overlay-title="向下滚动 Scroll Down (ydotool)" { spawn "ydotool" "mousemove" "-w" "--" "0" "-1"; }
+    Alt+Period cooldown-ms=40 hotkey-overlay-title="向上滚动 Scroll Up (ydotool)"   { spawn "ydotool" "mousemove" "-w" "--" "0" "1"; }
 
     // Ctrl+滚轮携带当前列切换工作区 / Ctrl+Scroll to move column between workspaces
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
@@ -262,8 +282,6 @@ binds {
     Mod+Shift+S { spawn "~/.config/niri/scripts/edit-screenshot.sh"; }
 
     // 交互式截图（niri 原生）/ Interactive screenshot
-    Mod+Shift+P { screenshot; }
-
     // 截取整个显示器屏幕 / Fullscreen screenshot
     Mod+P { screenshot-screen; }
 
@@ -287,15 +305,4 @@ binds {
 
     // 禁止/允许键盘快捷键（便于在 niri 内运行嵌套会话）/ Toggle keyboard shortcuts inhibit
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-
-    // ===== warpd：全键盘控制鼠标 (Wayland/niri) =====
-    // Wayland 下 warpd 不能常驻 daemon、也不能自己抓全局热键，必须由合成器绑键，
-    // 因此这里每个模式各 spawn 一个「一次性」进程，选完或按 esc 立即退出，
-    // 不会留下任何后台进程。键位含义见 ~/.config/warpd/config
-    // (warpd --list-options / warpd --list-keys)
-    // 注：Mod+X / Mod+Z / Mod+G 已被 Nyxuri 键位占用，warpd 统一挪到 Mod+Alt+* 前缀。
-    Mod+Alt+X repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 提示选点 Hint mode" { spawn "/home/ash/build/warpd/bin/warpd" "--hint" "--click" "1"; }
-    Mod+Alt+Shift+X repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 两段提示 Two-pass hint mode" { spawn "/home/ash/build/warpd/bin/warpd" "--hint2" "--click" "1"; }
-    Mod+Alt+Z repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 移动指针 Normal mode" { spawn "/home/ash/build/warpd/bin/warpd" "--normal"; }
-    Mod+Alt+G repeat=false allow-inhibiting=false hotkey-overlay-title="warpd 网格选点 Grid mode" { spawn "/home/ash/build/warpd/bin/warpd" "--grid"; }
 }

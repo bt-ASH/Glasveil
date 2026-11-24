@@ -1,20 +1,28 @@
+# post_hook 由 matugen 用当前 $SHELL 执行（本机是 fish），所以涉及 if / || 的
+# 复杂逻辑统一用 bash -c 包一层，避免 fish 语法解析错误把整次生成打断。
 
 [config]
 
 [templates.waybar]
 input_path = '~/.config/matugen/templates/colors.css'
 output_path = '~/.config/waybar/colors.css'
-post_hook='rm ~/.config/waybar-niri-Win11Like/colors.css && ln -s ~/.config/waybar/colors.css ~/.config/waybar-niri-Win11Like/colors.css && bash ~/.config/scripts/darken-primary.sh'
+# 兼容旧的多套 waybar 配置：目标目录不存在时跳过同步，不要让 hook 失败中断 matugen
+post_hook='bash -c "if [ -d ~/.config/waybar-niri-Win11Like ]; then rm -f ~/.config/waybar-niri-Win11Like/colors.css; ln -sfn ~/.config/waybar/colors.css ~/.config/waybar-niri-Win11Like/colors.css; fi; bash ~/.config/scripts/darken-primary.sh >/dev/null 2>&1; exit 0"'
 
 
 [templates.pywalfox]
 input_path = '~/.config/matugen/templates/pywalfox-colors.json'
 output_path = '~/.cache/wal/colors.json'
-post_hook = 'pywalfox update &'
+post_hook = 'bash -c "command -v pywalfox >/dev/null 2>&1 && pywalfox update >/dev/null 2>&1; exit 0"'
 
 [templates.fuzzel]
 input_path = '~/.config/matugen/templates/fuzzel.ini'
 output_path = '~/.config/fuzzel/colors.ini'
+
+# rofi 启动器 / 剪贴板菜单配色（config.rasi 与 clipboard.rasi 共用）
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi-colors.rasi'
+output_path = '~/.config/rofi/colors.rasi'
 
 # kitty 基础配色（Nyxuri themes/noctalia.conf 对应物）
 [templates.kitty]
@@ -61,7 +69,7 @@ post_hook='makoctl reload &'
 [templates.btop]
 input_path = '~/.config/matugen/templates/btop.theme'
 output_path = '~/.config/btop/themes/matugen.theme'
-post_hook = 'killall -SIGUSR1 btop && killall -SIGUSR2 btop &'
+post_hook = 'bash -c "pkill -SIGUSR1 -x btop 2>/dev/null; pkill -SIGUSR2 -x btop 2>/dev/null; exit 0"'
 
 [templates.cava]
 input_path = '~/.config/matugen/templates/cava-colors.ini'
@@ -154,7 +162,7 @@ post_hook = 'bash ~/.cache/matugen/recoloricons.sh &'
 [templates.swayosd]
 input_path = '~/.config/matugen/templates/colors.css'
 output_path = '~/.config/swayosd/colors.css'
-post_hook = 'pkill swayosd && swayosd-server &'
+post_hook = 'bash -c "if pgrep -x swayosd-server >/dev/null 2>&1; then pkill -x swayosd-server; setsid swayosd-server >/dev/null 2>&1 & fi; exit 0"'
 
 #[templates.swaylock-effects]
 #input_path = '~/.config/matugen/templates/swaylock-colors'
@@ -174,7 +182,7 @@ post_hook = "bash -c 'sleep 0.5 && for s in /tmp/nvim-*; do nvim --server \"$s\"
 [templates.tmux]
 input_path = '~/.config/matugen/templates/tmux-catppuccin.conf'
 output_path = '~/.config/tmux/user/matugen-catppuccin.conf'
-post_hook = "tmux source ~/.config/tmux/user/matugen-catppuccin.conf 2>/dev/null && tmux run '~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux' >/dev/null 2>&1 & || true"
+post_hook = 'bash -c "tmux source ~/.config/tmux/user/matugen-catppuccin.conf 2>/dev/null; tmux run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux >/dev/null 2>&1; exit 0"'
 
 [templates.astroui]
 input_path = '~/.config/matugen/templates/nvim-astroui.lua'

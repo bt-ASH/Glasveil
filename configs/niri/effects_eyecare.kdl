@@ -12,6 +12,17 @@ window-rule {
     }
 }
 
+// 1.5) layer-shell 表面（eww / rofi）同步关模糊
+layer-rule {
+    match namespace="^eww"
+    background-effect { blur false; }
+}
+
+layer-rule {
+    match namespace="^rofi"
+    background-effect { blur false; }
+}
+
 blur {
     off
 }

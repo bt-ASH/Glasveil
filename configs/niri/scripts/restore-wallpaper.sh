@@ -9,5 +9,12 @@ WALL=$(grep '^wallpaper ' ~/.config/waypaper/config.ini | head -1 | cut -d= -f2 
 WALL="${WALL/#\~/$HOME}"
 
 if [ -n "$WALL" ] && [ -f "$WALL" ]; then
-    awww img "$WALL"
+    # 图片 / 视频统一交给 wallpaper-apply.sh（视频用 mpvpaper）
+    APPLY="$HOME/.config/scripts/wallpaper-apply.sh"
+    [ -x "$APPLY" ] || APPLY="$(dirname "$(readlink -f "$0")")/../../scripts/wallpaper-apply.sh"
+    if [ -x "$APPLY" ]; then
+        "$APPLY" "$WALL"
+    else
+        awww img "$WALL"
+    fi
 fi

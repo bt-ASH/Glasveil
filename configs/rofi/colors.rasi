@@ -1,0 +1,30 @@
+/* Rofi — Material You 配色 / Material You palette
+ *
+ * 由 matugen 从当前壁纸渲染 → ~/.config/rofi/colors.rasi
+ * 使用方：config.rasi（启动器）、clipboard.rasi（剪贴板菜单）
+ *
+ * 全部输出 8 位十六进制（#RRGGBBAA）：
+ * rofi 对 *{} 里的 rgba() 变量用在 element 背景上会回退成白色，故不用 rgba()。
+ * 窗口底色带 90% alpha（e6），靠 transparency: "real" 透出壁纸。
+ */
+
+* {
+    bg:                     #f3ecf3e6;   /* surface_container + 90% */
+    bg-alt:                 #eee6edf2;   /* surface_container_high */
+    surface:                #e8e0e7ff;   /* surface_container_highest */
+    primary:                #320b54ff;
+    primary-soft:           #320b541f;
+    on-primary:             #ffffffff;
+    on-primary-muted:       #ffffffa6;
+    primary-container:      #49256bff;
+    on-primary-container:   #deb9ffff;
+    secondary:              #685876ff;
+    secondary-container:    #edd8fcff;
+    on-secondary-container: #4f405dff;
+    tertiary:               #46052dff;
+    text:                   #1e1a1fff;
+    muted:                  #4b444fff;
+    outline:                #cdc3d0ff;
+    error:                  #ba1a1aff;
+    on-error:               #ffffffff;
+}

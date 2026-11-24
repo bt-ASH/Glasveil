@@ -1,0 +1,109 @@
+/**
+ * Glasveil · 壁纸选择器（rofi 单行竖版卡片 + 文件名）
+ * ---------------------------------------------------------------------------
+ * 由 configs/rofi/wallsel.sh 使用（-theme 本文件 + -theme-str 覆盖几何尺寸）：
+ *   · 配色全部来自 @import colors.rasi（matugen 渲染，跟随明暗模式）
+ *   · 卡片缩略图已在脚本里裁成竖版并倒好圆角，这里只负责排版与高亮
+ *   · element-icon 必须 squared: false —— 否则竖图会被塞进正方形框，
+ *     左右多出空白，选中高亮也就贴不住卡片
+ *
+ * niri 键位：Mod+B（configs/niri/__custom__.kdl）
+ */
+
+@import "./colors.rasi"
+
+* {
+    font:             "JetBrainsMono Nerd Font 12";
+    background-color: transparent;
+    text-color:       @muted;
+}
+
+configuration {
+    scroll-method: 1;
+}
+
+/*****----- 窗口（整屏宽的一条横带）/ Window -----*****/
+window {
+    transparency:     "real";
+    location:         center;
+    anchor:           center;
+    width:            100%;
+    padding:          32px 40px;
+    border:           0px;
+    border-radius:    0px;
+    background-color: @bg;
+}
+
+mainbox {
+    spacing:          0px;
+    padding:          0px;
+    border:           0px;
+    background-color: transparent;
+    children:         [ "listview", "footer" ];
+}
+
+/*****----- 卡片列表 / Card list -----*****/
+listview {
+    columns:          6;
+    lines:            1;
+    spacing:          40px;
+    padding:          0px;
+    border:           0px;
+    cycle:            true;
+    fixed-columns:    true;
+    fixed-height:     true;
+    scrollbar:        false;
+    background-color: transparent;
+}
+
+/*****----- 卡片 / Card -----*****/
+element {
+    orientation:      vertical;
+    spacing:          10px;
+    padding:          0px 0px 14px 0px;
+    border:           2px;
+    border-color:     transparent;
+    border-radius:    24px;
+    background-color: transparent;
+    text-color:       @muted;
+}
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color:       @muted;
+}
+element selected.normal {
+    background-color: @secondary-container;
+    text-color:       @on-secondary-container;
+    border-color:     @primary;
+}
+
+element-icon {
+    size:             396px;
+    squared:          false;
+    border-radius:    0px;
+    background-color: transparent;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+    background-color: transparent;
+    text-color:       inherit;
+}
+
+/*****----- 底部提示 / Footer hint -----*****/
+footer {
+    expand:           false;
+    orientation:      horizontal;
+    spacing:          0px;
+    padding:          10px 0px 0px 0px;
+    background-color: transparent;
+    children:         [ "textbox-hint" ];
+}
+textbox-hint {
+    str:              "h j k l 选卡      Enter 应用      Esc 退出";
+    expand:           true;
+    horizontal-align: 0.5;
+    text-color:       @muted;
+}

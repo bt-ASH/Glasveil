@@ -16,6 +16,12 @@ layer-rule {
     place-within-backdrop true
 }
 
+// 视频壁纸（mpvpaper）同样放进 backdrop
+layer-rule {
+    match namespace="^mpvpaper$"
+    place-within-backdrop true
+}
+
 window-rule {
     match is-floating=true
     baba-is-float false

@@ -1,5 +1,0 @@
-# waypaper 壁纸选择器 manifest
-[packages]
-aur = ["waypaper"]
-
-# 壁纸切换统一走 awww；post_command 负责刷新 matugen 配色

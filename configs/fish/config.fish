@@ -332,3 +332,8 @@ end
 
 abbr lt 'ls --tree'
 
+# 真 TTY（tty1-6）里渲染不了中文，退回英文 locale；pts 里不动
+if not string match -q '/dev/pts/*' -- (tty)
+    set -gx LANG en_US.UTF-8
+end
+

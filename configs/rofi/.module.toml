@@ -1,5 +1,11 @@
-# rofi manifest
-[packages]
-repo = ["rofi"]
+# rofi 模块清单 / rofi manifest
+#
+# config.rasi     应用启动器（drun，niri: Mod+Shift+W）
+# clipboard.rasi  剪贴板菜单（clipboard.sh：clipse 历史 → rofi → wl-copy，niri: Mod+Shift+V）
+# wallpaper.rasi  壁纸选择器（wallpicker.sh / wallpapers 共用；背景素材在 ~/.config/rofi/assets）
+# wallsel.rasi    壁纸选择器（wallsel.sh：单行竖版卡片 + 文件名，niri: Mod+B）
+# colors.rasi     配色，由 matugen 渲染（configs/matugen/templates/rofi-colors.rasi）
 
-# wallpaper.rasi = 壁纸选择器网格主题（3 列大缩略图、无文字、选中蓝框）
+[packages]
+repo = ["rofi", "imagemagick"]
+chmod = ["clipboard.sh", "wallsel.sh"]

@@ -1,0 +1,140 @@
+/**
+ * Glasveil · rofi 剪贴板历史 / rofi clipboard history
+ * ---------------------------------------------------------------------------
+ * 数据源：clipse（~/.config/clipse/clipboard_history.json）
+ * 启动：configs/rofi/clipboard.sh        （niri 键位：Mod+Shift+V）
+ *       └─ clipse 历史 → rofi 选择 → wl-copy 写回剪贴板
+ *
+ * 配色同样来自 matugen 渲染的 colors.rasi（模板 see configs/matugen）。
+ */
+
+@import "./colors.rasi"
+
+* {
+    font:             "JetBrainsMono Nerd Font 11";
+    background-color: transparent;
+    text-color:       @text;
+}
+
+configuration {
+    scroll-method: 1;
+}
+
+/*****----- 窗口 / Window -----*****/
+window {
+    transparency:     "real";
+    location:         northeast;
+    anchor:           northeast;
+    x-offset:         -16px;
+    y-offset:         8px;
+    width:            480px;
+    padding:          8px;
+    border:           1px solid;
+    border-color:     @outline;
+    border-radius:    18px;
+    background-color: @bg;
+}
+
+mainbox {
+    spacing:      6px;
+    children:     [ "header", "inputbar", "listview", "footer" ];
+}
+
+/*****----- 标题栏 / Header -----*****/
+header {
+    expand:           false;
+    orientation:      horizontal;
+    background-color: @bg-alt;
+    border-radius:    12px;
+    children:         [ "textbox-tag", "textbox-title" ];
+}
+textbox-tag {
+    str:              "";
+    expand:           false;
+    padding:          6px 10px;
+    border-radius:    12px 0px 0px 12px;
+    background-color: @primary;
+    text-color:       @on-primary;
+}
+textbox-title {
+    str:            "CLIPBOARD // 剪贴板历史";
+    padding:        6px 12px;
+    vertical-align: 0.5;
+    text-color:     @primary;
+}
+
+/*****----- 搜索栏 / Input bar -----*****/
+inputbar {
+    spacing:          10px;
+    padding:          12px 14px;
+    border:           0px;
+    border-radius:    12px;
+    background-color: @surface;
+    text-color:       @text;
+    children:         [ "prompt", "entry" ];
+}
+prompt {
+    font:             "JetBrainsMono Nerd Font 13";
+    padding:          0px 4px 0px 0px;
+    background-color: inherit;
+    text-color:       @primary;
+}
+entry {
+    background-color:  inherit;
+    text-color:        @text;
+    placeholder:       "搜索剪贴板…";
+    placeholder-color: @muted;
+}
+
+/*****----- 列表 / Listview -----*****/
+listview {
+    lines:            8;
+    columns:          1;
+    spacing:          4px;
+    padding:          0px;
+    border:           0px;
+    cycle:            true;
+    fixed-height:     true;
+    fixed-columns:    true;
+    scrollbar:        false;
+    background-color: transparent;
+}
+
+element {
+    spacing:          8px;
+    padding:          9px 12px;
+    border:           0px 0px 0px 3px;
+    border-radius:    10px;
+    border-color:     transparent;
+    background-color: transparent;
+    text-color:       @text;
+}
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color:       @text;
+}
+element selected.normal {
+    background-color: @secondary-container;
+    text-color:       @on-secondary-container;
+    border-color:     @primary;
+}
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+}
+
+/*****----- 底部提示 / Footer -----*****/
+footer {
+    expand:           false;
+    orientation:      horizontal;
+    padding:          4px 10px 2px 10px;
+    children:         [ "textbox-hint" ];
+}
+textbox-hint {
+    str:              "[Enter] 复制    [Esc] 关闭";
+    expand:           true;
+    horizontal-align: 0.5;
+    text-color:       @muted;
+}

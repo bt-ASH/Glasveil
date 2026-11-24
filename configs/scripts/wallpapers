@@ -212,8 +212,19 @@ def as_url(p: str) -> str:
 
 TYPE_ZH = {"video": "视频", "scene": "场景", "web": "网页", "application": "程序"}
 
-# rofi 网格主题：与 waypaper / wallpicker 统一（3 列大缩略图、无文字、浅色卡片）
+# rofi 主题：用 wallpicker 那套（深绿渐变底 + 无文字）。
+# 但它的网格是「231:816 竖条」专用的（宽度由图片比例决定），这里的预览是整张
+# 16:9 截图，所以在 cmd_rofi 里用 -theme-str 覆盖回普通缩略图网格。
 ROFI_THEME_FILE = os.path.expanduser("~/.config/rofi/wallpaper.rasi")
+
+# 覆盖回 4×2 网格：格子固定、图标方框为正方形，整张截图都能放下
+ROFI_GRID_OVERRIDE = " ".join((
+    "window { width: 64%; height: 58%; }",
+    "mainbox { padding: 18px 24px; }",
+    "listview { columns: 4; lines: 2; spacing: 16px; }",
+    "element { border: 2px; }",
+    "element-icon { size: 210px; squared: true; }",
+))
 
 
 CSS = """
@@ -437,9 +448,9 @@ def cmd_rofi(items: list[dict]) -> int:
         "-kb-custom-1", "Ctrl+o",
         "-no-custom",
     ]
-    # 有统一主题文件就用它（网格 + 大缩略图 + 无文字）
+    # 有统一主题文件就用它（渐变底 + 大缩略图 + 无文字），再覆盖成网格
     if os.path.isfile(ROFI_THEME_FILE):
-        cmd += ["-theme", ROFI_THEME_FILE]
+        cmd += ["-theme", ROFI_THEME_FILE, "-theme-str", ROFI_GRID_OVERRIDE]
     else:
         cmd += ["-p", "壁纸",
                 "-mesg", "Enter 播放 · Ctrl+O 复制路径 · Esc 取消",

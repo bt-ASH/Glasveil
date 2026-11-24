@@ -18,6 +18,7 @@ CDEF='\033[0m'
 # ── Paths ───────────────────────────────────────────────
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
+BIN_DEST="${XDG_BIN_HOME:-$HOME/.local/bin}"
 BACKUP_ROOT="$DEST/.glasveil-backups"
 FALLBACK_VERSION="1.3"   # 没有 git tag 时的兜底版本；正常情况由 git tag 决定
 
@@ -64,10 +65,11 @@ REPO_PKGS=(
     matugen starship yazi
     eww wifitui
     fcitx5 fcitx5-gtk fcitx5-configtool
-    fuzzel mako
+    fuzzel rofi mako
     hyprlock swayidle swaylock
     wl-clipboard grim slurp satty
     brightnessctl playerctl
+    imagemagick
     awww wlsunset power-profiles-daemon
     networkmanager upower
     tmux libnotify jq
@@ -81,6 +83,7 @@ AUR_PKGS=(
     waypaper
     clipse
     wshowkeys
+    mpvpaper
 )
 
 # 可选工具（仅提示，不强制安装）
@@ -117,6 +120,22 @@ target_files() {
     return 0
 }
 
+# 需要额外部署到 ${XDG_BIN_HOME:-~/.local/bin} 的命令：
+#   输出「源文件绝对路径 <TAB> 命令名」
+# 约定：命令的源码统一放 configs/scripts/，这里登记它到 ~/.local/bin 的映射；
+# 仓库根 bin/ 下的文件也会被一并部署（兼容旧布局）。
+local_bin_targets() {
+    local file
+    [ -f "$REPO/configs/scripts/matugen-update.sh" ] &&
+        printf '%s\t%s\n' "$REPO/configs/scripts/matugen-update.sh" "matugen-update"
+    if [ -d "$REPO/bin" ]; then
+        while IFS= read -r -d '' file; do
+            printf '%s\t%s\n' "$file" "${file##*/}"
+        done < <(find "$REPO/bin" -mindepth 1 -maxdepth 1 \( -type f -o -type l \) -print0)
+    fi
+    return 0
+}
+
 # 把 $1 复制到 $2：指向仓库的绝对软链存实体内容（真回滚），相对软链保持链接
 copy_entry() {
     if [ -L "$1" ]; then
@@ -138,10 +157,10 @@ usage() {
     cat <<'USAGE'
 
   (无参数)                      交互菜单（部署 / 依赖 / 备份 / 回滚）
-  deploy                        只部署配置到 ~/.config（默认命令）
+  deploy                        只部署配置到 ~/.config（scripts 登记命令 → ~/.local/bin，默认命令）
   deps                          只安装依赖（仓库包 + AUR 包）
   all                           先装依赖再部署
-  backup [标签]                 备份当前 ~/.config 里本仓库管理的文件
+  backup [标签]                 备份 ~/.config 与 ~/.local/bin 里本仓库管理的文件
   restore <引用>                回滚（latest / 备份标签 / 目录路径）
   list-backups                  列出已有备份
   version                       打印版本号（取自 git tag）
@@ -281,12 +300,35 @@ cmd_deploy() {
             copy_entry "$dst" "$backup/$rel" 2>/dev/null || true
         fi
         if [ "$MODE" = "copy" ]; then
-            cp -a "$REPO/configs/$rel" "$dst"
+            # --remove-destination：目标若还是指向仓库的软链（link→copy 切换），
+            # 直接 cp 会报 "are the same file"
+            cp -a --remove-destination "$REPO/configs/$rel" "$dst"
         else
             ln -sfn "$REPO/configs/$rel" "$dst"
         fi
         n=$((n + 1))
     done < <(target_files)
+
+    # 登记的命令（configs/scripts/ 源码）→ ~/.local/bin
+    while IFS=$'\t' read -r src name; do
+        [ -n "${name:-}" ] || continue
+        dst="$BIN_DEST/$name"
+        if [ "$DRY" = 1 ]; then
+            printf "  ${CBLU}[%s]${CDEF} %s -> %s\n" "$MODE" "${src#"$REPO"/}" "$dst"
+            continue
+        fi
+        mkdir -p "$BIN_DEST"
+        if [ -e "$dst" ] || [ -L "$dst" ]; then
+            mkdir -p "$backup/local-bin"
+            copy_entry "$dst" "$backup/local-bin/$name" 2>/dev/null || true
+        fi
+        if [ "$MODE" = "copy" ]; then
+            cp -aL --remove-destination "$src" "$dst"
+        else
+            ln -sfn "$src" "$dst"
+        fi
+        n=$((n + 1))
+    done < <(local_bin_targets)
 
     if [ "$DRY" = 1 ]; then
         info "(dry-run) 未写入任何文件"
@@ -328,6 +370,23 @@ cmd_backup() {
         n=$((n + 1))
     done < <(target_files)
 
+    # 登记的命令同样备份（备份目录里用 local-bin/ 区分目标位置）
+    while IFS=$'\t' read -r _ name; do
+        [ -n "${name:-}" ] || continue
+        src="$BIN_DEST/$name"
+        [ -e "$src" ] || [ -L "$src" ] || continue
+        if [ "$DRY" = 1 ]; then
+            printf "  ${CBLU}[backup]${CDEF} %s\n" "$src"
+            n=$((n + 1)); continue
+        fi
+        mkdir -p "$out/local-bin"
+        if [ -L "$src" ]; then
+            printf '%s\t%s\n' "local-bin/$name" "$(readlink "$src")" >> "$out/LINKS.tsv"
+        fi
+        copy_entry "$src" "$out/local-bin/$name"
+        n=$((n + 1))
+    done < <(local_bin_targets)
+
     if [ "$DRY" = 1 ]; then
         info "(dry-run) 将备份 $n 个文件 -> $out"
         return 0
@@ -355,8 +414,12 @@ cmd_restore() {
     [ "$DRY" = 1 ] || cmd_backup "pre-restore-$(date +%Y%m%d-%H%M%S)" >/dev/null
 
     while IFS= read -r rel; do
-        case "$rel" in MANIFEST.txt|LINKS.tsv) continue ;; esac
-        from="$src/$rel"; to="$DEST/$rel"
+        case "$rel" in
+            MANIFEST.txt|LINKS.tsv) continue ;;
+            local-bin/*) to="$BIN_DEST/${rel#local-bin/}" ;;
+            *)           to="$DEST/$rel" ;;
+        esac
+        from="$src/$rel"
         if [ "$DRY" = 1 ]; then
             printf "  ${CBLU}[restore]${CDEF} %s\n" "$to"
             n=$((n + 1)); continue
@@ -370,13 +433,17 @@ cmd_restore() {
     if [ "$DRY" = 0 ] && [ -f "$src/LINKS.tsv" ]; then
         while IFS=$'\t' read -r rel target; do
             [ -n "${rel:-}" ] || continue
-            mkdir -p "$DEST/$(dirname "$rel")"
-            ln -sfn "$target" "$DEST/$rel"
+            case "$rel" in
+                local-bin/*) to="$BIN_DEST/${rel#local-bin/}" ;;
+                *)           to="$DEST/$rel" ;;
+            esac
+            mkdir -p "$(dirname "$to")"
+            ln -sfn "$target" "$to"
         done < "$src/LINKS.tsv"
         skip "已还原 $(wc -l < "$src/LINKS.tsv") 个软链"
     fi
 
-    [ "$DRY" = 1 ] && info "(dry-run) 将恢复 $n 个文件" || ok "已恢复 $n 个文件到 $DEST"
+    [ "$DRY" = 1 ] && info "(dry-run) 将恢复 $n 个文件" || ok "已恢复 $n 个文件（$DEST + $BIN_DEST）"
 }
 
 cmd_list() {

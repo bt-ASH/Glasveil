@@ -1,89 +1,92 @@
-/* 壁纸选择器（rofi 缩略图）—— 参考图风格：
- * · 窗口无底色、背景全透明，缩略图直接浮在壁纸上
- * · 单元格做成 16:9（≈ 壁纸常见分辨率比例）：16:9 壁纸正好填满卡片，
- *   竖图/超宽图按自己的比例居中显示，不拉伸不裁切
- * · 选中项柔和高亮（淡蓝底 + 半透明蓝边）
- * · 底部一条与网格等宽的圆角搜索栏，替代参考图下方那排按钮
+/* 壁纸选择器（rofi）—— 效果图同款：一排竖直长条 + 深绿渐变背景，画面上没有任何控件。
  *
- * 注意：rofi 对 * 里的 rgba 变量在 element 背景上会回退成白色，
- * 所以透明/着色一律写字面量，不要用 @变量。 */
-* {
-    fg:  #e8ecf5;
-    dim: #98a2b3;
-}
+ * 规格来自 ~/Pictures/mockup-wallpaper-strips.md（逐像素量自参考图 2240×1400）：
+ *   · 竖条 231×816，间距 37（节距 268），顶边 y=179，共 9 条、两侧出血
+ *     （首条可见 163、末条可见 164），下方 405 只有背景
+ *   · 背景 = assets/picker-bg.jpg（§4 渐变/辉光/流线 + §5 投影，不含竖条），
+ *     由 tools/make-picker-bg.py 生成；窗口 1:1 贴合，不缩放
+ *   · 竖条直角、无描边；不显示文字，没有搜索框 / 按钮 / 滑杆
+ *
+ * 单位换算（本机 DP-1 = 2240×1400 @ scale 1.2，rofi 用逻辑像素）：
+ *   物理 ÷ 1.2 = 逻辑      231→192.5   816→680   37→30.83   179→149.17
+ *   eww 状态栏占了屏顶 38px，rofi 的 layer 面从 y=38 起
+ *   → 顶边 179−38=141 物理 = 117.5 逻辑
+ *
+ * 实测得到的 rofi 2.1 行为（改参数前务必读）：
+ *   · element-icon 的 size 是"框"的边长，默认强制正方形；竖条必须 squared: false，
+ *     否则 231 宽的图会被居中塞进 680×680 的方框，左右各多出 292px 空白
+ *   · 一行 9 条 = columns: 1 + lines: 9 + layout: horizontal
+ *     （layout 横向时两轴互换：columns 是行数，lines 是每行条数）
+ *   · 整排比屏幕宽 67.5×2，用 mainbox 的负左右 padding 让它居中出血；
+ *     超出窗口的竖条被窗口边缘自然裁掉，正好等于效果图的"首尾出血"
+ *   · element 的 border 会占宽高，所以 padding-top 与 spacing 都减掉 2px 边
+ *   · rofi 把距离取整到逻辑像素：spacing 写 27.5 实际按 27 排版，节距 = 231+37 ≈ 268；
+ *     左右 padding 取 −57.5 时 9 条的左边缘落在 −65/202/469/737/1004/1272/1540/1807/2075
+ *     （效果图为 −68/200/468/736/1004/1272/1540/1808/2076，误差 ≤2px）
+ *
+ * 注意：rofi 对 *{} 里的 rgba 变量用在 element 背景上会回退成白色，
+ * 透明/着色一律写字面量，不要用 @变量。 */
 
 window {
-    width:            88%;
-    height:           46%;
-    background-color: transparent;
+    width:            100%;
+    height:           100%;
+    background-color: #020a08;                    /* §4.1 最暗处，图没加载时也不刺眼 */
+    background-image: url("~/.config/rofi/assets/picker-bg.jpg", both);
     border:           0px;
     padding:          0px;
 }
 
+/* 只有一排竖条：顶部留白让条顶落在 y=179，其余全是背景 */
 mainbox {
-    children:         [ listview, inputbar ];
+    children:         [ listview ];
     background-color: rgba(0, 0, 0, 0);
-    padding:          0px;
-    spacing:          22px;
+    padding:          115.5px -57.5px 0px -57.5px;   /* 顶 117.5−2(描边)；左右 −57.5 = 出血 */
+    spacing:          0px;
 }
 
-/* 缩略图直接铺开，不画任何底色 */
 listview {
-    columns:          4;
-    lines:            2;
-    fixed-columns:    true;
+    columns:          1;          /* 行数 */
+    lines:            9;          /* 每行 9 条（= COUNT） */
+    fixed-columns:    true;       /* 壁纸不足 9 张也不缩成 4 列 */
     fixed-height:     true;
-    spacing:          16px;
+    layout:           horizontal; /* dmenu 式横向排列 */
+    spacing:          27.5px;     /* 37/1.2 − 2×2(描边) = 30.83−4，实测按 27 排版 */
     padding:          0px;
     border:           0px;
     scrollbar:        false;
     background-color: rgba(0, 0, 0, 0);
 }
 
+/* 竖条本身不画底板、不留内边距；border 只为选中态预留位置（非选中全透明） */
 element {
-    padding:          5px;
-    spacing:          0px;
+    padding:          0px;
     border:           2px;
-    border-radius:    18px;
+    border-color:     rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    spacing:          0px;
+}
+
+element normal.normal {
     border-color:     rgba(0, 0, 0, 0);
     background-color: rgba(0, 0, 0, 0);
 }
 
-element normal.normal   { background-color: rgba(0, 0, 0, 0); }
-/* 选中：柔和高亮（单元格比例固定，硬描边会盖住非 16:9 的图，故用淡底） */
+/* 选中/悬停：一圈薄荷色细描边。效果图里没有选中态，这层是唯一的交互提示；
+ * 不加圆角、不加底色，竖条仍是直角。 */
 element selected.normal {
-    border-color:     rgba(122, 162, 247, 0.55);
-    background-color: rgba(122, 162, 247, 0.16);
+    border-color:     rgba(150, 255, 210, 0.75);
+    background-color: rgba(0, 0, 0, 0);
 }
 
+/* 高度 = 816/1.2；宽度由图自身的 231:816 比例决定，所以缩略图必须是这个比例 */
 element-icon {
-    size:             210px;   /* 单元格宽由列宽决定，高度=该值，
-                                 * 4 列时正好接近 16:9，横图能填满卡片 */
+    size:             680px;
+    squared:          false;
     cursor:           pointer;
     background-color: rgba(0, 0, 0, 0);
 }
 
-/* 缩略图网格不显示文字标签 */
+/* 不显示文字标签 */
 element-text {
     enabled: false;
 }
-
-/* 底部圆角搜索栏（替代参考图下方那排按钮与滑杆） */
-inputbar {
-    background-color: rgba(14, 18, 28, 0.78);
-    border-radius:    18px;       /* 和缩略图卡片同一圆角风格 */
-    padding:          10px 20px;
-    margin:           0px 6px;     /* 与缩略图网格等宽 */
-    spacing:          8px;
-    children:         [ entry ];
-}
-
-entry {
-    placeholder:       "搜索壁纸";
-    placeholder-color: #98a2b3;
-    text-color:        #e8ecf5;
-    cursor:            text;
-}
-
-prompt { enabled: false; }
-case-indicator { enabled: false; }

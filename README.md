@@ -16,6 +16,8 @@
 - **玻璃质感**：窗口 90% 不透明度 + 真实背景模糊，`effects.kdl` 软链一换即可在「普通 / 护眼」间切换
 - **护眼模式**（`Mod+N`）：关模糊、透明度加重、5500K 暖色温
 - **Orbit 星环启动器**（`Mod+Shift+A`）：矢量圆环 + 搜索轮盘 + 应用/网页子菜单
+- **rofi 启动器 / 剪贴板**（`Mod+Shift+W` / `Mod+Shift+V`）：drun 搜索与 clipse 历史，配色同样由 matugen 渲染
+- **壁纸选择器**（`Mod+B`）：rofi 单行竖版卡片 + 文件名预览，当前壁纸预选中，`hjkl` 或 `↑↓` 选卡；应用后按 waypaper 的 `post_command` 善后（同步状态 + matugen + tmux）
 - **Sweep 缓存清理**（星环菜单内）：带勾选 UI、干跑模式、白名单围栏（绝不碰 `$HOME` 本身）
 - **eww 胶囊状态栏**：透明底 + 胶囊模块，跟随配色；工作区选中态用 primary 淡染
 - **电池保护**：开机把充电阈值锁在 80%（需一次性 root 配置，见 `configs/niri/README-battery.md`）
@@ -38,6 +40,7 @@ Glasveil/
     ├── fastfetch/              # 系统信息
     ├── wifitui/                # （模板在 matugen/templates/wifitui-theme.toml）
     ├── zed/  # 主题由 matugen 生成（Glasveil Dark / Light）
+    ├── rofi/                   # 启动器 / 剪贴板菜单 / 壁纸选择器（配色走 matugen）
     ├── yazi/ · wireplumber/ · xdg-desktop-portal/
     └── scripts/                # 共享脚本（matugen-update 等）
 ```
@@ -50,6 +53,8 @@ Glasveil/
 | 键 | 动作 |
 |---|---|
 | `Mod+Return` / `Mod+E` / `Mod+R` | 终端 / 文件管理器 / 启动器 |
+| `Mod+Shift+W` / `Mod+Shift+V` | rofi 启动器 / rofi 剪贴板历史 |
+| `Mod+B` | rofi 壁纸选择器（卡片预览） |
 | `Mod+Z C J K`（含 `Mod+←→↑↓`） | 焦点移动，浮动窗口内外自动贯通 |
 | `Mod+T` / `Mod+Shift+T` | 窗口浮动切换 / 悬浮与平铺之间切焦点 |
 | `Mod+W` / `Mod+Ctrl+W` | 壁纸选择 / 随机壁纸 |
@@ -73,6 +78,8 @@ cd ~/Glasveil
 ./install.sh list-backups    # 列出备份
 ./install.sh restore latest  # 回滚到最近一次
 ```
+
+`configs/scripts/matugen-update.sh` 会随 `deploy` 链到 `~/.local/bin/matugen-update`（waypaper 的 `post_command` 用这个路径）。
 
 ### Shell 补全
 
