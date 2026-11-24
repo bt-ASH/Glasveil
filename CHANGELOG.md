@@ -28,7 +28,7 @@
   `restore-wallpaper.sh` 都改走这个 helper，选择器也会列出视频并用 ffmpeg 首帧做缩略图；
   `matugen-update.sh` 无参时优先从 mpvpaper 进程取当前视频（awww 已 kill 也能取到），
   用 ffmpeg 把首帧缩到 500px 再取色（hyprlock 链接按视频处理移除）；
-  `theme-toggle.sh`（Mod+Shift+N）同样优先识别 mpvpaper 视频，并通过新增的
+  `theme-toggle.sh` 同样优先识别 mpvpaper 视频，并通过新增的
   `wallpaper-frame.sh` 取首帧后再跑 matugen；
   **动图 webp** 也按首帧取色（`wallpaper-frame.sh` 与 `matugen-update.sh` 都
   显式取 `[0]` 首帧），但 webp 壁纸仍然由 awww 显示/播放，不走 mpvpaper；
@@ -51,17 +51,16 @@
   配色不写死：新增 matugen 模板 `configs/matugen/templates/rofi-colors.rasi`
   → `~/.config/rofi/colors.rasi`（`[templates.rofi]`），全部 8 位 hex，
   避开 rofi 的 rgba 变量在 `element` 背景上回退白色的问题。
-  键位：`Mod+Shift+W` 启动器、`Mod+Shift+V` 剪贴板（写在 `__custom__.kdl`）；
-  原 `Mod+Shift+W` 的 Steam 壁纸速览绑定移除（命令 `wallpapers` 仍在，
-  `Mod+Shift+G` 浏览器画廊保留）。`install.sh` 仓库依赖加入 `rofi`。
+  绑定写在 `configs/niri/__custom__.kdl`（具体键位见 README，本文件不记录，
+  免得和配置漂移）；原 Steam 壁纸速览绑定移除（命令 `wallpapers` 仍在，
+  浏览器画廊保留）。`install.sh` 仓库依赖加入 `rofi`。
   同时恢复 `wallpaper.rasi` 壁纸选择器主题与 `.module.toml` 清单。
 - **壁纸选择器 wallsel（rofi 卡片预览）**：新增 `configs/rofi/wallsel.sh` +
   `wallsel.rasi`，由 hyprdots 的 `wallsel-v2.sh` 改写：屏宽改用 niri IPC
   （`focused-output`）、竖版圆角卡片 + 文件名标签、当前壁纸自动预选中、
   `awww` 应用后与 waypaper 走同一套善后（见下）；大体积动图 webp 先用 ffmpeg 抠首帧，
-  避免 ImageMagick 解全部帧卡死。绑定 `Mod+B`（`binds.kdl` 里的 `bgselector`
-  在本机并不存在）；`hjkl` 与 `↑↓` 均可选卡（`-kb-row-*`，字母键因此不再参与
-  文件名过滤）；`install.sh` 依赖加入 `imagemagick`。
+  避免 ImageMagick 解全部帧卡死。选择卡片时方向键与 vim 键位都可用
+  （`-kb-row-*`，字母键因此不再参与文件名过滤）；`install.sh` 依赖加入 `imagemagick`。
 - **壁纸应用后的善后统一走 waypaper 的配置**：新增
   `configs/scripts/wallpaper-post.sh`，先把握手壁纸写回
   `~/.config/waypaper/config.ini` 的 `wallpaper =`（开机 `restore-wallpaper.sh`
@@ -92,7 +91,7 @@
 ### Removed
 - **`configs/waypaper/` 移出仓库**：waypaper 的 `config.ini` / `style.css`
   改由本机 `~/.config/waypaper/` 自维护（现有真实文件保留，`deploy` 不再覆盖）；
-  `waypaper` 命令、`Mod+W` 键位与 `post_command`（matugen 刷新）保持不变。
+  `waypaper` 命令与 `post_command`（matugen 刷新）保持不变。
 - **视频壁纸 / mpvpaper 支持**：壁纸切换统一走 `awww`。
   `wallpaper_picker` 后端重写为纯 awww（含 matugen 刷新），去掉视频扫描、ffmpeg 缩略图、
   “Live/Static” 分类与徽标；`rules.kdl` 移除 mpvpaper 图层规则；`install.sh` 的 AUR 依赖去掉 mpvpaper；
@@ -140,9 +139,9 @@
 
 ### Added
 - niri 配置（结构对齐 Nyxuri）：`config.kdl` 统一 include，输入/显示器/规则/动画/特效拆分
-- `Mod+Shift+A` Orbit 星环启动器（工具链在 `configs/niri/tools/`）
+- Orbit 星环启动器（工具链在 `configs/niri/tools/`）
 - Sweep 缓存清理 TUI（`configs/niri/scripts/clean-cache.py`）
-- `Mod+Shift+N` 明暗配色切换、`Mod+N` 护眼模式
+- 明暗配色切换、护眼模式
 - 电池保护启动项 `battery-care.sh`
 - matugen 取色管线：niri/kitty/GTK/fcitx5(NyxMellow)/eww/fastfetch/wifitui/palette.toml
 - eww 胶囊状态栏（透明底、胶囊模块、工作区选中态）
