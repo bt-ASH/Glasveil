@@ -1,18 +1,18 @@
 /* ===== matugen dynamic colors (same source as waybar/colors.css) ===== */
 
-$background: #fff7fe;
+$background: #fff8f5;
 
 $error: #ba1a1a;
 
 $error_container: #ffdad6;
 
-$inverse_on_surface: #f6eef5;
+$inverse_on_surface: #f6efed;
 
-$inverse_primary: #ddb7ff;
+$inverse_primary: #dbc2ae;
 
-$inverse_surface: #332f34;
+$inverse_surface: #32302e;
 
-$on_background: #1e1a1f;
+$on_background: #1d1b1a;
 
 $on_error: #ffffff;
 
@@ -20,124 +20,124 @@ $on_error_container: #410002;
 
 $on_primary: #ffffff;
 
-$on_primary_container: #deb9ff;
+$on_primary_container: #3b2c1e;
 
-$on_primary_fixed: #2c024e;
+$on_primary_fixed: #26190c;
 
-$on_primary_fixed_variant: #5a367c;
+$on_primary_fixed_variant: #554434;
 
 $on_secondary: #ffffff;
 
-$on_secondary_container: #4f405d;
+$on_secondary_container: #4e453d;
 
-$on_secondary_fixed: #231630;
+$on_secondary_fixed: #211a14;
 
-$on_secondary_fixed_variant: #50415e;
+$on_secondary_fixed_variant: #4e453e;
 
-$on_surface: #1e1a1f;
+$on_surface: #1d1b1a;
 
-$on_surface_variant: #4b444f;
+$on_surface_variant: #4e453e;
 
 $on_tertiary: #ffffff;
 
-$on_tertiary_container: #ffb1d4;
+$on_tertiary_container: #2f301e;
 
-$on_tertiary_fixed: #3d0026;
+$on_tertiary_fixed: #1b1d0c;
 
-$on_tertiary_fixed_variant: #742d53;
+$on_tertiary_fixed_variant: #474835;
 
-$outline: #7c7480;
+$outline: #80756d;
 
-$outline_variant: #cdc3d0;
+$outline_variant: #d1c4bb;
 
-$primary: #320b54;
+$primary: #6e5b4a;
 
-$primary_container: #49256b;
+$primary_container: #d0b8a4;
 
-$primary_fixed: #f0dbff;
+$primary_fixed: #f8dec9;
 
-$primary_fixed_dim: #ddb7ff;
+$primary_fixed_dim: #dbc2ae;
 
 $scrim: #000000;
 
-$secondary: #685876;
+$secondary: #675d55;
 
-$secondary_container: #edd8fc;
+$secondary_container: #ebddd3;
 
-$secondary_fixed: #f0dbff;
+$secondary_fixed: #eee0d6;
 
-$secondary_fixed_dim: #d4bfe2;
+$secondary_fixed_dim: #d2c4ba;
 
 $shadow: #000000;
 
-$source_color: #49256b;
+$source_color: #d0b8a4;
 
-$surface: #fff7fe;
+$surface: #fff8f5;
 
-$surface_bright: #fff7fe;
+$surface_bright: #fff8f5;
 
-$surface_container: #f3ecf3;
+$surface_container: #f3edea;
 
-$surface_container_high: #eee6ed;
+$surface_container_high: #ede7e4;
 
-$surface_container_highest: #e8e0e7;
+$surface_container_highest: #e7e1de;
 
-$surface_container_low: #f9f1f8;
+$surface_container_low: #f9f2ef;
 
 $surface_container_lowest: #ffffff;
 
-$surface_dim: #dfd8df;
+$surface_dim: #dfd9d6;
 
-$surface_tint: #734e96;
+$surface_tint: #6e5b4a;
 
-$surface_variant: #eadfed;
+$surface_variant: #eee0d6;
 
-$tertiary: #46052d;
+$tertiary: #5f604b;
 
-$tertiary_container: #611d43;
+$tertiary_container: #bebea5;
 
-$tertiary_fixed: #ffd8e7;
+$tertiary_fixed: #e4e4ca;
 
-$tertiary_fixed_dim: #ffafd3;
+$tertiary_fixed_dim: #c8c8af;
 
 
 /* ===== semantic aliases for eww bar ===== */
-$background-light: #eee6ed;
-$foreground: #1e1a1f;
-$blue: #320b54;
-$pink: #46052d;
+$background-light: #ede7e4;
+$foreground: #1d1b1a;
+$blue: #6e5b4a;
+$pink: #5f604b;
 
 /* ===== Noctalia capsule colors (mirror Nyxuri noctalia-config.toml [bar.bar]) =====
  * capsule fill = surface_variant @ 0.79 / border = outline / foreground = secondary
  * bar background = fully transparent, each module becomes a capsule
  */
-$capsule_bg: rgba(234, 223, 237, 0.79);
-$capsule_border: #7c7480;
-$capsule_fg: #685876;
+$capsule_bg: rgba(238, 224, 214, 0.79);
+$capsule_border: #80756d;
+$capsule_fg: #675d55;
 
 /* ===== workspace selection (A: primary tint pill + primary text) ===== */
-$ws_sel_bg:       rgba(50, 11, 84, 0.22);
-$ws_sel_bg_hover: rgba(50, 11, 84, 0.32);
-$ws_hover_bg:     rgba(50, 11, 84, 0.10);
-$ws_flash_bg:     rgba(50, 11, 84, 0.55);
-$ws_sel_fg:       #320b54;
+$ws_sel_bg:       rgba(110, 91, 74, 0.22);
+$ws_sel_bg_hover: rgba(110, 91, 74, 0.32);
+$ws_hover_bg:     rgba(110, 91, 74, 0.10);
+$ws_flash_bg:     rgba(110, 91, 74, 0.55);
+$ws_sel_fg:       #6e5b4a;
 
 /* ===== module colors (mirror waybar style.css) ===== */
-$mode-color: #46052d;
-$playerctl-color: #685876;
-$clock-color: #320b54;
-$cpu-color: #320b54;
-$memory-color: #685876;
-$temperature-color: #46052d;
+$mode-color: #5f604b;
+$playerctl-color: #675d55;
+$clock-color: #6e5b4a;
+$cpu-color: #6e5b4a;
+$memory-color: #675d55;
+$temperature-color: #5f604b;
 $temperature-critical-color: #ba1a1a;
-$battery-color: #320b54;
-$battery-charging-color: #320b54;
+$battery-color: #6e5b4a;
+$battery-charging-color: #6e5b4a;
 $battery-warning-color: #ba1a1a;
 $battery-critical-color: #ba1a1a;
-$network-color: #320b54;
+$network-color: #6e5b4a;
 $network-disconnected-color: #ba1a1a;
-$pulseaudio-color: #46052d;
+$pulseaudio-color: #5f604b;
 $pulseaudio-muted-color: #ba1a1a;
-$backlight-color: #46052d;
-$power-color: #320b54;
-$workspaces-color: #1e1a1f;
+$backlight-color: #5f604b;
+$power-color: #6e5b4a;
+$workspaces-color: #1d1b1a;
