@@ -41,8 +41,7 @@ binds {
     // 启动文件管理器 (nautilus) / Launch file manager
     Mod+E { spawn "nautilus"; }
 
-    // 应用启动器 (fuzzel) / Application launcher
-    // Mod+R hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    // 应用启动器（rofi drun）在 __custom__.kdl：Mod+R
 
     // 电源 / 会话菜单 / Power & session menu
     Mod+X { spawn "~/.config/niri/scripts/powermenu"; }

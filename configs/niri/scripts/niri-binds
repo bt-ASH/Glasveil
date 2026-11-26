@@ -51,8 +51,7 @@ elif [[ -n "$TERMINAL" ]]; then
 
 else
     echo "Error: 未检测到支持的终端模拟器。"
-    if command -v fuzzel >/dev/null 2>&1; then
-         # Fuzzel 降级方案也会自动读取顶层变量
-         echo "$MENU_ITEMS" | fuzzel --dmenu -i -p "󰌌 快捷键: " -w ${MENU_WIDTH} > /dev/null
+    if command -v rofi >/dev/null 2>&1; then
+         echo "$MENU_ITEMS" | rofi -dmenu -i -p "󰌌 快捷键: " > /dev/null
     fi
 fi

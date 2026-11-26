@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
+# ── 电源菜单 / power menu ────────────────────────────────────────────────────
+# niri 键位：Mod+X（configs/niri/binds.kdl）
+# 主题：~/.config/rofi/powermenu.rasi（配色来自 matugen 渲染的 colors.rasi）
+set -uo pipefail
 
-# 检测系统语言环境变量，如果包含 "zh_" 则使用中文，否则使用默认的英文
-if [[ "$LANG" == zh_* ]]; then
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+THEME="$CONF/rofi/powermenu.rasi"
+
+if [[ "${LANG:-}" == zh_* ]]; then
     OPT_LOCK="锁屏"
     OPT_SCREEN_OFF="关闭屏幕"
     OPT_QUIT="退出"
@@ -17,34 +23,61 @@ else
     OPT_POWEROFF="Shutdown"
 fi
 
-# 定义菜单项内容（使用换行符分隔）
-OPTIONS="${OPT_LOCK}\n${OPT_SCREEN_OFF}\n${OPT_QUIT}\n${OPT_SUSPEND}\n${OPT_REBOOT}\n${OPT_POWEROFF}"
+# 图标用 bash 的 \u 转义写，文件保持纯 ASCII（Nerd Font 私有区）
+ICON_LOCK=$'\uf023'
+ICON_SCREEN_OFF=$'\uf070'
+ICON_QUIT=$'\uf08b'
+ICON_SUSPEND=$'\uf186'
+ICON_REBOOT=$'\uf01e'
+ICON_POWEROFF=$'\uf011'
 
-# 使用 fuzzel 以 dmenu 模式显示，宽度为 12 足够容纳英文如 "Screen Off" 等
-CHOICE=$(echo -e "$OPTIONS" | fuzzel --dmenu --width 12 --lines 6)
+# 两行四列（6 个条目占前 4 + 后 2 格），顺序与 powermenu.rasi 的 grid 一致
+OPTIONS=(
+    "$ICON_LOCK  $OPT_LOCK"
+    "$ICON_SCREEN_OFF  $OPT_SCREEN_OFF"
+    "$ICON_QUIT  $OPT_QUIT"
+    "$ICON_SUSPEND  $OPT_SUSPEND"
+    "$ICON_REBOOT  $OPT_REBOOT"
+    "$ICON_POWEROFF  $OPT_POWEROFF"
+)
 
-# 根据用户的选择执行相应的命令
-case "$CHOICE" in
-    "$OPT_LOCK")
-        hyprlock -c ~/.config/niri/hyprlock.conf || swaylock
-    ;;
-    "$OPT_SCREEN_OFF")
+if ! command -v rofi >/dev/null 2>&1; then
+    notify-send "电源菜单" "缺少 rofi" 2>/dev/null || echo "powermenu: rofi not found" >&2
+    exit 1
+fi
+
+# -format i 只回行号，界面里看不到内部索引
+idx="$(printf '%s\n' "${OPTIONS[@]}" |
+    rofi -dmenu -i -no-custom -p "" -format i -theme "$THEME" 2>/dev/null)"
+
+[ -n "${idx:-}" ] || exit 0
+
+lock() { hyprlock -c "$CONF/niri/hyprlock.conf" 2>/dev/null || swaylock; }
+
+# 索引顺序：0 锁屏 / 1 关屏 / 2 退出 / 3 挂起 / 4 重启 / 5 关机
+case "$idx" in
+    0)
+        lock
+        ;;
+    1)
         niri msg action power-off-monitors
-    ;;
-    "$OPT_QUIT")
+        ;;
+    2)
         niri msg action quit
-    ;;
-    "$OPT_SUSPEND")
-        niri msg action power-off-monitors && hyprlock -c ~/.config/niri/hyprlock.conf & systemctl suspend
-    ;;
-    "$OPT_REBOOT")
+        ;;
+    3)
+        lock &
+        sleep 0.4
+        niri msg action power-off-monitors
+        systemctl suspend
+        ;;
+    4)
         systemctl reboot
-    ;;
-    "$OPT_POWEROFF")
+        ;;
+    5)
         systemctl poweroff
-    ;;
+        ;;
     *)
-        # 如果用户按 Esc 或关闭窗口，则无事发生直接退出
         exit 0
-    ;;
+        ;;
 esac

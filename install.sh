@@ -16,7 +16,17 @@ CDIM='\033[2m'
 CDEF='\033[0m'
 
 # ── Paths ───────────────────────────────────────────────
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 跟随软链解析脚本真实位置：本脚本会软链到 ~/.local/bin/glasveil，
+# 从那里调用时 dirname 会变成 ~/.local/bin，不能直接拿来当 REPO。
+SELF="${BASH_SOURCE[0]}"
+while [ -L "$SELF" ]; do
+    _link="$(readlink "$SELF")"
+    case "$_link" in
+        /*) SELF="$_link" ;;
+        *)  SELF="$(dirname "$SELF")/$_link" ;;
+    esac
+done
+REPO="$(cd "$(dirname "$SELF")" && pwd)"
 DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
 BIN_DEST="${XDG_BIN_HOME:-$HOME/.local/bin}"
 BACKUP_ROOT="$DEST/.glasveil-backups"
@@ -65,7 +75,7 @@ REPO_PKGS=(
     matugen starship yazi
     eww wifitui
     fcitx5 fcitx5-gtk fcitx5-configtool
-    fuzzel rofi mako
+    rofi mako
     hyprlock swayidle swaylock
     wl-clipboard grim slurp satty
     brightnessctl playerctl
@@ -105,6 +115,27 @@ confirm() {
     printf "%s " "$1 [y/N]"
     read -r reply
     case "$reply" in [yY]|[yY][eE][sS]) return 0 ;; *) return 1 ;; esac
+}
+
+# ── Self Link ───────────────────────────────────────────
+# 把本脚本软链为 ~/.local/bin/glasveil，之后可直接 `glasveil deploy`。
+# 必须用软链：复制到 bin 后 dirname 变了，脚本会找不到 configs/。
+ensure_self_link() {
+    [ "$DRY" = 1 ] && return 0
+    local src="$REPO/install.sh" dst="$BIN_DEST/glasveil" bak
+    [ -f "$src" ] || return 0
+    if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
+        return 0
+    fi
+    # 同名实体文件不静默覆盖，先备份
+    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+        bak="$BACKUP_ROOT/selflink-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$bak" && cp -a "$dst" "$bak/glasveil" || true
+        skip "已备份同名文件 $dst -> $bak/glasveil"
+    fi
+    mkdir -p "$BIN_DEST" 2>/dev/null || return 0
+    ln -sfn "$src" "$dst" 2>/dev/null || { warn "无法创建软链 $dst"; return 0; }
+    ok "已链接命令: $dst -> $src"
 }
 
 # ── Managed Files ───────────────────────────────────────
@@ -171,6 +202,9 @@ usage() {
   --yes, -y                     跳过所有确认
   --repo-only                   只装仓库包，跳过 AUR
   -h, --help                    显示本帮助
+
+  首次运行会把本脚本软链到 ${XDG_BIN_HOME:-~/.local/bin}/glasveil，
+  之后可直接用 `glasveil deploy` / `glasveil backup`，不必写仓库路径。
 
   示例
   ./install.sh                  交互菜单
@@ -491,6 +525,9 @@ done
 if [ -z "$COMMAND" ] && [ "$SAW_FLAG" = 1 ]; then
     COMMAND="deploy"
 fi
+
+# 任意子命令（--dry-run 除外）都顺手保证 glasveil 命令存在
+ensure_self_link
 
 if [ -z "$COMMAND" ]; then
     if [ ! -t 0 ]; then

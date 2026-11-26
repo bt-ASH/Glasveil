@@ -91,8 +91,8 @@ ${REGEN_OPTION}
 --------------------
 ${SCHEMES}"
 
-# --- 4. Fuzzel 菜单 ---
-SELECTED_LINE=$(echo "$OPTIONS" | fuzzel -d --prompt="$PROMPT_TEXT" --lines=14)
+# --- 4. rofi 菜单 ---
+SELECTED_LINE=$(printf '%s\n' "$OPTIONS" | rofi -dmenu -i -no-custom -p "$PROMPT_TEXT" -lines 14)
 
 if [ -z "$SELECTED_LINE" ]; then
     exit 0

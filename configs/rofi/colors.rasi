@@ -9,22 +9,22 @@
  */
 
 * {
-    bg:                     #f3ecf3e6;   /* surface_container + 90% */
-    bg-alt:                 #eee6edf2;   /* surface_container_high */
-    surface:                #e8e0e7ff;   /* surface_container_highest */
-    primary:                #320b54ff;
-    primary-soft:           #320b541f;
+    bg:                     #edefe3e6;   /* surface_container + 90% */
+    bg-alt:                 #e7e9ddf2;   /* surface_container_high */
+    surface:                #e2e4d8ff;   /* surface_container_highest */
+    primary:                #406909ff;
+    primary-soft:           #4069091f;
     on-primary:             #ffffffff;
     on-primary-muted:       #ffffffa6;
-    primary-container:      #49256bff;
-    on-primary-container:   #deb9ffff;
-    secondary:              #685876ff;
-    secondary-container:    #edd8fcff;
-    on-secondary-container: #4f405dff;
-    tertiary:               #46052dff;
-    text:                   #1e1a1fff;
-    muted:                  #4b444fff;
-    outline:                #cdc3d0ff;
+    primary-container:      #a8d970ff;
+    on-primary-container:   #244000ff;
+    secondary:              #52643bff;
+    secondary-container:    #d4eab6ff;
+    on-secondary-container: #3c4d27ff;
+    tertiary:               #006c4dff;
+    text:                   #1a1d15ff;
+    muted:                  #43493aff;
+    outline:                #c3c9b6ff;
     error:                  #ba1a1aff;
     on-error:               #ffffffff;
 }

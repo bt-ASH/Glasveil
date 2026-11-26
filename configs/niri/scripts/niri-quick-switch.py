@@ -7,15 +7,14 @@ import shutil
 import time  # <--- 新增：用于等待窗口关闭生效
 
 # ================= Configuration =================
-EXCLUDE_APPS = ["fuzzel", "quick-switch", "niri-quick-switch"]
-FUZZEL_ARGS = [
-    "--dmenu",
-    "--index",              
-    "--width", "60",        
-    "--lines", "15",        
-    "--prompt", "Switch: ", 
-    # 修改了这里：提示 Ctrl+L 跳转，Ctrl+H 关闭
-    "--placeholder", "Search... [Ctrl+J/K: Select | Ctrl+L: Switch | Ctrl+H: Close]"
+EXCLUDE_APPS = ["rofi", "quick-switch", "niri-quick-switch"]
+ROFI_ARGS = [
+    "-dmenu",
+    "-i",
+    "-show-icons",
+    "-p", "Switch: ",
+    "-mesg", "Enter: 切换 / Ctrl+H: 关闭",
+    "-kb-custom-1", "Ctrl+h",
 ]
 # =================================================
 
@@ -68,9 +67,16 @@ def get_window_sort_key(w):
         pass
     return (ws_id, 9999, 0, w.get("id"))
 
+def rofi_line(w):
+    """与输入列表完全一致的显示文本，用于把 rofi 的输出映射回窗口。"""
+    app_id = w.get("app_id") or "Wayland"
+    title = (w.get("title") or "No Title").replace("\n", " ")
+    return f"[{app_id}] {title}"
+
+
 def main():
-    if not shutil.which("fuzzel"):
-        print("Error: Fuzzel not found")
+    if not shutil.which("rofi"):
+        print("Error: rofi not found")
         sys.exit(1)
 
     # === 核心改动：开启死循环 ===
@@ -99,15 +105,13 @@ def main():
         input_str = ""
         for w in current_windows:
             app_id = w.get("app_id") or "Wayland"
-            title = w.get("title", "No Title").replace("\n", " ")
-            display_str = f"[{app_id}] {title}"
-            line = f"{display_str}\0icon\x1f{app_id}"
+            line = f"{rofi_line(w)}\0icon\x1f{app_id}"
             input_str += f"{line}\n"
 
         try:
-            # 3. 启动 Fuzzel
+            # 3. 启动 rofi
             proc = subprocess.Popen(
-                ["fuzzel"] + FUZZEL_ARGS,
+                ["rofi"] + ROFI_ARGS,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 text=True
@@ -117,32 +121,29 @@ def main():
             return_code = proc.returncode
             raw_output = stdout.strip()
 
-            # 情况 A: 用户按 ESC 取消 -> 退出循环
-            if return_code not in [0, 10] or not raw_output:
+            # 情况 A: 用户按 ESC / 取消 -> 退出循环
+            if return_code not in (0, 10) or not raw_output:
                 break
 
-            try:
-                selected_idx = int(raw_output)
-            except ValueError:
+            # rofi 返回选中行的文本（过滤后行号不可靠），按文本找回窗口
+            target_window = next(
+                (w for w in current_windows if rofi_line(w) == raw_output), None
+            )
+            if target_window is None:
                 break
 
-            if 0 <= selected_idx < len(current_windows):
-                target_window = current_windows[selected_idx]
-                target_id = target_window.get("id")
-                
-                if return_code == 0:
-                    # 动作: 切换窗口 -> 任务完成，退出循环
-                    subprocess.run(["niri", "msg", "action", "focus-window", "--id", str(target_id)])
-                    break 
-                
-                elif return_code == 10:
-                    # 动作: 关闭窗口 -> 执行关闭，然后 CONTINUE (继续循环)
-                    subprocess.run(["niri", "msg", "action", "close-window", "--id", str(target_id)])
-                    
-                    # 关键：稍微等一下，让 niri 有时间处理关闭动作，
-                    # 否则立刻刷新列表可能还会看到那个已经被杀死的窗口
-                    time.sleep(0.1)
-                    continue 
+            target_id = target_window.get("id")
+
+            if return_code == 0:
+                # 动作: 切换窗口 -> 任务完成，退出循环
+                subprocess.run(["niri", "msg", "action", "focus-window", "--id", str(target_id)])
+                break
+            else:
+                # 动作: 关闭窗口（Ctrl+H 自定义键）-> 执行关闭，然后继续循环
+                subprocess.run(["niri", "msg", "action", "close-window", "--id", str(target_id)])
+                # 稍等，让 niri 处理关闭，避免刷新列表时又看到该窗口
+                time.sleep(0.1)
+                continue
 
         except Exception as e:
             print(f"Error: {e}")

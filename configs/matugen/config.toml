@@ -15,10 +15,6 @@ input_path = '~/.config/matugen/templates/pywalfox-colors.json'
 output_path = '~/.cache/wal/colors.json'
 post_hook = 'bash -c "command -v pywalfox >/dev/null 2>&1 && pywalfox update >/dev/null 2>&1; exit 0"'
 
-[templates.fuzzel]
-input_path = '~/.config/matugen/templates/fuzzel.ini'
-output_path = '~/.config/fuzzel/colors.ini'
-
 # rofi 启动器 / 剪贴板菜单配色（config.rasi 与 clipboard.rasi 共用）
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'

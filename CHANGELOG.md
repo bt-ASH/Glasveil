@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Changed
+- **niri 渲染节点切到独显**：`configs/niri/config.kdl` 的 `debug.render-drm-device` 指向
+  `/dev/dri/renderD129`（940MX）；显示器仍由 Intel 扫描输出。重新登录 niri 后生效。
+  `wallpaper-apply.sh` 增加 `WALLPAPER_GPU=auto`：从 niri 启动日志判断渲染节点，
+  niri 在 N 卡时自动用 `prime-run mpvpaper`，在核显时自动核显 + VAAPI，
+  避免跨卡 dmabuf 造成花屏；也可用 `WALLPAPER_GPU=nvidia|intel` 强制。
+- **新增 `glasveil` 命令**：`install.sh` 每次运行（`--dry-run` 除外）都会把自身软链到
+  `${XDG_BIN_HOME:-~/.local/bin}/glasveil`，之后可直接 `glasveil deploy` / `glasveil backup`；
+  脚本开头改为跟随软链解析真实路径，从 `~/.local/bin` 调用时不会把仓库目录认成 bin 目录。
+  目标位置若已有同名实体文件，先备份到 `.glasveil-backups/selflink-<时间戳>/` 再替换。
+- **彻底移除 fuzzel，菜单统一走 rofi**：`matugen` 不再渲染 fuzzel 配色
+  （删除 `[templates.fuzzel]` 与 `templates/fuzzel.ini`），`matugen-select-type.sh`
+  改用 `rofi -dmenu`；`powermenu`、`niri-pick`、`niri-binds` 的 fuzzel 兜底删除，
+  统一要求 rofi；窗口速切脚本更名为 `niri-quick-switch.py`（rofi + `Ctrl+H` 关窗）。
+  `install.sh` 仓库依赖去掉 `fuzzel`。
+
 ### Fixed
 - **壁纸检测取错显示器名**：`niri msg focused-output` 的型号里也带括号
   （`Output "PNP(RZD) TYPE-C Unknown" (DP-1)`），原 `awk -F '[()]' '{print $2}'`

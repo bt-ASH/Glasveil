@@ -90,10 +90,10 @@ check_dependencies() {
         missing+=("wl-clipboard")
     fi
     
-    # 唤起菜单操作时，强制要求 rofi / fuzzel
+    # 唤起菜单操作时，强制要求 rofi
     if [[ "$action" == "menu" || "$action" == "focus" ]]; then
-        if ! command -v fuzzel &> /dev/null && ! command -v rofi &> /dev/null; then
-            missing+=("fuzzel/rofi")
+        if ! command -v rofi &> /dev/null; then
+            missing+=("rofi")
         fi
     fi
     
@@ -112,11 +112,7 @@ run_menu() {
     local items=("$@")
     local input_str=$(printf "%s\n" "${items[@]}")
     
-    if command -v fuzzel &> /dev/null; then
-        echo "$input_str" | fuzzel --dmenu --prompt "$prompt " --index
-    elif command -v rofi &> /dev/null; then
-        echo "$input_str" | rofi -dmenu -p "$prompt" -format i
-    fi
+    echo "$input_str" | rofi -dmenu -p "$prompt" -format i
 }
 
 # ==========================================
