@@ -17,7 +17,7 @@ output "eDP-1" {
 
 // 示例 2: 外接高刷主显示器 (2K 165Hz 开启按需 VRR)
  output "DP-1" {
-     mode "2240x1400@60.000"
+     mode "2240x1400@30.000"
      scale 1.2
      transform "normal" // normal/°
      position x=0 y=0

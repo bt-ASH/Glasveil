@@ -180,18 +180,15 @@ window-rule {
     match title=r#"^Wuthering|^鸣潮|^ww"#
     // 游戏全屏，隐藏所有特效
     open-fullscreen true
-    // 禁用背景模糊（通过 background-effect 节点控制）
-    background-effect {
-        blur false
-    }
+    // 背景模糊／透明度交给全局 effects（effects_normal.kdl ↔ effects_eyecare.kdl）：
+    // 非护眼模式 = 窗口毛玻璃，Mod+N 切护眼模式 = 模糊全关。
+    // 这里不再写 blur false / opacity 1.0，否则游戏窗口会永远糊不上。
     // 禁用装饰：窗口四角、圆角裁剪、边框
     geometry-corner-radius 0
     clip-to-geometry false
     focus-ring {
         off
     }
-    // 优化透明度，减少合成开销
-    opacity 1.0
     // 无阴影
     shadow {
         off
@@ -348,4 +345,98 @@ window-rule {
     // ── 尺寸配置 ──
     default-column-width { proportion 0.5; }
     default-window-height { proportion 0.45; }
+}
+
+// =============================================================================
+// 渲染开销削减（移植自 Nyxuri configs/niri/rules.kdl 的 129 / 211-228 段）
+// -----------------------------------------------------------------------------
+// ❗ 顺序要求：本段必须留在文件最末尾，也就是「全窗口圆角」那条规则之后。
+//    niri 的窗口规则按书写顺序叠加，后匹配的属性覆盖先前的；放在前面会被
+//    geometry-corner-radius 12 + clip-to-geometry true 重新盖掉，直通扫描白开。
+//
+// variable-refresh-rate 依赖显示器侧开启按需 VRR
+// （monitor__custom__.kdl 里的 `variable-refresh-rate on-demand=true`）；
+// 没开也不会报错，只是这两条变成空开关。
+// =============================================================================
+
+// ── 1) 浏览器：按需 VRR，减轻滚动与视频播放时的撕裂 ──
+window-rule {
+    match app-id=r#"^(firefox.*|org\.mozilla\.firefox)$"#
+    match app-id=r#"^(google-chrome.*|chrome|chromium.*|com\.google\.Chrome|org\.chromium\.Chromium)$"#
+    match app-id=r#"^(brave.*|com\.brave\.Browser|microsoft-edge.*|edge|com\.microsoft\.Edge)$"#
+    match app-id=r#"^(zen.*|app\.zen_browser\.zen)$"#
+    match app-id=r#"^(vivaldi.*|opera.*|thorium.*|floorp.*|waterfox.*|librewolf.*)$"#
+    match app-id=r#"^(org\.gnome\.Epiphany.*|epiphany|falkon.*|nyxt.*|qutebrowser.*|ladybird.*|midori.*|tor-browser.*)$"#
+
+    variable-refresh-rate true
+}
+
+// ── 2) 游戏 / 模拟器 / 云游戏超级规则 ──
+// 不透明 + 无模糊 + 圆角 0 + 不裁剪 + 无阴影 + 无边框，niri 才能把原生矩形
+// 缓冲区直接送去扫描输出（direct scanout），整条合成链路和显存带宽一起省掉。
+// 分支 A~F 负责覆盖面，末尾的 exclude 负责别误伤浏览器 / Wine 办公软件 / 启动器。
+window-rule {
+    // A. Valve 体系：Steam 原生与 Proton 容器、Gamescope 嵌套微合成器
+    match app-id=r"^steam_app_.*"
+    match app-id=r#"^(gamescope|com\.valvesoftware\.Steam\.Utility\.gamescope)$"#
+
+    // B. 模拟器全系（原生与 Flatpak）
+    match app-id=r#"^org\.(duckstation\.DuckStation|ppsspp\.PPSSPP|libretro\.RetroArch|DolphinEmu\.dolphin-emu|citra_emu\.citra|azahar_emu\.Azahar|desmume\.DeSmuME|wesnoth\.Wesnoth)$"#
+    match app-id=r#"^net\.(pcsx2\.PCSX2|rpcs3\.RPCS3|shadps4\.shadPS4|kuribo64\.melonDS|veloren\.veloren)$"#
+    match app-id=r#"^io\.(mgba\.mGBA|openrct2\.OpenRCT2|anuke\.Mindustry)$"#
+    match app-id=r#"^io\.github\.(simple64\.simple64|lime3ds\.Lime3DS|ryubing\.Ryujinx|streetpea\.Chiaki4deck)$"#
+    match app-id=r#"^(info\.cemu\.Cemu|app\.xemu\.xemu|com\.fightcade\.Fightcade2|com\.mamedev\.MAME|com\.wildfiregames\.0ad|dev\.goats\.xivlauncher|com\.github\.Anuken\.Mindustry|org\.openmw\.OpenMW|org\.openttd\.OpenTTD|org\.cataclysmdda\.CataclysmDDA)$"#
+    match app-id=r#"^(duckstation-(qt|nogui)|pcsx2(-qt)?|rpcs3|shadps4|PPSSPP(Qt|SDL)|Vita3K|Ryujinx|suyu|sudachi|torzu|yuzu|cemu|dolphin-emu|lime3ds|citra(-qt)?|melonDS|mgba(-qt)?|simple64-gui|RMG|xemu|retroarch|mame|ggpofba|fbneo|snes9x)$"#
+
+    // C. 大型在线 / 竞技 / 单机 3D 客户端（含 Proton 下的 .exe）
+    match app-id=r#"^((genshinimpact|yuanshen|starrail|zenlesszonezero|client-win64-shipping|wuthering waves|endfield|ffxiv_dx11|ffxiv|wow|wowclassic|league of legends|pathofexile|pathofexile_x64|pathofexile2|warframe\.x64|r5apex|overwatch|marvelrivals|deadlock|project8)\.exe)$"#
+    match app-id=r#"^(cs2|dota2)$"#
+    match app-id=r"^wine$"
+
+    // D. 独立游戏 / P 社策略 / 开源重制引擎
+    match app-id=r#"^(net-minecraft-client-main-Main|Minecraft.*|factorio|RimWorldLinux|Terraria\.bin\.x86_64|StardewValley\.bin\.x86_64|Hollow_Knight\.x86_64|deadcells|Celeste|victoria3|hoi4|ck3|stellaris|eu4|openmw|openra-(ra|cnc|d2k)|openrct2|openttd|spring|Beyond-All-Reason|mindustry|pyrogenesis|veloren-voxygen|cataclysm-tiles|wesnoth)$"#
+    match app-id=r#"^((RimWorldWin64|Balatro|noita|noita_dev|Hades|Hades2|xenia|xenia_canary|Cemu)\.exe)$"#
+
+    // E. 云游戏 / 局域网串流
+    match app-id=r#"^(com\.moonlight_stream\.Moonlight|moonlight|chiaki|chiaki-ng|com\.parsecgaming\.parsec|parsecd)$"#
+
+    // F. 动态标题补充（异步改名的窗口、Minecraft Java、Big Picture）
+    match title=r#"^Minecraft [0-9]+\.[0-9]+(\.[0-9]+)?.*$"#
+    match title=r#"^Steam Big Picture Mode$"#
+    match title=r#"(?i)genshin impact|zenless zone zero|honkai: star rail|wuthering waves|minecraft|victoria 3|endfield"#
+
+    // ── 排除项：浏览器（1~2Hz 光标刷新率震荡 / 视频失去半透明）──
+    exclude app-id=r#"^(firefox.*|org\.mozilla\.firefox)$"#
+    exclude app-id=r#"^(google-chrome.*|chrome|chromium.*|com\.google\.Chrome|org\.chromium\.Chromium)$"#
+    exclude app-id=r#"^(brave.*|com\.brave\.Browser|microsoft-edge.*|edge|com\.microsoft\.Edge)$"#
+    exclude app-id=r#"^(zen.*|app\.zen_browser\.zen)$"#
+    exclude app-id=r#"^(vivaldi.*|opera.*|thorium.*|floorp.*|waterfox.*|librewolf.*)$"#
+    exclude app-id=r#"^(org\.gnome\.Epiphany.*|epiphany|falkon.*|nyxt.*|qutebrowser.*|ladybird.*|midori.*|tor-browser.*)$"#
+
+    // ── 排除项：Wine/Proton 下的日常办公工具，别被 ^wine$ 泛匹配误伤 ──
+    exclude app-id=r#"^(WeChat|QQ|wps|wpscloudsvr|notepad|winword|excel|powerpnt|dingtalk|AliWangWang|Foxmail|Feishu)\.exe$"#
+
+    // ── 排除项：游戏启动器 / 管理壳（Electron / CEF 界面不该触发）──
+    exclude app-id=r#"^(heroic|lutris|com\.usebottles\.bottles|org\.prismlauncher\.PrismLauncher|com\.lunarclient\.LunarClient)$"#
+    exclude app-id=r#"^(openmw-launcher|dowser\.exe|Battle\.net\.exe|LeagueClientUx\.exe)$"#
+
+    // ── 执行属性 ──
+    variable-refresh-rate true
+
+    // 游戏规则优先：不透明 + 关模糊，才能让原生矩形缓冲区直通扫描（direct scanout），
+    // 省掉整条合成链路与显存带宽。想让游戏跟随全局玻璃效果，删掉下面两段即可。
+    opacity 1.0
+    background-effect {
+        blur false
+    }
+
+    // 圆角 0 + 不裁剪：只有原生矩形缓冲区才能直通扫描
+    geometry-corner-radius 0
+    clip-to-geometry false
+
+    // 无边框绘制、无阴影
+    draw-border-with-background false
+    shadow {
+        off
+    }
 }

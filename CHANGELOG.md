@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Changed
+- **niri 性能优化（移植自 Nyxuri）**：`rules.kdl` 增加浏览器按需 VRR 规则，以及游戏/模拟器
+  超级规则（VRR、`opacity 1.0`、`blur false`、圆角 0、不裁剪、无阴影/边框 → direct scanout）；
+  配合 `monitor__custom__.kdl` 的 `variable-refresh-rate on-demand=true` 生效。
+  `effects_normal.kdl` 保持现状（用户已自行把 `xray` 改为 `true`），本次未改动。
 - **niri 渲染节点切到独显**：`configs/niri/config.kdl` 的 `debug.render-drm-device` 指向
   `/dev/dri/renderD129`（940MX）；显示器仍由 Intel 扫描输出。重新登录 niri 后生效。
   `wallpaper-apply.sh` 增加 `WALLPAPER_GPU=auto`：从 niri 启动日志判断渲染节点，

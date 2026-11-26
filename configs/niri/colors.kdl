@@ -1,7 +1,7 @@
 layout {
     focus-ring {
         width 2
-        active-color "#406909"
+        active-color "#320b54"
         inactive-color "transparent"
         urgent-color "#ba1a1a"
     }
@@ -11,22 +11,22 @@ layout {
         spread 6
         offset x=0 y=0
         draw-behind-window false
-        color "#40690995"
+        color "#320b5495"
         inactive-color "#00000045"
     }
     tab-indicator {
-        active-color "#406909"
-        inactive-color "#a8d970"
+        active-color "#320b54"
+        inactive-color "#49256b"
         urgent-color "#ba1a1a"
     }
     insert-hint {
-        color "#40690980"
+        color "#320b5480"
     }
 }
 
 recent-windows {
     highlight {
-        active-color "#f9faee"
+        active-color "#fff7fe"
         urgent-color "#ba1a1a"
     }
 }

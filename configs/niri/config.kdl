@@ -77,9 +77,9 @@ prefer-no-csd
 //}
 // 下面是 GPU 1: NVIDIA GeForce 940MX [Discrete]
 // 渲染走独显（renderD129 -> nvidia）；显示器仍由 Intel（renderD128）扫描输出。
-debug {
-    render-drm-device "/dev/dri/renderD129"
-}
+// debug {
+//  render-drm-device "/dev/dri/renderD129"
+// }
 
 cursor {
     xcursor-theme "mornye-wuwa-cursors"
